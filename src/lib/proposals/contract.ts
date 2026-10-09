@@ -80,6 +80,7 @@ export interface AdminProposal extends PublicProposal {
   updatedAt: string;
   internalNotes: string;
   clientUrl: string | null;
+  publicUrl?: string | null;
 }
 /** Integer cents with exact half-up tax on the discounted subtotal. */
 export function calculateTotals(

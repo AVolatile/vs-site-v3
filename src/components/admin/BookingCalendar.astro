@@ -1,0 +1,236 @@
+---
+import Section from '@components/ui/layout/Section.astro';
+import Container from '@components/ui/layout/Container.astro';
+import Heading from '@components/ui/atoms/Heading.astro';
+import Text from '@components/ui/atoms/Text.astro';
+import Button from '@components/ui/atoms/Button.astro';
+import InquiryField from '@components/inquiry/InquiryField.astro';
+---
+<Section tone="page" class="py-10">
+<Container class="max-w-7xl">
+<div class="calendar-page" data-booking-calendar>
+ <div class="calendar-heading">
+<div>
+<Text variant="accent-label">Volatile Solutions / Admin</Text>
+<Heading tag="h1" variant="section-title">Calendar</Heading>
+</div>
+<div class="calendar-actions">
+<Button href="/admin/" variant="outline" size="sm">Inquiries</Button>
+<Button href="/admin/calendar/settings/" variant="outline" size="sm">Availability</Button>
+<Button type="button" variant="outline" size="sm" data-calendar-logout>Sign out</Button>
+</div>
+</div>
+ <Text variant="body" role="status" aria-live="polite" data-calendar-feedback>Checking access…</Text>
+ <div data-calendar-private hidden class="calendar-private">
+  <div class="calendar-toolbar">
+<div class="calendar-actions">
+<Button type="button" variant="outline" size="sm" data-calendar-previous>Previous</Button>
+<Button type="button" variant="outline" size="sm" data-calendar-today>Today</Button>
+<Button type="button" variant="outline" size="sm" data-calendar-next>Next</Button>
+</div>
+<Heading tag="h2" variant="feature-title" data-calendar-month>
+</Heading>
+<div class="calendar-actions" role="group" aria-label="Calendar view">
+<Button type="button" variant="outline" size="sm" data-calendar-view="month" aria-pressed="true">Month</Button>
+<Button type="button" variant="outline" size="sm" data-calendar-view="agenda" aria-pressed="false">Agenda</Button>
+</div>
+</div>
+  <Text variant="feature-body-sm" class="text-on-surface-variant" data-calendar-timezone>
+</Text>
+  <Text variant="feature-body-sm" class="calendar-mobile-note">Month appointments are shown as an agenda on smaller screens.</Text>
+  <div data-calendar-grid class="calendar-grid" role="group" aria-label="Monthly bookings">
+</div>
+  <div data-calendar-agenda class="calendar-agenda">
+</div>
+  <Text variant="body" data-calendar-empty hidden>No bookings scheduled in this month.</Text>
+  <section data-calendar-detail hidden class="calendar-detail" aria-labelledby="calendar-detail-heading">
+<Heading id="calendar-detail-heading" tag="h2" variant="feature-title" tabindex="-1">Booking details</Heading>
+<Text variant="body" data-calendar-detail-copy>
+</Text>
+<Text variant="body" data-calendar-detail-notes>
+</Text>
+<div class="calendar-actions">
+<Button href="/admin/" variant="outline" size="sm" data-calendar-inquiry>Open inquiry</Button>
+<Button href="mailto:" variant="outline" size="sm" data-calendar-email>Email client</Button>
+<Button type="button" variant="outline" size="sm" data-calendar-cancel>Cancel booking</Button>
+<Button type="button" variant="primary" size="sm" data-calendar-complete>Mark completed</Button>
+<Button type="button" variant="outline" size="sm" data-calendar-close>Close details</Button>
+</div>
+<Text variant="feature-body-sm" data-calendar-complete-hint>Completion is available after the call ends.</Text>
+<form data-calendar-reschedule-form novalidate class="calendar-reschedule">
+<Heading tag="h3" variant="feature-title">Reschedule</Heading>
+<InquiryField compact name="rescheduleDate" label="New date" type="date" required/>
+<InquiryField compact name="rescheduleStart" label="Available time" type="select" required options={[]}/>
+<Button type="submit" variant="outline">Confirm new time</Button>
+</form>
+</section>
+ </div>
+ <template data-calendar-day-template>
+<div class="calendar-day">
+<Text tag="span" variant="feature-body-sm" data-calendar-day-label>
+</Text>
+<div data-calendar-day-bookings>
+</div>
+</div>
+</template>
+ <template data-calendar-event-template>
+<Button type="button" variant="outline" size="sm" data-calendar-event>
+<Text tag="span" variant="feature-body-sm" data-calendar-event-label>
+</Text>
+</Button>
+</template>
+</div>
+</Container>
+</Section>
+<script>
+import { setupCalendar } from '@/lib/bookings/calendar';
+void setupCalendar();
+</script>
+<style>
+[hidden] {
+  display: none !important;
+}
+.calendar-page,
+.calendar-private,
+.calendar-agenda,
+.calendar-detail,
+.calendar-reschedule {
+  display: grid;
+  gap: var(--spacing-md);
+  min-width: 0;
+}
+.calendar-heading,
+.calendar-toolbar,
+.calendar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+.calendar-heading > div:first-child {
+  display: grid;
+  gap: var(--spacing-sm);
+}
+.calendar-private {
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--ui-radius-lg);
+  background: var(--color-brand-cream);
+}
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--spacing-xs);
+  min-width: 0;
+}
+.calendar-grid :global(.calendar-day) {
+  padding: var(--spacing-sm);
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-brand-light);
+  min-height: 7rem;
+  min-width: 0;
+}
+.calendar-grid :global([data-calendar-event]) {
+  display: block;
+  width: 100%;
+  white-space: normal;
+  padding: var(--spacing-xs);
+  margin-block: var(--spacing-xs);
+  text-align: left;
+  border-radius: var(--ui-radius-sm);
+  min-height: 2.5rem;
+}
+.calendar-page :global([data-calendar-event-label]) {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.calendar-agenda :global(section) {
+  display: grid;
+  gap: var(--spacing-sm);
+  min-width: 0;
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+.calendar-agenda :global([data-calendar-event]) {
+  justify-content: flex-start;
+  text-align: left;
+  white-space: normal;
+}
+.calendar-detail {
+  padding: var(--spacing-lg);
+  border-top: 1px solid var(--color-outline-variant);
+  background: var(--color-brand-light);
+  border-radius: var(--ui-radius-md);
+}
+.calendar-page :global([data-calendar-detail-copy]),
+.calendar-page :global([data-calendar-detail-notes]) {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.calendar-page :global([data-calendar-feedback][role='alert']) {
+  color: var(--color-error);
+}
+.calendar-page :global([data-calendar-view][aria-pressed='true']) {
+  background: var(--color-brand-dark);
+  color: var(--color-on-primary);
+}
+.calendar-reschedule {
+  max-width: 32rem;
+}
+.calendar-mobile-note {
+  display: none;
+}
+@media (max-width: 63.999rem) {
+  .calendar-grid {
+    display: none;
+  }
+  .calendar-mobile-note {
+    display: block;
+  }
+  .calendar-detail {
+    padding: var(--spacing-md);
+  }
+  .calendar-actions > :global(button),
+  .calendar-actions > :global(a) {
+    flex: 1 1 9rem;
+  }
+}
+.calendar-page :global([data-calendar-event]:focus-visible) {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+.calendar-page :global([data-calendar-event]) {
+  height: auto;
+  min-height: 2.75rem;
+  padding: var(--spacing-sm);
+  border-radius: var(--ui-radius-sm);
+}
+.calendar-page :global([data-calendar-event] .ui-button-text-wrap) {
+  white-space: normal;
+  justify-items: start;
+  width: 100%;
+}
+.calendar-page :global([data-calendar-event-label]) {
+  font-size: 0.75rem;
+  letter-spacing: normal;
+}
+.calendar-agenda :global([data-calendar-event]) {
+  width: 100%;
+}
+.calendar-grid :global([data-calendar-event-label]) {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.calendar-page :global([data-calendar-event] .ui-button-text-hover) {
+  display: none;
+}
+.calendar-page :global([data-calendar-event]:hover .ui-button-text-default) {
+  transform: none;
+  opacity: 1;
+}
+</style>

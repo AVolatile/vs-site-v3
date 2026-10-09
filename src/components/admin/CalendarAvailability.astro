@@ -1,0 +1,187 @@
+---
+import Section from '@components/ui/layout/Section.astro';
+import Container from '@components/ui/layout/Container.astro';
+import Heading from '@components/ui/atoms/Heading.astro';
+import Text from '@components/ui/atoms/Text.astro';
+import Button from '@components/ui/atoms/Button.astro';
+import InquiryField from '@components/inquiry/InquiryField.astro';
+const weekdays = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+];
+---
+<Section tone="page" class="py-10">
+<Container class="max-w-5xl">
+<div class="availability-page" data-availability-admin>
+ <div class="availability-header">
+<div>
+<Text variant="accent-label">Volatile Solutions / Admin</Text>
+<Heading tag="h1" variant="section-title">Availability</Heading>
+</div>
+<div class="availability-actions">
+<Button href="/admin/calendar/" variant="outline" size="sm">Calendar</Button>
+<Button href="/admin/" variant="outline" size="sm">Inquiries</Button>
+<Button type="button" variant="outline" size="sm" data-calendar-logout>Sign out</Button>
+</div>
+</div>
+ <Text variant="body" role="status" aria-live="polite" data-calendar-feedback>Checking access…</Text>
+ <form data-availability-form novalidate class="availability-form" hidden>
+  <section class="availability-card">
+<Heading tag="h2" variant="feature-title">Scheduling rules</Heading>
+<Text variant="body">These rules apply to new and rescheduled calls. Existing bookings keep their confirmed times.</Text>
+<div class="availability-rules">
+   <InquiryField compact name="businessTimezone" label="Business timezone" required hint="IANA timezone, for example America/New_York."/>
+   <InquiryField compact name="slotDurationMinutes" label="Call duration" type="select" required options={[{value:'15',label:'15 minutes'},{value:'30',label:'30 minutes'},{value:'45',label:'45 minutes'},{value:'60',label:'60 minutes'}]}/>
+   <InquiryField compact name="bufferMinutes" label="Buffer between calls (minutes)" required inputMode="numeric"/>
+   <InquiryField compact name="minimumNoticeHours" label="Minimum notice (hours)" required inputMode="numeric"/>
+   <InquiryField compact name="horizonDays" label="Booking horizon (days)" required inputMode="numeric"/>
+  </div>
+</section>
+  <section class="availability-card">
+<Heading tag="h2" variant="feature-title">Weekly hours</Heading>
+<Text variant="body">Enable only the days you want to offer. One daytime window per weekday; all times use the business timezone.</Text>
+<div class="weekday-list">{weekdays.map((day,weekday)=>
+<div class="weekday-row" data-weekday={weekday}>
+<label class="weekday-toggle">
+<input type="checkbox" name={`enabled-${weekday}`}/>
+<Text tag="span" variant="body">{day}</Text>
+</label>
+<InquiryField compact name={`start-${weekday}`} label={`${day} start`} type="time"/>
+<InquiryField compact name={`end-${weekday}`} label={`${day} end`} type="time"/>
+</div>)}</div>
+</section>
+  <section class="availability-card">
+<Heading tag="h2" variant="feature-title">Date exceptions</Heading>
+<Text variant="body">Block a whole date or replace its weekly hours with custom availability.</Text>
+<div data-availability-exceptions class="exceptions-list">
+</div>
+<Button type="button" variant="outline" size="sm" data-exception-add>Add date exception</Button>
+</section>
+  <div class="availability-actions">
+<Button type="submit" variant="primary">Save availability</Button>
+<Button type="button" variant="outline" data-availability-reload>Reload settings</Button>
+</div>
+ </form>
+ <template data-exception-template>
+<div class="exception-row">
+<div>
+<label class="ui-form-label" data-exception-label="date">Date</label>
+<input type="date" class="ui-form-input" data-exception-date/>
+</div>
+<div>
+<label class="ui-form-label" data-exception-label="type">Availability</label>
+<select class="ui-form-input" data-exception-type>
+<option value="unavailable">Unavailable all day</option>
+<option value="custom_hours">Custom hours</option>
+</select>
+</div>
+<div>
+<label class="ui-form-label" data-exception-label="start">Start</label>
+<input type="time" class="ui-form-input" data-exception-start/>
+</div>
+<div>
+<label class="ui-form-label" data-exception-label="end">End</label>
+<input type="time" class="ui-form-input" data-exception-end/>
+</div>
+<Button type="button" variant="outline" size="sm" data-exception-remove>Remove</Button>
+<Text variant="feature-body-sm" data-exception-error class="text-[var(--color-error)]" hidden>
+</Text>
+</div>
+</template>
+</div>
+</Container>
+</Section>
+<script>
+import { setupAvailabilityAdmin } from '@/lib/bookings/settings';
+void setupAvailabilityAdmin();
+</script>
+<style>
+[hidden] {
+  display: none !important;
+}
+.availability-page,
+.availability-form,
+.availability-card,
+.weekday-list,
+.exceptions-list {
+  display: grid;
+  gap: var(--spacing-md);
+  min-width: 0;
+}
+.availability-header,
+.availability-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+.availability-header > div:first-child {
+  display: grid;
+  gap: var(--spacing-sm);
+}
+.availability-card {
+  padding: var(--spacing-lg);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--ui-radius-lg);
+  background: var(--color-brand-cream);
+}
+.availability-rules,
+.weekday-row,
+.exceptions-list :global(.exception-row) {
+  display: grid;
+  gap: var(--spacing-md);
+  min-width: 0;
+}
+.weekday-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+.weekday-row {
+  border-bottom: 1px solid var(--color-outline-variant);
+  padding-bottom: var(--spacing-md);
+}
+.exceptions-list :global(.ui-form-input) {
+  width: 100%;
+  min-width: 0;
+  height: 2.75rem;
+  font: inherit;
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+.exceptions-list :global(.ui-form-label) {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: normal;
+  text-transform: none;
+}
+.availability-page :global([data-calendar-feedback][role='alert']) {
+  color: var(--color-error);
+}
+@media (min-width: 48rem) {
+  .availability-rules {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .weekday-row {
+    grid-template-columns: minmax(0, 1fr) repeat(2, minmax(0, 1fr));
+    align-items: center;
+  }
+  .exceptions-list :global(.exception-row) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 47.999rem) {
+  .availability-card {
+    padding: var(--spacing-md);
+  }
+  .availability-actions > :global(button),
+  .availability-actions > :global(a) {
+    flex: 1 1 10rem;
+  }
+}
+</style>

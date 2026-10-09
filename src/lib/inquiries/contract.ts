@@ -4,7 +4,7 @@ import content from '@data/inquiry.json';
 export { content as inquiryContent };
 export const STATUS_OPTIONS = ['new', 'reviewing', 'contacted', 'qualified', 'proposal', 'won', 'lost', 'archived'] as const;
 export const PIPELINE_STATUS_OPTIONS = STATUS_OPTIONS.filter((status): status is Exclude<typeof STATUS_OPTIONS[number], 'archived'> => status !== 'archived');
-export const ACTIVITY_TYPES = ['inquiry_created', 'status_changed', 'admin_note_updated', 'follow_up_scheduled', 'follow_up_updated', 'follow_up_cleared', 'proposal_created', 'proposal_updated', 'proposal_sent', 'proposal_accepted', 'proposal_declined'] as const;
+export const ACTIVITY_TYPES = ['inquiry_created', 'status_changed', 'admin_note_updated', 'follow_up_scheduled', 'follow_up_updated', 'follow_up_cleared', 'proposal_created', 'proposal_updated', 'proposal_sent', 'proposal_accepted', 'proposal_declined', 'email_sent', 'email_failed', 'booking_link_created', 'booking_link_regenerated', 'booking_scheduled', 'booking_cancelled', 'booking_completed', 'booking_rescheduled'] as const;
 export const FOLLOW_UP_OPTIONS = [
   { value: 'all', label: 'All follow-ups' }, { value: 'today', label: 'Due today' },
   { value: 'overdue', label: 'Overdue' }, { value: 'upcoming', label: 'Upcoming' }, { value: 'none', label: 'No follow-up' },

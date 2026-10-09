@@ -7,6 +7,8 @@ import Button from '@components/ui/atoms/Button.astro';
 import InquiryField from '@components/inquiry/InquiryField.astro';
 import InquiryPipeline from '@components/admin/InquiryPipeline.astro';
 import InquiryActivity from '@components/admin/InquiryActivity.astro';
+import InquiryCommunication from '@components/admin/InquiryCommunication.astro';
+import InquiryBooking from '@components/admin/InquiryBooking.astro';
 import { STATUS_OPTIONS, FOLLOW_UP_OPTIONS, inquiryContent } from '@/lib/inquiries/contract';
 import { INQUIRY_COLUMNS } from '@/lib/inquiries/admin-presentation';
 const statuses = STATUS_OPTIONS.map(value => ({ value, label: value[0].toUpperCase() + value.slice(1) }));
@@ -65,6 +67,7 @@ const detailGroups = [
               <Text tag="span" variant="feature-body-sm">Overdue <Text tag="strong" data-admin-metric="followUpOverdue">—</Text></Text>
             </div>
           </div>
+          <div><Button href="/admin/calendar/" variant="outline" size="sm">Calendar & availability</Button></div>
           <div class="admin-view-switch" role="group" aria-label="Inquiry view">
             <Button type="button" variant="outline" size="sm" data-admin-view="list" aria-pressed="true" aria-controls="admin-list-panel">List</Button>
             <Button type="button" variant="outline" size="sm" data-admin-view="pipeline" aria-pressed="false" aria-controls="admin-pipeline-panel">Pipeline</Button>
@@ -129,6 +132,8 @@ const detailGroups = [
               <Button type="button" variant="outline" size="sm" data-inquiry-proposal-create hidden>Create proposal</Button>
               <div data-inquiry-proposal-summary hidden><div class="admin-proposal-facts"><Text tag="span" data-inquiry-proposal-number></Text><Text tag="span" data-inquiry-proposal-status></Text><Text tag="span" data-inquiry-proposal-total></Text><Text tag="span" variant="feature-body-sm" data-inquiry-proposal-valid></Text></div><div class="admin-save-actions"><Button href="/admin/" variant="outline" size="sm" data-inquiry-proposal-open="view">View proposal</Button><Button href="/admin/" variant="outline" size="sm" data-inquiry-proposal-open="edit">Edit proposal</Button></div></div>
             </section>
+            <InquiryBooking />
+            <InquiryCommunication />
             <InquiryActivity />
           </div>
         </div>

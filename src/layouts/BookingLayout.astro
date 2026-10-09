@@ -1,0 +1,38 @@
+---
+import '@styles/global.css';
+import company from '@data/global/company.json';
+---
+<!doctype html>
+<html lang="en" data-theme="nova">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="robots" content="noindex,nofollow"/>
+<meta name="referrer" content="no-referrer"/>
+<title>Book a Call | Volatile Solutions</title>
+<link rel="icon" href="/vs-favicon.ico"/>
+</head>
+<body>
+<header class="booking-brand">
+<a href="/" aria-label="Volatile Solutions home">
+<img src={company.branding.logoImage} width={company.branding.logoWidth} height={company.branding.logoHeight} alt="Volatile Solutions"/>
+</a>
+</header>
+<main id="main-content">
+<slot/>
+</main>
+</body>
+</html>
+<style>
+.booking-brand {
+  width: min(100%, 64rem);
+  margin: auto;
+  padding: var(--spacing-lg) var(--spacing-container-px);
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+.booking-brand img {
+  height: 2.5rem;
+  width: auto;
+  max-width: 100%;
+}
+</style>

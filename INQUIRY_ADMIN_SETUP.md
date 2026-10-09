@@ -1,6 +1,185 @@
 # Client inquiry and admin foundation
 
-## Phase 4: Proposals and estimates — October 9, 2026
+## Phase 6A: Custom booking engine and admin calendar — October 9, 2026
+
+Phase 6A adds deliberate inquiry booking links, client scheduling, account availability and a private Month/Agenda calendar. It supersedes older booking/calendar deferrals only for this authorized scope. Existing CRM, proposals, follow-ups, outbound email and intake remain independent. No external calendar/Zoom integration, automatic email/reminder, SMS, invoice/payment or portal is included.
+
+**Migration 006 requires manual Neon execution before deployment.** Apply `database/migrations/006_create_bookings.sql` once to the intended branch after 001–005; none of those migrations is edited. Do not deploy the new Functions before the schema exists. No live migration, database connection, deployment, real booking or real email is performed in this pass.
+
+### Schema, booking links and timestamp integrity
+
+- `booking_settings` is a singleton account configuration; `booking_availability` has seven weekday rows and one local daytime window per day; `booking_exceptions` overrides a date as unavailable or custom hours. `booking_links` holds one current link per inquiry. `bookings` retains inquiry/link relationships, UTC start/end and blocked-until timestamps, source timezone, client details/notes, status, meeting type, cancellation/completion timestamps, request-key/fingerprint and nullable future calendar/Zoom IDs. Deletion is restricted; cancellation releases the range while retaining history. No existing bookings, client records or activity are fabricated/backfilled.
+- Default timezone **America/New_York**, duration **30 minutes** (15/30/45/60 supported), buffer **0 minutes**, notice **12 hours**, horizon **60 days**. All weekdays start **disabled**. The 09:00–17:00 editable structural window does not assert Anthony's working hours and publishes nothing until he deliberately enables days. One same-day window per weekday/date; split or overnight hours and Week view are deferred.
+- Generate a random 256-bit nonce, then derive the 43-character bearer token with HMAC-SHA-256 and the server-only **BOOKING_TOKEN_SECRET**. Persist the SHA-256 token hash, nonce and optional last four characters, never the raw token. The nonce alone cannot reconstruct the token. Repeated reads/creation reuse the current URL; explicit regeneration atomically changes nonce/hash and adds activity, invalidating the old URL while preserving bookings. Public queries match hashes, never inquiry IDs/emails/proposal numbers.
+- Keep the key stable and backed up securely. Changing it does not revoke already issued hash-validated bearer links automatically, but prevents reconstructing old URLs/email content. Restore the original key or explicitly regenerate affected links; don't rotate casually. Existing bearer links contain client contact details, so share them privately.
+- Server-only `@js-temporal/polyfill` 0.5.1 (plus transitive jsbi) resolves local IANA-zone hours, DST gaps and repeated times accurately on Node 22. UTC is persisted; available slot labels identify timezone/offset, with both distinct fall-back instants and no nonexistent spring-forward times. Public/calendar display uses the configured business timezone explicitly, independent of browser timezone. Existing confirmed bookings preserve their source zone and times when availability changes.
+
+### Server authority, concurrency and security
+
+`/api/admin/bookings` reuses the existing server Identity/admin-role guard before database access. Query-string GET modes read settings, inquiry link/booking, month, detail or available reschedule times. POST handles settings (including all exception edits), deliberate link creation/regeneration, cancellation, completion or reschedule. Same-origin mutations, strict bounded Zod payloads, parameterized SQL and no-store/no-referrer responses apply. Calendar routes additionally use the existing CDN admin-role gates; local guards/whitelisted login return paths preserve auth behavior. Real Identity/CDN rate enforcement remains a deployment check.
+
+`/api/booking?token=<token>` anonymously serves a narrow safe contact/availability/current-booking DTO. It never exposes database IDs, inquiry summary/budget, admin/private notes, messages, proposal internals or activity. POST confirms creation, cancellation or rescheduling. Public native Netlify rate protection is 60 requests/minute per IP/domain. Tokens, date ranges, actual generated slot membership, meeting type, matching inquiry contact email, name/phone/notes, IANA zone and scheduling limits are validated. Phone calls require a bounded 7–15 digit number; Zoom is a preference only and has no fabricated URL or credentials.
+
+Availability version/hours/exceptions are read in **one database snapshot**. A settings timestamp detects concurrent changes. `reserve_booking` and `change_booking` are PostgreSQL functions executed as single Neon HTTP statements: lock account settings, compare the expected configuration version, lock/validate link or booking, check overlaps and atomically write booking/activity. Fresh substatements see preceding committed reservations. A native GiST exclusion constraint on scheduled/completed `[start_at,busy_until)` ranges independently rejects overlapping writes, including outside the application; no extension is needed. The current configured buffer also protects older bookings whose stored buffer was shorter. A partial unique constraint permits only one scheduled call per inquiry. Request-key/fingerprint checks make identical retries, including concurrent duplicates, return the same booking without duplicate activity.
+
+Cancellation, completion and reschedule use stale guards. Reschedule releases the previous slot and claims the new slot with activity in the same transaction; conflicts leave the original intact. Clients can change their current booking only before it begins and with the current link/expected start. Admin completion is available after the call ends. Activity failures roll back changes. Booking/link creation, regeneration, scheduled, cancelled, completed and rescheduled events have explicit Admin/Client actors; viewing settings/pages creates no event. Status, private notes, follow-ups and proposals are never changed by booking actions.
+
+### Public booking, calendar and inquiry UX
+
+- `/book/<token>/` uses existing prepared branding/Nova atoms and a noindex/no-referrer utility layout. Choose Phone/Zoom, an available date/server-provided selected slot, then contact details/optional notes and a real confirmation dialog. Name/email are prefilled; email stays readonly. Inline errors, labeled inputs, keyboard slot buttons, aria-pressed selection, native dialog focus, busy controls and aria-live results are included. Booking results survive refresh; the same link supports confirmed cancellation and choosing a new available time. Confirmation does not depend on email.
+- `/admin/calendar/` has Month and date-grouped Agenda views, Previous/Next/Today, explicit business-zone labels, query/history/refresh state and real empty states. On screens below 1024px, Month uses the readable agenda presentation. Compact events show client/company/time/type/status; details expose owned inquiry, email, phone/notes and deliberate confirmed Cancel/Complete/Reschedule. Auth loss clears private content. No fake meetings or calendar dependency.
+- `/admin/calendar/settings/` edits timezone, duration, buffer, minimum notice, horizon, weekday toggles/windows and date exceptions. Save atomically replaces the account configuration with stale protection. Failed edits stay present; saved settings survive refresh and immediately determine public slots, without moving existing calls.
+- Inquiry detail has a compact Booking panel: Create deliberately, Copy, Open, Regenerate, current call summary and Manage booking. Link actions preserve other unsaved CRM/composer edits and refresh activity/link context without sending. No per-card booking queries are added to List/Pipeline.
+- The composer offers **Schedule a Call** only for a current usable link; Discovery selects it when available. Creating a link is never a side effect of opening a composer/preview. No-link or regenerated-link requests cannot produce/send a dead CTA. Existing owned proposal CTA remains independent; one selected CTA per message.
+
+### Public URLs and token-free email storage
+
+**SITE_URL** is the normalized trusted HTTPS origin for generated proposal, booking and email CTA links. Set staging to `https://vs-site-v3.netlify.app`; later set production to `https://volatile-solutions.net`. Neither hostname is hardcoded in new runtime code. Origins reject credentials, non-HTTPS, path/query/fragment and browser-controlled hosts. During transition only, an absent SITE_URL falls back to EMAIL_PUBLIC_URL, then company.siteUrl, preserving Phase 5. Configure SITE_URL deliberately before sharing staging links.
+
+**EMAIL_PUBLIC_URL** remains an optional HTTPS **email asset** origin override when SITE_URL exists. Without that override, assets use SITE_URL. Verify the existing PNG wordmark and anonymous proposal/booking routes on the selected deployed origins. Canonical/company JSON and existing public SEO/noindex settings are unchanged.
+
+Migration 006 adds nullable booking nonce/hash snapshots to `inquiry_messages`. A booking token is replaced with `{{BOOKING_TOKEN}}` before storing subject/original text/rendered text/HTML/activity; the private runtime hydrates it only for preview/history/provider delivery. Arbitrary raw booking URLs without a corresponding owned snapshot are rejected. Frozen snapshots retain identical mail content/provider idempotency keys on retry. Regenerating a link blocks retry of an older booking invitation; key mismatch prevents delivery rather than sending an invalid token. Legacy messages are not rewritten, and ordinary email behavior is unchanged. No raw booking token is persisted in any booking/link/message/activity column.
+
+### Manual rollout
+
+1. Apply 006 once on the intended Neon branch after 001–005. Do not alter or reapply earlier migrations.
+2. In Netlify Functions-scoped runtime configuration set **SITE_URL** to the staging or production HTTPS origin above. Set EMAIL_PUBLIC_URL only if mail images should use a different deployed origin. Preserve existing DATABASE_URL and Resend sender/key configuration.
+3. Generate a dedicated 32-byte key locally with `openssl rand -hex 32`; store its 64 hex characters as secret **BOOKING_TOKEN_SECRET**, Functions scope. Back it up securely; never prefix PUBLIC_, commit, paste into docs or regenerate per deployment. `.env.example` contains empty placeholders only.
+4. Deploy schema-compatible code. Sign in as the existing admin and deliberately configure/enable actual hours and exceptions. Defaults expose no bookable weekdays.
+5. From an owned test inquiry create a link, verify anonymous Phone/Zoom booking/cancel/reschedule and private calendar/activity. Test near timezone/DST boundaries and two simultaneous clients. Preview a Discovery invitation; sending real email remains an explicit admin action. Confirm site/CDN role and rate protection with a real deployment before sharing links.
+
+### Phase 6A validation boundaries
+
+The focused suite passes **250 tests across eleven files**, including **55 booking cases** and all 195 existing email/proposal/CRM/follow-up/URL cases. All **76 data JSON files** parse; Astro/TypeScript checks **478 files with zero errors**, the safe temporary static build emits **13 pages**, and all **seven modern Functions** bundle for Node 22/API v2 without asset regeneration. Browser tests use real Functions/store SQL against isolated PostgreSQL (PGlite), with synthetic Identity and mocked Resend; no live database/provider result is claimed. Six-width/public/calendar/settings/CRM checks cover keyboard/focus, labels, selected states, dialogs, responsive agenda, refresh/history, errors and draft preservation. Browser validation passes Phone/Zoom, review/back, same-request double-submit, refresh, client/admin cancel/reschedule, admin completion, availability save/custom hours/weekday and inline errors, current Discovery CTA with one mocked send and token-free persisted mail/hydrated history, existing List/Pipeline/search/filters/follow-up/stale/rollback flows and the public five-step wizard. Identity and provider responses are explicitly mocked; real CDN role/rate behavior remains a deployment check. Public/legacy images and global CSS are not regenerated; migrations 001–005 remain byte-identical. Final hashes show 27 modified existing files and 24 additions, no removals or unrelated changes. The temporary browser fixture/server/Chrome are removed/stopped. Atomic/import audits retain only the existing ChecklistItem margin violation, HeroSplit advisory and three preexisting cross-directory relative imports; this pass adds no new findings.
+
+
+
+### Phase 6A exact file scope
+
+Modified existing files:
+
+```text
+.env.example
+CONTENT_MIGRATION_MAP.md
+INQUIRY_ADMIN_SETUP.md
+VOLATILE_CONTENT_SOURCE.md
+astro.config.mjs
+netlify.toml
+netlify/dev-api-aliases.mjs
+netlify/lib/email-render.ts
+netlify/lib/email.ts
+netlify/lib/http.ts
+netlify/lib/message-store.ts
+netlify/lib/proposal-store.ts
+netlify/messages.test.ts
+package-lock.json
+package.json
+site.config.mjs
+src/components/admin/InquiryAdmin.astro
+src/components/admin/InquiryCommunication.astro
+src/layouts/AdminLayout.astro
+src/lib/communications/admin.ts
+src/lib/communications/contract.ts
+src/lib/communications/templates.ts
+src/lib/inquiries/admin-activity.ts
+src/lib/inquiries/admin.ts
+src/lib/inquiries/contract.ts
+src/lib/proposals/admin.ts
+src/lib/proposals/contract.ts
+```
+
+Added files:
+
+```text
+database/migrations/006_create_bookings.sql
+netlify/bookings.test.ts
+netlify/functions/admin-bookings.mts
+netlify/functions/booking.mts
+netlify/lib/booking-links.ts
+netlify/lib/booking-settings.ts
+netlify/lib/booking-slots.ts
+netlify/lib/booking-store.ts
+netlify/lib/booking-token.ts
+netlify/lib/public-url.ts
+netlify/lib/runtime-env.ts
+src/components/admin/BookingCalendar.astro
+src/components/admin/CalendarAvailability.astro
+src/components/admin/InquiryBooking.astro
+src/layouts/BookingLayout.astro
+src/lib/bookings/admin-session.ts
+src/lib/bookings/calendar.ts
+src/lib/bookings/contract.ts
+src/lib/bookings/inquiry-panel.ts
+src/lib/bookings/public.ts
+src/lib/bookings/settings.ts
+src/pages/admin/calendar/index.astro
+src/pages/admin/calendar/settings/index.astro
+src/pages/book/index.astro
+```
+
+## Historical Phase 5: CRM communications — October 9, 2026
+
+The user confirms Phases 1–4 are live and working. Phase 5 adds private transactional outbound mail, editable templates and inquiry communication history, preserving the CRM/proposal workflow. Earlier records below remain historical; their email deferrals are superseded only for this scope.
+
+**Migration 005 requires manual Neon execution before deployment.** Apply `database/migrations/005_create_inquiry_messages.sql` once to the intended branch after 001–004. Those earlier migrations are unchanged. No live migration, DNS change, provider account configuration, deployment or real email is performed during implementation/testing.
+
+### Server, schema and delivery meaning
+
+- Installed Resend Node SDK 6.32.1 (Node >=20; the existing Node 22 deployment remains compatible). All SDK interaction is isolated in server-only `netlify/lib/email.ts`. The CRM uses `message-store.ts`; rendering and plain-text generation live in `email-render.ts`. The adapter receives a frozen mail envelope/content plus a stable message ID, so another transactional provider can replace Resend later without changing the composer.
+- Runtime variables: **RESEND_API_KEY**, **EMAIL_FROM**, **EMAIL_REPLY_TO**. All are Functions-scoped server configuration; `.env.example` contains empty placeholders. Sender/reply addresses are validated, including header-injection rejection. There is no production fallback sender. Missing configuration prevents provider access and shows a specific admin configuration message; preview requires valid sender/reply configuration but does not require a provider key.
+- Optional **EMAIL_PUBLIC_URL** selects a trusted HTTPS website origin for logo and proposal URLs, defaulting to company.siteUrl. It must be an origin without credentials, path, query or fragment. The main domain's prepared logo URL returned 404 during this pass, so verify the deployed website/asset before enabling mail or explicitly set this to the current functioning deployment origin. This does not modify company data or site routing. Never derive outbound links from a browser-supplied host/URL.
+- `inquiry_messages` stores UUID/inquiry IDs, created/updated timestamps, direction, status, frozen sender/reply-to/recipient, subject, original message text, generated text/HTML, provider/message ID, template key, optional owned proposal FK, UUID request key, payload fingerprint, attempt count/timestamps, sent timestamp and bounded error category. Inquiry/proposal FKs use RESTRICT to preserve correspondence; no delete UI/backfill is included. Direction reserves inbound, and statuses reserve Draft, but Phase 5 does not implement inbound receiving or server-saved composer drafts.
+- Actual states are Sending, Sent and Failed. **Sent means the provider accepted the API request; it does not mean Delivered, Opened or Read.** No webhook data, tracking pixels, delivery events or fake delivery claims are added. Known provider rejection is Failed/provider_rejected; transport/ambiguous errors are Failed/delivery_unconfirmed with explicit uncertainty in the admin UI. Private provider error text, raw payloads and secrets are not logged or returned.
+
+### Idempotency and recovery
+
+1. Authorize admin and validate same-origin, inquiry ownership, recipient, bounded subject/body, template and optional current Sent proposal.
+2. Insert a Sending record with frozen sender/content, a unique request UUID and a SHA-256 payload fingerprint before provider access. Concurrent duplicate submissions create one record and make one initial provider call. Reusing a request key for different content/inquiry conflicts. Ordinary repeated Send requests return the stored state and never invoke delivery again.
+3. Send through Resend with `crm-message/<message-uuid>` as the provider idempotency key, HTML and plain text, and a 15-second request deadline.
+4. Persist provider acceptance/message ID plus `email_sent`, or failure category plus `email_failed`, in one PostgreSQL data-modifying CTE transaction. A failure in activity persistence rolls back the database outcome. Database/provider calls cannot share a transaction and are not described as doing so.
+5. If the provider accepted but final database persistence failed, the record remains Sending. A later explicit Retry saved email resubmits identical content/key to reconcile provider acceptance. Failed sends also retain their composition and support deliberate saved-message retry. A 90-second lease plus attempt-count comparison prevents concurrent active retries; completed Sent records never resend.
+
+Resend retains keys for 24 hours. The application conservatively allows recovery only within 23 hours of the first attempt, leaving an hour of margin; it never automatically rolls an old uncertain send onto a fresh key. After the safe window, inspect the Resend dashboard before deliberately starting a new response. A retry preserves the original sender/reply-to as well as content even if runtime settings changed. Configure/verify that original sender before retrying, or start a new response deliberately after checking the previous outcome. One failure and one eventual acceptance are recorded per message; repeated failures do not spam inquiry activity.
+
+Official references: [Resend Node SDK](https://resend.com/docs/send-with-nodejs), [send API](https://resend.com/docs/api-reference/emails/send-email), [idempotency window](https://resend.com/docs/dashboard/emails/idempotency-keys).
+
+### Composer, preview and history
+
+- Inquiry detail gains one clearly separated Communication section. It loads summaries only when an inquiry is opened, not per List/Pipeline card. Ten messages per history page show date/time, recipient, subject, template and actual status. Newer/Older controls reveal older messages; full plain-text content loads only when expanded. No raw HTML is dumped into Activity/history.
+- Respond to inquiry opens the compact Nova composer: readonly inquiry-contact To, editable Subject and Message, labeled Template, optional Proposal button, Preview and Send email. There are no arbitrary recipients, CC/BCC, attachments, HTML editor or WYSIWYG dependency. Subject is bounded to 200 characters; message to 20,000. Failed/stale/network outcomes preserve inputs. A known recorded outcome disables ordinary Send and directs retries through the saved message. Starting another response after an attempt asks for deliberate confirmation; closing the composer never sends and reopening preserves an unsent in-memory composition.
+- Five internal templates: Personal response, Thanks for reaching out, Discovery call invitation, Proposal ready and Follow-up. Selection populates editable text, with a confirmation before replacing a nonempty draft. Discovery asks for suitable times/timezone by reply; it includes no booking link. Controlled variables are firstName, company, projectType, proposalNumber and proposalUrl, with intentional company/name fallbacks. Unknown tokens or unavailable proposal variables are rejected; there is no template execution/eval.
+- Preview is a protected POST that performs no send/write/activity. It shows recipient, subject, sender and the exact server-generated branded HTML in a sandboxed, script-free iframe. Closing/editing clears stale previews. Plain-text content is available in expanded history. Labels/errors, keyboard controls, focus feedback, busy/disabled states and aria-live are preserved; logout/authorization loss clears recipient, composition, history and iframe content.
+- A View Proposal CTA is available only for the inquiry's current unexpired Sent proposal. The server resolves the relationship/token and constructs the trusted public `/proposal/<token>/` URL. Draft/Accepted/Declined/Expired offers provide no CTA option. Requests cannot submit arbitrary proposal IDs/URLs. Sending mail does not change proposal pricing/acceptance, inquiry status, private notes or follow-up schedules.
+- The branded email uses the existing production PNG wordmark, Nova cream/near-black/copper colors, inline table-based CSS, Arial/Helvetica fallbacks, greeting, escaped editable paragraphs, optional simple button, Anthony's signature and website/reply footer. A complete explicit plain-text alternative includes any CTA URL. User content is text, never executable HTML. The small typed CTA contract is ready for a future approved booking link, but no calendar/booking URL/control exists now.
+
+### Private API and activity
+
+`/api/admin/messages?inquiry=<uuid>` is the stable protected alias. GET reads a history page; GET with `message=<uuid>` reads ownership-checked content; POST actions are preview, send and retry. Authentication/admin role precede all database access, mutations require same Origin, strict payloads reject mass assignment, reads/writes are parameterized, responses use no-store/no-referrer and the Function applies native per-IP/domain rate protection. Production/dev aliases precede general routing. Message history is never added to public inquiry/proposal responses or static HTML.
+
+Migration 005 extends the allowed activity types with `email_sent` and `email_failed`, and adds a nullable message FK/outcome uniqueness index. Existing system/admin/client actor rules and proposal/follow-up checks remain. Email events show saved subject/date and Admin actor; body/recipient secrets are not duplicated into activity. Preview/template selection/opening/typing creates no event. Existing inquiry deletion remains restricted by business records; archiving retains correspondence.
+
+### Manual rollout for Anthony
+
+1. Create/configure a Resend account and choose the domain/subdomain you intend to use for the sender. In Resend Domains, add that domain; add the exact verification/sending DNS records Resend displays at your DNS provider, then wait for verified status. Do not enable inbound receiving, tracking or webhooks for this phase. [Domain setup](https://resend.com/docs/dashboard/domains/introduction)
+2. Create a sending API key restricted to the intended verified domain where supported. Keep it private; do not paste it into source or browser-visible settings.
+3. On the intended Netlify site/context, set secret **RESEND_API_KEY** with Functions scope. Set **EMAIL_FROM** to the approved display name and mailbox on that verified domain, and **EMAIL_REPLY_TO** to the inbox that should receive client replies. Replies reach that inbox; they are not synced into CRM history.
+4. Set **EMAIL_PUBLIC_URL** if the functioning site is still on a staging/custom deployment origin different from company.siteUrl. Confirm that origin serves the prepared logo at `/assets/images/t001-nova/t001-nova-navbar-logo.png` and existing public proposal token routes anonymously over HTTPS.
+5. Apply migration **005** once on the intended Neon branch after the existing 001–004 migrations. Then deploy Phase 5 so the new schema and Functions/configuration are present together.
+6. From an existing test inquiry belonging to you, preview all desired templates and send one deliberate real message. Verify Resend's provider ID/acceptance, inbox HTML/plain-text rendering, reply address, CRM Sent/history and email_sent activity. If using a proposal CTA, open it anonymously and verify the existing proposal workflow. Real inbox delivery, Gmail/Outlook client rendering, sender-domain verification and CDN rate behavior remain manual deployment checks, not local test claims.
+
+No calendar/scheduling UI, inbound mail/sync, invoices, payments/Stripe, signatures/contracts, attachments or bulk marketing are implemented.
+
+### Phase 5 local validation and boundaries
+
+- All 76 data JSON files parse. The focused email/proposal/inquiry/CRM/URL suite passes **195 tests across ten files**, including **51 email cases** for real in-memory PostgreSQL persistence/rollback/concurrency/privacy, rendering/template safety, configured URL validation and the installed Resend SDK with a mocked fetch transport. Automated tests never send real email.
+- Astro/TypeScript checks **455 files with zero errors**. A direct temporary static build passes ten pages without asset regeneration; all five modern Functions bundle through Netlify esbuild with runtime API v2. Client bundles contain no provider/database credentials or SDK imports, static public/admin HTML contains no private fixture records, and admin/proposal utility routes stay outside the sitemap.
+- Isolated Chrome at **320/375/430/768/1024/1440px** passes composer labels/validation/editable templates, script-free sandboxed preview, provider-call-free preview, owned proposal CTA, one-call double-submit protection, accepted/failed history, deliberate same-record retry, preserved drafts, page/expansion/refresh behavior and logout cleanup. A final synthetic-response UI check verifies that a follow-up save preserves failed-email composition and restores the saved-message Send/Retry disabled states. Actual Functions/store SQL run against PostgreSQL (PGlite); Identity and Resend delivery are mocked. No live credentials or messages are used.
+- The approved PNG wordmark was rendered in the sandboxed iframe using a mocked asset response from the unchanged local production asset. At all six widths the iframe has zero horizontal overflow and no scripts; mobile/desktop screenshots were visually reviewed. Real logo availability must be verified on EMAIL_PUBLIC_URL/company.siteUrl during rollout. This is browser HTML validation, not a claim of Gmail/Outlook inbox compatibility or actual delivery.
+- Existing List/Pipeline/search/combined filters/query-history/detail/status/general notes/follow-up/archived metrics/rollback/stale handling and six-width layout checks pass. The public wizard passes all five steps, validation, Back/Edit, consent, stable-key failure/retry/success, double-submit protection, keyboard and client-router entrance at the same six widths with synthetic receipts. Proposal regression tests and privacy/acceptance behavior remain included.
+- Hash checks preserve migrations 001–004, auth verification/login/callback logic, database/inquiry/proposal store and Functions, follow-up UI/helpers, all public wizard code/data/images/legacy assets, global CSS and existing deployment/build-scope behavior outside the new email alias. Temporary browser fixtures were removed. The atomic audit retains only the untouched ChecklistItem margin violation and HeroSplit advisory; the import audit retains three preexisting cross-directory relative imports from the proposal pass. No new findings are introduced.
+- No live migration, deployment, sender/DNS/account configuration or actual email is performed. Migration 005 and sender/public-origin configuration remain manual prerequisites before real rollout.
+
+## Historical Phase 4: Proposals and estimates — October 9, 2026
 
 The existing live CRM is retained. Phase 4 adds one current proposal per inquiry, a private editor and an anonymous client review link. This supersedes earlier proposal deferrals only for the scope below; earlier phase records remain historical.
 

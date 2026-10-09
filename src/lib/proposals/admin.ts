@@ -235,9 +235,9 @@ export async function setupProposalEditor(): Promise<void> {
     const link = element('[data-editor-link]');
     link.hidden = !saved.clientUrl;
     if (saved.clientUrl) {
-      value('proposalClientUrl').value = new URL(saved.clientUrl, location.origin).href;
+      value('proposalClientUrl').value = saved.publicUrl ?? new URL(saved.clientUrl, location.origin).href;
       value('proposalClientUrl').readOnly = true;
-      element<HTMLAnchorElement>('[data-editor-open]').href = saved.clientUrl;
+      element<HTMLAnchorElement>('[data-editor-open]').href = saved.publicUrl ?? saved.clientUrl;
     }
     element('[data-editor-private-notes]').hidden = saved.status === 'draft' || !saved.internalNotes;
     element('[data-editor-private-copy]').textContent = saved.internalNotes;

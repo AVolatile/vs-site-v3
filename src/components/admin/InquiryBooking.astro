@@ -1,0 +1,40 @@
+---
+import Heading from '@components/ui/atoms/Heading.astro';
+import Text from '@components/ui/atoms/Text.astro';
+import Button from '@components/ui/atoms/Button.astro';
+---
+<section data-inquiry-booking hidden class="inquiry-booking" aria-labelledby="inquiry-booking-heading">
+ <Heading id="inquiry-booking-heading" tag="h3" variant="feature-title">Booking</Heading>
+ <Text variant="body" role="status" aria-live="polite" data-booking-message>
+</Text>
+ <div class="booking-actions">
+<Button type="button" variant="outline" size="sm" data-booking-create hidden>Create booking link</Button>
+<Button type="button" variant="outline" size="sm" data-booking-copy hidden>Copy booking link</Button>
+<Button href="/" variant="outline" size="sm" data-booking-open hidden target="_blank" rel="noopener noreferrer">Open booking page</Button>
+<Button type="button" variant="outline" size="sm" data-booking-regenerate hidden>Regenerate link</Button>
+</div>
+ <Text variant="body" data-booking-summary hidden>
+</Text>
+ <Button href="/admin/calendar/" variant="outline" size="sm" data-booking-view hidden>Manage booking</Button>
+</section>
+<style>
+.inquiry-booking {
+  grid-column: 1/-1;
+  display: grid;
+  gap: var(--spacing-sm);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--color-outline-variant);
+  min-width: 0;
+}
+.booking-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+[hidden] {
+  display: none !important;
+}
+.inquiry-booking :global([data-booking-summary]) {
+  overflow-wrap: anywhere;
+}
+</style>

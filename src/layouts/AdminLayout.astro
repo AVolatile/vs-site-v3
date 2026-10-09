@@ -6,16 +6,17 @@ import Text from '@components/ui/atoms/Text.astro';
 
 interface Props {
   loginPresentation?: boolean;
+  title?: string;
 }
 
-const { loginPresentation = false } = Astro.props;
+const { loginPresentation = false, title = "Inquiry Admin | Volatile Solutions" } = Astro.props;
 ---
 <!doctype html>
 <html lang="en" data-theme="nova">
   <head>
     <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" /><meta name="referrer" content="no-referrer" />
-    <title>Inquiry Admin | Volatile Solutions</title>
+    <title>{title}</title>
   </head>
   <body class:list={{ 'admin-login-layout': loginPresentation }}>
     <header class="admin-header">

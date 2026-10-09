@@ -28,9 +28,9 @@ export async function readJson(request: Request, maxBytes = MAX_BODY_BYTES): Pro
   try { return JSON.parse(new TextDecoder().decode(bytes)); }
   catch { throw new HttpError(400, 'The request could not be read. Please try again.'); }
 }
-export function failure(error: unknown, service: 'inquiry' | 'proposal' = 'inquiry'): Response {
+export function failure(error: unknown, service: 'inquiry' | 'proposal' | 'email' | 'booking' = 'inquiry'): Response {
   if (error instanceof HttpError) return json({ error: error.message, ...(error.fields ? { fields: error.fields } : {}) }, error.status);
   // Never include payloads, database URLs, tokens, SQL or exception details in logs/responses.
-  console.error(service === 'proposal' ? 'Proposal service request failed.' : 'Inquiry service request failed.');
-  return json({ error: service === 'proposal' ? 'The proposal service is temporarily unavailable. Please try again.' : 'The inquiry service is temporarily unavailable. Please try again.' }, 503);
+  console.error(service === 'booking' ? 'Booking service request failed.' : service === 'email' ? 'Email service request failed.' : service === 'proposal' ? 'Proposal service request failed.' : 'Inquiry service request failed.');
+  return json({ error: service === 'booking' ? 'Booking could not be confirmed. Refresh before retrying.' : service === 'email' ? 'Email could not be confirmed. Refresh communication history before retrying the saved message.' : service === 'proposal' ? 'The proposal service is temporarily unavailable. Please try again.' : 'The inquiry service is temporarily unavailable. Please try again.' }, 503);
 }

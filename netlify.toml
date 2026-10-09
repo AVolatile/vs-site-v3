@@ -22,6 +22,82 @@
   status = 200
   force = true
 
+[[redirects]]
+  from = "/api/admin/messages"
+  to = "/.netlify/functions/admin-messages"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/admin/bookings"
+  to = "/.netlify/functions/admin-bookings"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/booking"
+  to = "/.netlify/functions/booking"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/book/*"
+  to = "/book/index.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/admin/calendar/settings"
+  to = "/admin/calendar/settings/index.html"
+  status = 200
+  force = true
+  conditions = { Role = ["admin"] }
+
+[[redirects]]
+  from = "/admin/calendar/settings"
+  to = "/admin/login/?returnTo=%2Fadmin%2Fcalendar%2Fsettings%2F"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/admin/calendar/settings/*"
+  to = "/admin/calendar/settings/index.html"
+  status = 200
+  force = true
+  conditions = { Role = ["admin"] }
+
+[[redirects]]
+  from = "/admin/calendar/settings/*"
+  to = "/admin/login/?returnTo=%2Fadmin%2Fcalendar%2Fsettings%2F"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/admin/calendar"
+  to = "/admin/calendar/index.html"
+  status = 200
+  force = true
+  conditions = { Role = ["admin"] }
+
+[[redirects]]
+  from = "/admin/calendar"
+  to = "/admin/login/?returnTo=%2Fadmin%2Fcalendar%2F"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/admin/calendar/*"
+  to = "/admin/calendar/index.html"
+  status = 200
+  force = true
+  conditions = { Role = ["admin"] }
+
+[[redirects]]
+  from = "/admin/calendar/*"
+  to = "/admin/login/?returnTo=%2Fadmin%2Fcalendar%2F"
+  status = 302
+  force = true
+
 # Proposal APIs use the same server-side admin protection and explicit aliases.
 [[redirects]]
   from = "/api/admin/proposals"
@@ -180,3 +256,10 @@
     X-Robots-Tag = "noindex, nofollow"
     Referrer-Policy = "no-referrer"
 
+
+[[headers]]
+  for = "/book/*"
+  [headers.values]
+    Cache-Control = "no-store"
+    X-Robots-Tag = "noindex, nofollow"
+    Referrer-Policy = "no-referrer"

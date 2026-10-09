@@ -1,0 +1,58 @@
+---
+import Heading from '@components/ui/atoms/Heading.astro';
+import Text from '@components/ui/atoms/Text.astro';
+import Button from '@components/ui/atoms/Button.astro';
+import InquiryField from '@components/inquiry/InquiryField.astro';
+import { EMAIL_TEMPLATES } from '@/lib/communications/templates';
+---
+<section class="communication-panel" data-inquiry-communication hidden aria-labelledby="communication-heading">
+  <div class="communication-heading"><Heading id="communication-heading" tag="h3" variant="feature-title">Communication</Heading><div class="communication-actions"><Button type="button" variant="outline" size="sm" data-email-compose aria-expanded="false" aria-controls="email-composer">Respond to inquiry</Button><Button type="button" variant="outline" size="sm" data-email-refresh>Refresh history</Button></div></div>
+  <Text variant="feature-body-sm" class="text-on-surface-variant">Outbound mail sent from this CRM. Sent means accepted by the email provider; replies and delivery tracking are not synced.</Text>
+  <Text variant="body" role="status" aria-live="polite" data-email-feedback></Text>
+  <form id="email-composer" class="email-composer" data-email-form novalidate hidden>
+    <InquiryField compact name="emailTemplate" label="Template" type="select" required options={EMAIL_TEMPLATES.map(template=>({value:template.key,label:template.label}))} />
+    <InquiryField compact name="emailTo" label="To" type="email" required maxLength={254} hint="Only this inquiry’s contact can receive the message." />
+    <InquiryField compact name="emailSubject" label="Subject" required maxLength={200} />
+    <InquiryField compact name="emailMessage" label="Message" type="textarea" required maxLength={20000} hint="Greeting and signature are added automatically. Supported variables: {{firstName}}, {{company}}, {{projectType}}, {{proposalNumber}}, {{proposalUrl}}, {{bookingUrl}}." />
+    <div data-email-cta-field hidden><InquiryField compact name="emailCta" label="Email button" type="select" required options={[{value:'none',label:'No button'},{value:'proposal',label:'View Proposal'},{value:'booking',label:'Schedule a Call'}]} /></div>
+    <Text variant="feature-body-sm" class="text-on-surface-variant">Preview includes the greeting, signature and any proposal button. Sending does not change inquiry status or schedule a follow-up.</Text>
+    <div class="communication-actions"><Button type="button" variant="outline" data-email-preview>Preview</Button><Button type="submit" variant="primary" data-email-send>Send email</Button><Button type="button" variant="outline" data-email-close>Close composer</Button></div>
+  </form>
+  <section class="email-preview-panel" data-email-preview-panel hidden aria-labelledby="email-preview-heading">
+    <Heading id="email-preview-heading" tag="h4" variant="feature-title" tabindex="-1">Email preview</Heading>
+    <dl class="email-preview-meta"><div><Text tag="dt" variant="feature-body-sm">To</Text><Text tag="dd" data-email-preview-to></Text></div><div><Text tag="dt" variant="feature-body-sm">Subject</Text><Text tag="dd" data-email-preview-subject></Text></div><div><Text tag="dt" variant="feature-body-sm">From</Text><Text tag="dd" data-email-preview-from></Text></div></dl>
+    <iframe title="Branded email preview" sandbox="" referrerpolicy="no-referrer" data-email-preview-frame></iframe>
+    <Button type="button" variant="outline" size="sm" data-email-preview-close>Close preview</Button>
+  </section>
+  <Text variant="body" data-email-empty>No correspondence yet.</Text>
+  <ol class="email-history" data-email-history></ol>
+  <div class="communication-actions" data-email-pagination hidden><Button type="button" variant="outline" size="sm" data-email-previous>Newer messages</Button><Text tag="span" variant="feature-body-sm" data-email-page></Text><Button type="button" variant="outline" size="sm" data-email-next>Older messages</Button></div>
+  <template data-email-history-template><li><details class="email-history-item"><summary><Text tag="span" class="email-history-subject" data-email-history-subject></Text><Text tag="span" variant="feature-body-sm" data-email-history-meta></Text><Text tag="span" variant="feature-body-sm" data-email-history-status></Text></summary><div class="email-history-content"><Text variant="body" data-email-history-body></Text><Button type="button" variant="outline" size="sm" data-email-retry hidden>Retry saved email</Button><Text variant="feature-body-sm" class="text-on-surface-variant" data-email-retry-help hidden>Retry uses the original content and send key. If the safe window has ended, check Resend before composing another copy.</Text></div></details></li></template>
+</section>
+<style>
+  [hidden] { display: none !important; }
+  .communication-panel { grid-column: 1 / -1; display: grid; gap: var(--spacing-md); min-width: 0; padding-top: var(--spacing-lg); border-top: 1px solid var(--color-outline-variant); }
+  .communication-heading,.communication-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-sm); }
+  .communication-heading { justify-content: space-between; }
+  .email-composer,.email-preview-panel { display: grid; gap: var(--spacing-md); min-width: 0; padding: var(--spacing-md); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-md); background: var(--color-brand-cream); }
+  .email-composer :global(textarea) { min-height: 12rem; height: auto; }
+  .email-composer :global([id$="-hint"]) { position: static; width: auto; height: auto; margin: 0; clip-path: none; white-space: normal; overflow-wrap: anywhere; }
+  .email-composer :global(input[readonly]) { color: var(--color-on-surface-variant); }
+  .email-preview-meta { display: grid; gap: var(--spacing-sm); min-width: 0; margin: 0; }
+  .email-preview-meta :global(dd) { margin: 0; overflow-wrap: anywhere; }
+  iframe { display: block; width: 100%; height: 36rem; border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-sm); background: var(--color-brand-light); }
+  .email-history { list-style: none; display: grid; gap: var(--spacing-sm); margin: 0; padding: 0; min-width: 0; }
+  .email-history :global(li) { min-width: 0; }
+  .email-history :global(details) { border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-sm); padding: var(--spacing-md); }
+  .email-history :global(summary) { cursor: pointer; overflow-wrap: anywhere; }
+  .email-history :global(summary span) { display: block; }
+  .email-history :global(.email-history-subject) { display: inline; font-weight: 600; }
+  .email-history :global(.email-history-content) { display: grid; gap: var(--spacing-md); padding-top: var(--spacing-md); }
+  .email-history :global([data-email-history-body]) { white-space: pre-wrap; overflow-wrap: anywhere; }
+  .email-history :global([data-email-history-status]) { color: var(--color-on-surface-variant); }
+  .email-history :global([data-status="failed"]) { color: var(--color-error); }
+  .email-history :global([data-status="sent"]) { color: var(--color-success); }
+  .email-history :global(summary:focus-visible) { outline: 2px solid var(--color-primary); outline-offset: 4px; }
+  .communication-panel :global([data-email-feedback][role="alert"]) { color: var(--color-error); }
+  @media (max-width: 47.999rem) { .communication-actions > :global(button) { flex: 1 1 10rem; } }
+</style>

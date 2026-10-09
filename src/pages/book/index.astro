@@ -1,0 +1,188 @@
+---
+import BookingLayout from '@layouts/BookingLayout.astro';
+import Section from '@components/ui/layout/Section.astro';
+import Container from '@components/ui/layout/Container.astro';
+import Heading from '@components/ui/atoms/Heading.astro';
+import Text from '@components/ui/atoms/Text.astro';
+import Button from '@components/ui/atoms/Button.astro';
+import InquiryField from '@components/inquiry/InquiryField.astro';
+---
+<BookingLayout>
+<Section tone="page">
+<Container class="max-w-3xl">
+<div class="booking-page" data-public-booking>
+ <div class="booking-intro">
+<Text variant="accent-label">Volatile Solutions</Text>
+<Heading tag="h1" variant="section-title">Let’s talk about your project.</Heading>
+<Text variant="body">Choose a call format and a time that works for you. Your booking is confirmed here once saved.</Text>
+</div>
+ <Text role="status" aria-live="polite" variant="body" data-booking-feedback>Loading booking availability…</Text>
+ <noscript>
+<Text variant="body">JavaScript is required to book a call. Contact Volatile Solutions for assistance.</Text>
+</noscript>
+ <section class="booking-card" data-existing-booking hidden aria-labelledby="existing-booking-heading">
+<Heading id="existing-booking-heading" tag="h2" variant="feature-title" tabindex="-1">Your booking</Heading>
+<Text variant="body" data-existing-summary>
+</Text>
+<Text variant="body" data-existing-meeting>
+</Text>
+<div class="booking-actions" data-existing-actions>
+<Button type="button" variant="outline" data-public-reschedule>Choose another time</Button>
+<Button type="button" variant="outline" data-public-cancel>Cancel booking</Button>
+</div>
+</section>
+ <form class="booking-card" data-public-booking-form novalidate hidden>
+  <fieldset>
+<legend class="sr-only">Meeting type</legend>
+<Heading tag="h2" variant="feature-title">1. Choose your call</Heading>
+<div class="meeting-options">
+<label>
+<input type="radio" name="meetingType" value="phone" checked/>
+<Text tag="span" variant="body">Phone</Text>
+</label>
+<label>
+<input type="radio" name="meetingType" value="zoom"/>
+<Text tag="span" variant="body">Zoom</Text>
+</label>
+</div>
+<Text variant="feature-body-sm" data-meeting-hint>A phone number is required for a phone call.</Text>
+</fieldset>
+  <fieldset>
+<legend class="sr-only">Call date and time</legend>
+<Heading tag="h2" variant="feature-title">2. Choose a time</Heading>
+<Text variant="body" data-booking-timezone>
+</Text>
+<InquiryField name="bookingDate" label="Available date" type="select" required options={[]}/>
+<div class="slot-options" data-booking-slots role="group" aria-label="Available time slots">
+</div>
+<Text variant="feature-body-sm" class="text-on-surface-variant" data-slots-empty hidden>No times available for this date. Choose another date.</Text>
+<Text id="booking-slot-error" variant="feature-body-sm" data-booking-slot-error class="text-[var(--color-error)]" hidden>
+</Text>
+</fieldset>
+  <fieldset>
+<legend class="sr-only">Contact details</legend>
+<Heading tag="h2" variant="feature-title">3. Confirm your details</Heading>
+<InquiryField name="clientName" label="Name" required maxLength={120} autocomplete="name"/>
+<InquiryField name="clientEmail" label="Email" type="email" required maxLength={254} autocomplete="email"/>
+<div data-booking-phone>
+<InquiryField name="clientPhone" label="Phone number" required maxLength={30} autocomplete="tel"/>
+</div>
+<InquiryField name="clientNotes" label="Anything useful before the call?" type="textarea" maxLength={1000}/>
+</fieldset>
+  <Button type="submit" variant="primary" data-booking-review>Review booking</Button>
+ </form>
+ <template data-booking-slot-template>
+<Button type="button" variant="outline" size="sm" data-booking-slot>
+</Button>
+</template>
+ <dialog data-booking-confirm aria-labelledby="booking-confirm-heading">
+<div class="booking-dialog">
+<Heading id="booking-confirm-heading" tag="h2" variant="feature-title">Confirm your booking</Heading>
+<Text variant="body" data-booking-confirm-copy>
+</Text>
+<div class="booking-actions">
+<Button type="button" variant="primary" data-booking-confirm-save>Confirm booking</Button>
+<Button type="button" variant="outline" data-booking-confirm-back>Back</Button>
+</div>
+</div>
+</dialog>
+</div>
+</Container>
+</Section>
+</BookingLayout>
+<script>
+import { setupPublicBooking } from '@/lib/bookings/public';
+void setupPublicBooking();
+</script>
+<style>
+[hidden] {
+  display: none !important;
+}
+.booking-page,
+.booking-intro,
+.booking-card,
+.booking-dialog,
+fieldset {
+  display: grid;
+  gap: var(--spacing-md);
+  min-width: 0;
+}
+.booking-page {
+  gap: var(--spacing-lg);
+}
+.booking-intro {
+  max-width: 42rem;
+}
+.booking-card {
+  padding: clamp(1rem, 4vw, 2rem);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--ui-radius-lg);
+  background: var(--color-brand-cream);
+}
+fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+.meeting-options,
+.booking-actions,
+.slot-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+.meeting-options label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-outline);
+  border-radius: var(--ui-radius-sm);
+  flex: 1 1 10rem;
+}
+.meeting-options input {
+  accent-color: var(--color-primary);
+}
+.slot-options :global(button) {
+  min-height: 2.75rem;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--color-outline);
+  border-radius: var(--ui-radius-sm);
+  font: inherit;
+  background: var(--color-brand-light);
+  color: var(--color-on-surface);
+  cursor: pointer;
+}
+.slot-options :global(button[aria-pressed='true']) {
+  background: var(--color-brand-dark);
+  color: var(--color-on-primary);
+}
+.slot-options :global(button:focus-visible) {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+dialog {
+  padding: 0;
+  width: min(calc(100% - 2rem), 32rem);
+  max-height: calc(100svh - 2rem);
+  border: 1px solid var(--color-outline);
+  border-radius: var(--ui-radius-lg);
+  background: var(--color-brand-light);
+}
+dialog::backdrop {
+  background: color-mix(in srgb, var(--color-brand-dark) 50%, transparent);
+}
+.booking-dialog {
+  padding: var(--spacing-lg);
+}
+.booking-actions > :global(button) {
+  flex: 1 1 10rem;
+}
+.booking-page :global([data-booking-feedback][role='alert']) {
+  color: var(--color-error);
+}
+.booking-page :global([data-existing-summary]) {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+</style>

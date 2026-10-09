@@ -1,4 +1,5 @@
 import { randomBytes } from 'node:crypto';
+import { publicUrl } from './public-url';
 import { query } from './database';
 import { HttpError } from './http';
 import {
@@ -55,6 +56,7 @@ function adminData(row: Record<string, unknown>): AdminProposal {
     createdAt: iso(row.created_at),
     updatedAt: iso(row.updated_at),
     internalNotes: String(row.internal_notes),
+    publicUrl: row.client_token && row.status !== 'draft' ? publicUrl('/proposal/' + String(row.client_token) + '/') : null,
     clientUrl:
       row.client_token && row.status !== 'draft' ? '/proposal/' + String(row.client_token) + '/' : null,
   };

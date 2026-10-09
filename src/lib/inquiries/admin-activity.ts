@@ -5,9 +5,12 @@ export function renderInquiryActivity(list: HTMLOListElement, empty: HTMLElement
   for (const event of activity) {
     const item = document.createElement('li');
     const label = document.createElement('span'); label.className = 'activity-label ui-type-text-feature-sm';
-    label.textContent = { inquiry_created: 'Created', status_changed: 'Status changed', admin_note_updated: 'Admin notes updated', follow_up_scheduled: 'Follow-up scheduled', follow_up_updated: 'Follow-up updated', follow_up_cleared: 'Follow-up cleared', proposal_created: 'Proposal created', proposal_updated: 'Proposal updated', proposal_sent: 'Proposal sent', proposal_accepted: 'Proposal accepted', proposal_declined: 'Proposal declined' }[event.type];
+    label.textContent = { inquiry_created: 'Created', status_changed: 'Status changed', admin_note_updated: 'Admin notes updated', follow_up_scheduled: 'Follow-up scheduled', follow_up_updated: 'Follow-up updated', follow_up_cleared: 'Follow-up cleared', proposal_created: 'Proposal created', proposal_updated: 'Proposal updated', proposal_sent: 'Proposal sent', proposal_accepted: 'Proposal accepted', proposal_declined: 'Proposal declined', email_sent: 'Email sent', email_failed: 'Email failed', booking_link_created: 'Booking link created', booking_link_regenerated: 'Booking link regenerated', booking_scheduled: 'Call scheduled', booking_cancelled: 'Call cancelled', booking_completed: 'Call completed', booking_rescheduled: 'Call rescheduled' }[event.type];
     if (event.proposalNumber) label.textContent += ' · ' + event.proposalNumber;
     item.append(label);
+    if (event.type === 'email_sent' || event.type === 'email_failed') {
+      const subject = document.createElement('span'); subject.className = 'ui-type-text-feature-sm'; subject.textContent = event.note; item.append(subject);
+    }
     if (event.type === 'status_changed' && event.fromStatus && event.toStatus) {
       const detail = document.createElement('span'); detail.className = 'ui-type-text-feature-sm';
       const title = (status: string) => status[0].toUpperCase() + status.slice(1);
