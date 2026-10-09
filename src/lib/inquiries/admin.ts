@@ -1,6 +1,7 @@
 import { login, logout, getUser, getSettings, handleAuthCallback, acceptInvite, updateUser, requestPasswordRecovery, onAuthChange } from '@netlify/identity';
 import { inquiryContent, optionLabel, STATUS_OPTIONS, updateSchema, fieldErrors, type Inquiry, type InquiryList } from './contract';
 import { presentInquiryRow, presentInquiryStatus } from './admin-presentation';
+import { inquiryDetailApiUrl } from './admin-routes';
 
 export async function setupInquiryAdmin(): Promise<void> {
   const root = document.querySelector<HTMLElement>('[data-inquiry-admin]'); if (!root) return;
@@ -8,6 +9,7 @@ export async function setupInquiryAdmin(): Promise<void> {
   const message = element('[data-admin-message]');
   const loginPanel = element('[data-admin-login]'); const passwordPanel = element('[data-admin-password]');
   const dashboard = element('[data-admin-dashboard]'); const listPanel = element('[data-admin-list-panel]'); const detailPanel = element('[data-admin-detail-panel]');
+  const detailContent = element('[data-admin-detail-content]'); const detailUnavailable = element('[data-admin-detail-unavailable]');
   const loginForm = element<HTMLFormElement>('[data-admin-login-form]'); const passwordForm = element<HTMLFormElement>('[data-admin-password-form]');
   const updateForm = element<HTMLFormElement>('[data-admin-update-form]'); const rows = element<HTMLTableSectionElement>('[data-admin-rows]');
   const filter = element<HTMLSelectElement>('[name="filterStatus"]'); const sort = element<HTMLSelectElement>('[name="sortOrder"]');
@@ -108,13 +110,14 @@ export async function setupInquiryAdmin(): Promise<void> {
     element('[data-admin-email]').hidden = true;
     listPanel.hidden = true; detailPanel.hidden = false; detailPanel.setAttribute('aria-busy', 'true');
     root!.querySelectorAll<HTMLElement>('[data-admin-detail]').forEach(node => { node.textContent = ''; });
-    announce('Loading inquiry…'); updateForm.hidden = true;
+    announce('Loading inquiry…'); updateForm.hidden = true; detailContent.hidden = true; detailUnavailable.hidden = true;
     try {
-      const result = await api<{ inquiry: Inquiry }>('/api/admin/inquiries/' + encodeURIComponent(id), { signal: detailAbort.signal });
+      const result = await api<{ inquiry: Inquiry }>(inquiryDetailApiUrl(id), { signal: detailAbort.signal });
       if (version !== detailVersion || !authenticated) return;
-      renderDetail(result.inquiry); updateForm.hidden = false; announce('Inquiry loaded.');
+      if (!result.inquiry) throw new Error('Missing inquiry detail response.');
+      renderDetail(result.inquiry); detailContent.hidden = false; updateForm.hidden = false; announce('Inquiry loaded.');
       element('[data-admin-detail-heading]').focus();
-    } catch (error) { if (version === detailVersion && !detailAbort.signal.aborted) { announce(friendly(error, 'This inquiry could not be loaded. Return to the list and try again.'), true); if (authenticated) element('[data-admin-back]').focus(); } }
+    } catch (error) { if (version === detailVersion && !detailAbort.signal.aborted) { announce(friendly(error, 'This inquiry could not be loaded. Return to the list and try again.'), true); if (authenticated) { detailUnavailable.hidden = false; element('[data-admin-back]').focus(); } } }
     finally { if (version === detailVersion) detailPanel.removeAttribute('aria-busy'); }
   }
   async function checkSession(): Promise<void> {
@@ -180,6 +183,7 @@ export async function setupInquiryAdmin(): Promise<void> {
   element('[data-admin-back]').addEventListener('click', backToList);
   element('[data-admin-retry]').addEventListener('click', () => { void loadList(); });
   element('[data-admin-reload]').addEventListener('click', () => { const id = new URL(location.href).searchParams.get('inquiry'); if (id) void loadDetail(id); });
+  element('[data-admin-detail-retry]').addEventListener('click', () => { const id = new URL(location.href).searchParams.get('inquiry'); if (id) void loadDetail(id); });
   filter.addEventListener('change', () => { page = 1; void loadList(); }); sort.addEventListener('change', () => { page = 1; void loadList(); });
   element('[data-admin-previous]').addEventListener('click', () => { if (page > 1) { page--; void loadList(); } });
   element('[data-admin-next]').addEventListener('click', () => { page++; void loadList(); });
@@ -192,7 +196,7 @@ export async function setupInquiryAdmin(): Promise<void> {
     const controls = [...detailPanel.querySelectorAll<HTMLButtonElement | HTMLSelectElement | HTMLTextAreaElement>('button,select,textarea')]; controls.forEach(control => { control.disabled = true; });
     const saveMessage = element('[data-admin-save-message]'); saveMessage.textContent = 'Saving…';
     try {
-      const response = await api<{ inquiry: Inquiry }>('/api/admin/inquiries/' + lead.id, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(result.data) });
+      const response = await api<{ inquiry: Inquiry }>(inquiryDetailApiUrl(lead.id), { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(result.data) });
       if (!authenticated) return;
       renderDetail(response.inquiry); saveMessage.textContent = 'Changes saved.';
     } catch (error) { saveMessage.textContent = friendly(error, 'Changes could not be saved. Your edits are still here. Please try again.'); }

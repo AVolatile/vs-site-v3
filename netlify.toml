@@ -17,12 +17,6 @@
   force = true
 
 [[redirects]]
-  from = "/api/admin/inquiries/:id"
-  to = "/.netlify/functions/admin-inquiries?id=:id"
-  status = 200
-  force = true
-
-[[redirects]]
   from = "/api/admin/inquiries"
   to = "/.netlify/functions/admin-inquiries"
   status = 200
