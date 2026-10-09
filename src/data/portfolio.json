@@ -1,0 +1,2722 @@
+{
+  "seo": {
+    "title": "Portfolio | Volatile Solutions",
+    "description": "Explore client websites, web applications, digital products, branding, advertising, and creative work from Volatile Solutions."
+  },
+  "intro": {
+    "eyebrow": "Development / Design / Creative Work",
+    "heading": "Portfolio",
+    "description": "Client websites, web applications, digital products, branding, and advertising, bringing development and visual design into one collection."
+  },
+  "categories": [
+    {
+      "id": "all",
+      "label": "All"
+    },
+    {
+      "id": "websites",
+      "label": "Websites"
+    },
+    {
+      "id": "web-apps",
+      "label": "Web Apps & Digital Products"
+    },
+    {
+      "id": "branding",
+      "label": "Branding",
+      "cardLabel": "Branding & Visual Design"
+    },
+    {
+      "id": "ads",
+      "label": "Advertising & Marketing",
+      "cardLabel": "Ads & Social"
+    },
+    {
+      "id": "thumbnails",
+      "label": "YouTube Thumbnails"
+    }
+  ],
+  "creativeCategoryIds": [
+    "branding",
+    "ads",
+    "thumbnails"
+  ],
+  "labels": {
+    "filters": "Filter portfolio by work type",
+    "creative": "Creative Work",
+    "projectSingular": "project",
+    "projectPlural": "projects",
+    "empty": "No work is available in this category yet.",
+    "tags": "Project tags",
+    "viewDetail": "View Project",
+    "viewLive": "View Project",
+    "viewArtwork": "View Artwork",
+    "showMore": "Show More",
+    "showing": "Showing",
+    "of": "of"
+  },
+  "contact": {
+    "heading": "Have a project in mind?",
+    "description": "Let’s talk about your website, digital product, or next creative project.",
+    "label": "Start a Project",
+    "href": "/#contact"
+  },
+  "items": [
+    {
+      "id": "the-moody-brewer",
+      "title": "The Moody Brewer",
+      "categories": [
+        "websites"
+      ],
+      "tags": [
+        "Client Work",
+        "Food & Beverage"
+      ],
+      "classification": "Verified Client Work",
+      "clientStatus": "verified",
+      "image": "/assets/images/t001-nova/t001-nova-project-moody-brewer.webp",
+      "alt": "The Moody Brewer website shown on a MacBook in a warm café setting",
+      "shortDescription": "A website for a West Warwick coffee shop, taken from concept through a real client launch.",
+      "externalUrl": "https://themoodybrewer.net/",
+      "actionLabel": "Visit Website",
+      "imageFit": "cover"
+    },
+    {
+      "id": "pvd-photography",
+      "title": "PVD Photography",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Client Work",
+        "Photography"
+      ],
+      "classification": "Verified Client Work",
+      "clientStatus": "verified",
+      "image": "/assets/images/t001-nova/portfolio/pvd-photography.webp",
+      "alt": "PVD Photographer wedding advertising graphic combining a couple’s portraits with booking typography",
+      "shortDescription": "Advertising creative for PVD Photography, represented by a wedding promotion combining editorial imagery and clear booking information.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/pvd-photography@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "metricforge",
+      "title": "MetricForge",
+      "categories": [
+        "web-apps"
+      ],
+      "tags": [
+        "Analytics",
+        "Dashboard"
+      ],
+      "classification": "Portfolio Work",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/metricforge.webp",
+      "alt": "MetricForge analytics interface presentation with dashboard and funnel visuals",
+      "shortDescription": "An analytics product presentation exploring dashboards, reporting, and product interface design.",
+      "imageNote": "Interface preview with illustrative figures.",
+      "externalUrl": "https://metric-forge.netlify.app/",
+      "actionLabel": "View Project",
+      "imageFit": "cover"
+    },
+    {
+      "id": "ledger-and-loom",
+      "title": "Ledger & Loom",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Finance",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/ledger-and-loom.webp",
+      "alt": "Ledger and Loom brand board showing a monogram, colors, typography, and print and digital applications",
+      "shortDescription": "An accounting identity board combining a monogram, palette, typography, and print and digital applications.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/ledger-and-loom@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "northline-strength",
+      "title": "Northline Strength",
+      "categories": [
+        "websites"
+      ],
+      "tags": [
+        "Fitness",
+        "Local Business"
+      ],
+      "classification": "Portfolio Work",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/northline-strength.webp",
+      "alt": "Northline Strength Club website presentation with training, schedule, and coaching sections",
+      "shortDescription": "A strength-coaching website presentation bringing programs, schedules, and coach information together.",
+      "externalUrl": "https://fitness-site-portfolio.netlify.app/",
+      "actionLabel": "View Project",
+      "imageFit": "cover"
+    },
+    {
+      "id": "mula",
+      "title": "Mula",
+      "categories": [
+        "web-apps"
+      ],
+      "tags": [
+        "Finance",
+        "Expense Tracker"
+      ],
+      "classification": "Portfolio Work",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/mula.webp",
+      "alt": "Mula website or product design presentation",
+      "shortDescription": "An expense-tracking web app presentation with budget summaries, category views, and CSV export controls.",
+      "imageNote": "Interface preview with illustrative figures; current demo is Mula Rebuild.",
+      "externalUrl": "https://mula-expense-tracker-v2.netlify.app/",
+      "actionLabel": "View Project",
+      "imageFit": "cover",
+      "imagePosition": "center top"
+    },
+    {
+      "id": "luma-spritz",
+      "title": "Luma Spritz",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Food & Beverage",
+        "Concept Work"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/luma-spritz.webp",
+      "alt": "Luma Spritz sparkling water advertisement concept with three cans and citrus fruit",
+      "shortDescription": "A sparkling-water advertisement concept using product imagery, clear typography, and a bright flavor palette.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/luma-spritz@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "glassdash",
+      "title": "GlassDash",
+      "categories": [
+        "web-apps"
+      ],
+      "tags": [
+        "Finance",
+        "Admin Interface"
+      ],
+      "classification": "Portfolio Work",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/glassdash.webp",
+      "alt": "Glass Admin dashboard presentation with charts, account panels, and a sign-in view",
+      "shortDescription": "A finance and administration dashboard presentation, shown under its Glass Admin interface identity.",
+      "imageNote": "Interface preview with illustrative figures.",
+      "externalUrl": "https://glass-dash-admin.netlify.app/",
+      "actionLabel": "View Project",
+      "imageFit": "cover"
+    },
+    {
+      "id": "jobly",
+      "title": "Jobly",
+      "categories": [
+        "web-apps",
+        "websites"
+      ],
+      "tags": [
+        "Job Discovery",
+        "Web Interface"
+      ],
+      "classification": "Portfolio Work",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/jobly.webp",
+      "alt": "Jobly online job portal design with a job-search introduction",
+      "shortDescription": "A job portal presentation focused on job discovery and a clear introduction to the search experience.",
+      "externalUrl": "https://jobly-jobsearch.netlify.app/",
+      "actionLabel": "View Project",
+      "imageFit": "cover"
+    },
+    {
+      "id": "cloud-keep",
+      "title": "Cloud Keep",
+      "categories": [
+        "web-apps",
+        "websites"
+      ],
+      "tags": [
+        "SaaS",
+        "File Management"
+      ],
+      "classification": "Portfolio Work",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/cloud-keep.webp",
+      "alt": "Cloud Keep website or product design presentation",
+      "shortDescription": "A cloud-storage product presentation exploring file organization, collaboration, and access controls.",
+      "imageNote": "Product concept presentation; backend and security implementation are unverified.",
+      "externalUrl": "https://cloud-keep.netlify.app/",
+      "actionLabel": "View Project",
+      "imageFit": "cover"
+    },
+    {
+      "id": "ember-and-fig",
+      "title": "Ember & Fig",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Food & Beverage",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/ember-and-fig.webp",
+      "alt": "Ember & Fig identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A restaurant identity board combining fire-inspired marks, warm colors, and dining applications.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/ember-and-fig@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "aura-active",
+      "title": "Aura Active",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Food & Beverage",
+        "Product Advertising",
+        "Concept Work"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/aura-active.webp",
+      "alt": "Aura Active product advertising concept",
+      "shortDescription": "A beverage advertisement concept with a pale can, citrus imagery, and restrained editorial typography.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/aura-active@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "birdie-bay",
+      "title": "Birdie Bay",
+      "categories": [
+        "websites"
+      ],
+      "tags": [
+        "Golf",
+        "Membership"
+      ],
+      "classification": "Portfolio Work",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/birdie-bay.webp",
+      "alt": "Birdie Bay website or product design presentation",
+      "shortDescription": "A golf and events website presentation with membership options, event content, and member navigation.",
+      "externalUrl": "https://birdie-bay.netlify.app/",
+      "actionLabel": "View Project",
+      "imageFit": "cover"
+    },
+    {
+      "id": "pvd-senior-portraits",
+      "title": "PVD Photography — Senior Portraits",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Client Work",
+        "Photography",
+        "Senior Portraits"
+      ],
+      "classification": "Verified Client Work",
+      "clientStatus": "verified",
+      "image": "/assets/images/t001-nova/portfolio/pvd-senior-portraits.webp",
+      "alt": "PVD Photographer senior portrait advertisement with a large portrait and graduation details",
+      "shortDescription": "A senior-portrait advertising series combining portrait imagery, bold booking typography, and graduation details.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/pvd-senior-portraits@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "flowpilot",
+      "title": "FlowPilot",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "SaaS",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/flowpilot.webp",
+      "alt": "FlowPilot identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A workflow software identity board combining a routing-inspired mark, cool accents, and interface mockups.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/flowpilot@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "frost",
+      "title": "Frost",
+      "categories": [
+        "websites"
+      ],
+      "tags": [
+        "Fitness",
+        "Coaching"
+      ],
+      "classification": "Portfolio Work",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/frost.webp",
+      "alt": "Frost website or product design presentation under the JackFrost Coaching name",
+      "shortDescription": "A JackFrost Coaching website presentation organizing a coaching offer, training approach, and inquiry flow.",
+      "externalUrl": "https://frost-fitness.netlify.app/",
+      "actionLabel": "View Project",
+      "imageFit": "cover"
+    },
+    {
+      "id": "scholarlink",
+      "title": "ScholarLink",
+      "categories": [
+        "websites"
+      ],
+      "tags": [
+        "Education",
+        "Tutoring"
+      ],
+      "classification": "Portfolio Work",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/scholarlink.webp",
+      "alt": "ScholarLink website or product design presentation",
+      "shortDescription": "A tutoring website presentation with subject options, tutor introductions, and consultation prompts.",
+      "externalUrl": "https://scholar-link.netlify.app/",
+      "actionLabel": "View Project",
+      "imageFit": "cover"
+    },
+    {
+      "id": "kindwell",
+      "title": "Kindwell",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Healthcare",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/kindwell.webp",
+      "alt": "Kindwell identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A pediatric care identity board combining a gentle symbol, warm accents, and family-facing applications.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/kindwell@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "harbor-and-steel",
+      "title": "Harbor & Steel",
+      "categories": [
+        "websites"
+      ],
+      "tags": [
+        "Local Business",
+        "Barber Shop"
+      ],
+      "classification": "Portfolio Work",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/harbor-and-steel.webp",
+      "alt": "Harbor & Steel website or product design presentation",
+      "shortDescription": "A barber-shop website presentation organizing service prices, barber profiles, and booking prompts.",
+      "imageNote": "Website presentation with illustrative business details.",
+      "externalUrl": "https://haircut-portfolio.netlify.app/",
+      "actionLabel": "View Project",
+      "imageFit": "cover"
+    },
+    {
+      "id": "sable-row",
+      "title": "Sable Row",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Fashion",
+        "Social Graphic"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/sable-row.webp",
+      "alt": "Sable Row menswear social graphic featuring a jacket and seasonal typography",
+      "shortDescription": "A menswear social graphic pairing editorial product photography with seasonal typography.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/sable-row@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "northline-plumbing",
+      "title": "Northline Plumbing",
+      "categories": [
+        "websites"
+      ],
+      "tags": [
+        "Local Business",
+        "Concept Work"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/northline-plumbing.webp",
+      "alt": "Northline Plumbing website or product design presentation",
+      "shortDescription": "A fictional plumbing-service website concept with residential and commercial service routes and an inquiry flow.",
+      "imageNote": "Fictional business presentation; service details are illustrative.",
+      "externalUrl": "https://plumbing-portfolio.netlify.app/",
+      "actionLabel": "View Project",
+      "imageFit": "cover"
+    },
+    {
+      "id": "tasknest",
+      "title": "TaskNest",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "SaaS",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/tasknest.webp",
+      "alt": "TaskNest identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A task management identity board combining a geometric mark, blue accents, and task-interface mockups.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/tasknest@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "sonoran-comfort-systems",
+      "title": "Sonoran Comfort Systems",
+      "categories": [
+        "websites"
+      ],
+      "tags": [
+        "Local Business",
+        "HVAC"
+      ],
+      "classification": "Portfolio Work",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/sonoran-comfort-systems.webp",
+      "alt": "Sonoran Comfort Systems website or product design presentation",
+      "shortDescription": "An HVAC website presentation bringing repair, installation, maintenance, and estimate inquiries into a service-focused layout.",
+      "imageNote": "Website presentation; business details and trust marks are unverified.",
+      "externalUrl": "https://hvac-portfolio.netlify.app/",
+      "actionLabel": "View Project",
+      "imageFit": "cover"
+    },
+    {
+      "id": "solartec",
+      "title": "Solartec",
+      "categories": [
+        "websites"
+      ],
+      "tags": [
+        "Solar",
+        "Local Business"
+      ],
+      "classification": "Portfolio Work",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/solartec.webp",
+      "alt": "Solartec website or product design presentation",
+      "shortDescription": "A solar-service website presentation with service sections, project imagery, and quote prompts.",
+      "imageNote": "Historical Solartec design; linked demo now uses Sunward Grid Solar branding. Interface figures are illustrative.",
+      "externalUrl": "https://solar-portfolio.netlify.app/",
+      "actionLabel": "View Project",
+      "imageFit": "cover"
+    },
+    {
+      "id": "alder-and-finch",
+      "title": "Alder & Finch",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Local Business",
+        "Promo Graphic"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/alder-and-finch.webp",
+      "alt": "Alder and Finch residential cleaning promotional graphic with a light interior and cleaning products",
+      "shortDescription": "A residential-cleaning promotional graphic with a warm interior, product imagery, and a clear service message.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/alder-and-finch@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "carbon-cue",
+      "title": "Carbon Cue",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "SaaS",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/carbon-cue.webp",
+      "alt": "Carbon Cue identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A climate analytics identity board combining an organic symbol, green palette, and reporting mockups.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/carbon-cue@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "crestline-wealth-partners",
+      "title": "Crestline Wealth Partners",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Finance",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/crestline-wealth-partners.webp",
+      "alt": "Crestline Wealth Partners identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A financial advisory identity board combining a crest-like symbol, restrained palette, and stationery.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/crestline-wealth-partners@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "luma-grove-clinic",
+      "title": "Luma Grove Clinic",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Healthcare",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/luma-grove-clinic.webp",
+      "alt": "Luma Grove Clinic identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A healthcare identity board combining a botanical mark, muted greens, and clinic applications.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/luma-grove-clinic@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "glossline-studio",
+      "title": "Glossline Studio",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Automotive",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/glossline-studio.webp",
+      "alt": "Glossline Studio identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A automotive detailing identity board combining a shield mark, dark surfaces, and reflective imagery.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/glossline-studio@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "iron-vale",
+      "title": "Iron Vale",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Fitness",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/iron-vale.webp",
+      "alt": "Iron Vale identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A fitness equipment identity board combining a metallic emblem, condensed typography, and gear applications.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/iron-vale@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "northline-real-estate",
+      "title": "Northline Real Estate",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Real Estate",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/northline-real-estate.webp",
+      "alt": "Northline Real Estate identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A real estate identity board combining an architectural monogram, navy and gold palette, and property materials.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/northline-real-estate@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "atlas-drift",
+      "title": "Atlas Drift",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Travel",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/atlas-drift.webp",
+      "alt": "Atlas Drift identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A travel identity board combining a compass-like mark, forest tones, and route applications.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/atlas-drift@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "benny-s-burgers",
+      "title": "Benny's Burgers",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Food & Beverage",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/benny-s-burgers.webp",
+      "alt": "Benny's Burgers identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A burger restaurant identity board combining a burger mascot, bright colors, and food packaging.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/benny-s-burgers@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "rift-energy",
+      "title": "Rift Product Advertising",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Food & Beverage",
+        "Fitness",
+        "Product Advertising",
+        "Concept Work"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/rift-energy.webp",
+      "alt": "Rift Product Advertising product advertising concept",
+      "shortDescription": "A product advertising concept using dark staging, bold type, and bright accents for energy and supplement packaging.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/rift-energy@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "clip-forge",
+      "title": "Clip Forge",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "SaaS",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/clip-forge.webp",
+      "alt": "Clip Forge identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A creator software identity board combining an angular mark, vivid accents, and editing-interface mockups.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/clip-forge@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "bridgewell-funding",
+      "title": "Bridgewell Funding",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Finance",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/bridgewell-funding.webp",
+      "alt": "Bridgewell Funding identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A lending identity board combining a bridge-inspired monogram, navy and copper palette, and print applications.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/bridgewell-funding@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "haven-bloom-health",
+      "title": "Haven Bloom Health",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Healthcare",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/haven-bloom-health.webp",
+      "alt": "Haven Bloom Health identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A healthcare identity board combining a floral monogram, plum tones, and patient-facing applications.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/haven-bloom-health@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "gravelhorn-outfitters",
+      "title": "Gravelhorn Outfitters",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Automotive",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/gravelhorn-outfitters.webp",
+      "alt": "Gravelhorn Outfitters identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A outdoor equipment identity board combining a horned emblem, earthy tones, and rugged packaging.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/gravelhorn-outfitters@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "align-and-aura",
+      "title": "Align & Aura",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Fitness",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/align-and-aura.webp",
+      "alt": "Align & Aura identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A movement studio identity board combining a delicate monogram, soft neutrals, and studio materials.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/align-and-aura@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "hearthmark-lending",
+      "title": "HearthMark Lending",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Real Estate",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/hearthmark-lending.webp",
+      "alt": "HearthMark Lending identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A home lending identity board combining a house-inspired mark, warm accents, and lending materials.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/hearthmark-lending@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "solara-stay",
+      "title": "Solara Stay",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Travel",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/solara-stay.webp",
+      "alt": "Solara Stay identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A hospitality identity board combining a sun-inspired monogram, warm neutrals, and guest materials.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/solara-stay@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "juniper-hearth",
+      "title": "Juniper Hearth",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Food & Beverage",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/juniper-hearth.webp",
+      "alt": "Juniper Hearth identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A hospitality identity board combining a botanical crest, warm dark palette, and printed materials.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/juniper-hearth@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "vanta-pulse",
+      "title": "Vanta Pulse",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Food & Beverage",
+        "Product Advertising",
+        "Concept Work"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/vanta-pulse.webp",
+      "alt": "Vanta Pulse product advertising concept",
+      "shortDescription": "An energy-drink advertisement concept combining a dark product shot, colored light trails, and a strong headline.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/vanta-pulse@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "patchline",
+      "title": "Patchline",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "SaaS",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/patchline.webp",
+      "alt": "Patchline identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A developer software identity board combining a code-inspired symbol, dark palette, and release-interface mockups.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/patchline@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "meridian-oak",
+      "title": "Meridian Oak",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Finance",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/meridian-oak.webp",
+      "alt": "Meridian Oak identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A wealth advisory identity board combining an oak-inspired mark, forest tones, and stationery.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/meridian-oak@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "pearl-and-pine-dental",
+      "title": "Pearl & Pine Dental",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Healthcare",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/pearl-and-pine-dental.webp",
+      "alt": "Pearl & Pine Dental identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A dental care identity board combining a botanical emblem, soft greens, and printed materials.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/pearl-and-pine-dental@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "mirrorbay-detail",
+      "title": "MirrorBay Detail",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Automotive",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/mirrorbay-detail.webp",
+      "alt": "MirrorBay Detail identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A automotive detailing identity board combining a mirrored monogram, electric-blue accents, and product mockups.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/mirrorbay-detail@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "forgehouse-athletics",
+      "title": "ForgeHouse Athletics",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Fitness",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/forgehouse-athletics.webp",
+      "alt": "ForgeHouse Athletics identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A strength training identity board combining a bold monogram, orange accents, and athletic applications.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/forgehouse-athletics@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "keyhaven-property",
+      "title": "KeyHaven Property",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Real Estate",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/keyhaven-property.webp",
+      "alt": "KeyHaven Property identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A property management identity board combining a key-inspired monogram, blue palette, and property applications.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/keyhaven-property@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "tide-and-trail",
+      "title": "Tide & Trail",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Travel",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/tide-and-trail.webp",
+      "alt": "Tide & Trail identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A travel identity board combining an outdoor emblem, warm accents, and route materials.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/tide-and-trail@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "copper-fork",
+      "title": "Copper Fork",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Food & Beverage",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/copper-fork.webp",
+      "alt": "Copper Fork identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A restaurant identity board combining a fork emblem, copper tones, and menu applications.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/copper-fork@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "macro-forge-meals",
+      "title": "Macro Forge Meals",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Fitness",
+        "Food & Beverage",
+        "Concept Work"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/macro-forge-meals.webp",
+      "alt": "Macro Forge Meals product advertising concept",
+      "shortDescription": "A meal-preparation advertisement concept pairing food photography with bold training-focused typography.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/macro-forge-meals@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "table-shift",
+      "title": "Table Shift",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "SaaS",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/table-shift.webp",
+      "alt": "Table Shift identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A restaurant operations identity board combining a table-inspired mark, coral accents, and scheduling mockups.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/table-shift@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "penny-pilot",
+      "title": "Penny Pilot",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Finance",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/penny-pilot.webp",
+      "alt": "Penny Pilot identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A personal finance identity board combining a friendly monogram, green accents, and budget-interface mockups.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/penny-pilot@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "solenne-dermatology",
+      "title": "Solenne Dermatology",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Healthcare",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/solenne-dermatology.webp",
+      "alt": "Solenne Dermatology identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A skincare identity board combining a refined monogram, neutral tones, and packaging mockups.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/solenne-dermatology@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "route-forge",
+      "title": "Route Forge",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Automotive",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/route-forge.webp",
+      "alt": "Route Forge identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A fleet services identity board combining a road-inspired mark, industrial typography, and fleet applications.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/route-forge@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "glovehouse-boxing",
+      "title": "GloveHouse Boxing",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Fitness",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/glovehouse-boxing.webp",
+      "alt": "GloveHouse Boxing identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A boxing identity board combining a shield-like mark, red accents, and boxing-gear mockups.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/glovehouse-boxing@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "roomwright-studio",
+      "title": "RoomWright Studio",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Real Estate",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/roomwright-studio.webp",
+      "alt": "RoomWright Studio identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A interior staging identity board combining an architectural monogram, warm neutrals, and room imagery.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/roomwright-studio@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "bloom-and-brick",
+      "title": "Bloom & Brick",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Travel",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/bloom-and-brick.webp",
+      "alt": "Bloom & Brick identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A walking tours identity board combining a floral emblem, muted pink tones, and city-tour materials.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/bloom-and-brick@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "fry-bird",
+      "title": "Fry Bird",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Food & Beverage",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/fry-bird.webp",
+      "alt": "Fry Bird identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A chicken restaurant identity board combining a bird mascot, bold lettering, and food packaging.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/fry-bird@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "volt-electrolytes",
+      "title": "Volt Electrolytes",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Fitness",
+        "Product Advertising",
+        "Concept Work"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/volt-electrolytes.webp",
+      "alt": "Volt Electrolytes product advertising concept",
+      "shortDescription": "A hydration-product advertisement concept with electrolyte packaging, citrus accents, and cool-toned staging.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/volt-electrolytes@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "harborline-capital",
+      "title": "Harborline Capital",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Finance",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/harborline-capital.webp",
+      "alt": "Harborline Capital identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A financial advisory identity board combining a restrained monogram, navy and sage tones, and stationery.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/harborline-capital@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "stridewell-therapy",
+      "title": "Stridewell Therapy",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Healthcare",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/stridewell-therapy.webp",
+      "alt": "Stridewell Therapy identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A physical therapy identity board combining a motion-inspired mark, blue accents, and care-interface mockups.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/stridewell-therapy@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "volt-nest",
+      "title": "Volt Nest",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Automotive",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/volt-nest.webp",
+      "alt": "Volt Nest identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A EV charging identity board combining a geometric symbol, lime accents, and charging-interface mockups.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/volt-nest@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "macromap",
+      "title": "MacroMap",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Fitness",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/macromap.webp",
+      "alt": "MacroMap identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A nutrition identity board combining a map-inspired symbol, bright greens, and meal-planning mockups.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/macromap@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "sagepoint-realty",
+      "title": "SagePoint Realty",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Real Estate",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/sagepoint-realty.webp",
+      "alt": "SagePoint Realty identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A real estate identity board combining a serif monogram, sage palette, and property materials.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/sagepoint-realty@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "lantern-lane",
+      "title": "Lantern Lane",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Travel",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/lantern-lane.webp",
+      "alt": "Lantern Lane identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A walking tours identity board combining a lantern emblem, gold accents, and evening-tour materials.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/lantern-lane@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "hollow-cup",
+      "title": "Hollow Cup",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Food & Beverage",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/hollow-cup.webp",
+      "alt": "Hollow Cup identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A coffee identity board combining a cup symbol, warm neutrals, and café packaging.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/hollow-cup@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "brew-core",
+      "title": "Brew Core",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Food & Beverage",
+        "Product Advertising",
+        "Concept Work"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/brew-core.webp",
+      "alt": "Brew Core product advertising concept",
+      "shortDescription": "A coffee-product advertisement concept combining dark cans, warm café imagery, and a condensed headline.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/brew-core@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "wrench-run",
+      "title": "Wrench Run",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Automotive",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/wrench-run.webp",
+      "alt": "Wrench Run identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A mobile mechanics identity board combining a wrench-inspired mark, bold colors, and vehicle applications.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/wrench-run@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "rangelab-recovery",
+      "title": "RangeLab Recovery",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Fitness",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/rangelab-recovery.webp",
+      "alt": "RangeLab Recovery identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A recovery identity board combining a curved monogram, blue accents, and recovery-interface mockups.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/rangelab-recovery@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "vale-and-stone",
+      "title": "Vale & Stone",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Real Estate",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/vale-and-stone.webp",
+      "alt": "Vale & Stone identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A real estate identity board combining a refined monogram, dark neutrals, and architectural imagery.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/vale-and-stone@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "old-harbor",
+      "title": "Old Harbor",
+      "categories": [
+        "branding"
+      ],
+      "tags": [
+        "Travel",
+        "Brand Identity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/old-harbor.webp",
+      "alt": "Old Harbor identity board with logo, palette, typography, and application mockups",
+      "shortDescription": "A local guides identity board combining a lighthouse-inspired mark, navy accents, and guide materials.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/old-harbor@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "contain"
+    },
+    {
+      "id": "crunch-forge",
+      "title": "Crunch Forge",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Food & Beverage",
+        "Product Advertising",
+        "Concept Work"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/crunch-forge.webp",
+      "alt": "Crunch Forge product advertising concept",
+      "shortDescription": "A snack advertisement concept with dark packaging, peanut imagery, and contrasting orange typography.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/crunch-forge@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "level-up",
+      "title": "Level Up",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Fitness",
+        "Product Advertising",
+        "Concept Work"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/level-up.webp",
+      "alt": "Level Up product advertising concept",
+      "shortDescription": "A supplement advertisement concept using game-interface motifs, neon accents, and a three-product composition.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/level-up@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "vyra-active",
+      "title": "Vyra Active",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Fitness",
+        "Product Advertising",
+        "Concept Work"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/vyra-active.webp",
+      "alt": "Vyra Active product advertising concept",
+      "shortDescription": "A supplement advertisement concept with soft neutral staging and a three-product packaging arrangement.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/vyra-active@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "flowstate-ai",
+      "title": "Flowstate AI",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "SaaS",
+        "Product Advertising",
+        "Concept Work"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/flowstate-ai.webp",
+      "alt": "Flowstate AI product advertising concept",
+      "shortDescription": "A digital-product advertisement concept showing workflow interface mockups across a laptop and tablet.",
+      "imageNote": "Interface mockups, not evidence of implemented software.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/flowstate-ai@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "revnue-admin",
+      "title": "Revnue Admin",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Dashboard",
+        "Product Advertising",
+        "Concept Work"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/revnue-admin.webp",
+      "alt": "Revnue Admin product advertising concept",
+      "shortDescription": "A digital-product advertisement concept combining finance dashboard mockups with a bold typographic message.",
+      "imageNote": "Interface mockups, not evidence of implemented software.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/revnue-admin@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "vault-iq",
+      "title": "Vault IQ",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Security",
+        "Product Advertising",
+        "Concept Work"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/vault-iq.webp",
+      "alt": "Vault IQ product advertising concept",
+      "shortDescription": "A digital-product advertisement concept with a phone-interface mockup, shield imagery, and blue lighting.",
+      "imageNote": "Interface mockups, not evidence of implemented software.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/vault-iq@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "harbor-room",
+      "title": "Harbor Room — Local Table Night",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Events",
+        "Food & Beverage"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/harbor-room.webp",
+      "alt": "Harbor Room — Local Table Night marketing graphic",
+      "shortDescription": "A dining-event graphic with atmospheric bar imagery, large type, and a date-and-time hierarchy.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/harbor-room@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "ironwood-training",
+      "title": "Ironwood Training Hall",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Events",
+        "Fitness"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/ironwood-training.webp",
+      "alt": "Ironwood Training Hall marketing graphic",
+      "shortDescription": "A training-event graphic pairing gym equipment imagery with a bold check-in headline.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/ironwood-training@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "juniper-house",
+      "title": "Juniper House — Author Evening",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Events",
+        "Books"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/juniper-house.webp",
+      "alt": "Juniper House — Author Evening marketing graphic",
+      "shortDescription": "An author-event graphic combining books, warm lighting, serif typography, and reservation information.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/juniper-house@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "paper-lantern",
+      "title": "Paper Lantern Studio",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Events",
+        "Content Planning"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/paper-lantern.webp",
+      "alt": "Paper Lantern Studio marketing graphic",
+      "shortDescription": "A workshop-promotion graphic combining a content-planning interface mockup with warm desk imagery.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/paper-lantern@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "blue-harbor",
+      "title": "Blue Harbor Advisory",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Finance",
+        "Service Graphic"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/blue-harbor.webp",
+      "alt": "Blue Harbor Advisory marketing graphic",
+      "shortDescription": "A bookkeeping promotion concept with a tablet dashboard mockup, stationery, and a clear service headline.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/blue-harbor@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "hale-street",
+      "title": "Hale Street Realty",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Real Estate",
+        "Service Graphic"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/hale-street.webp",
+      "alt": "Hale Street Realty marketing graphic",
+      "shortDescription": "A real-estate promotion concept with architectural photography, a navy palette, and a guidance-focused headline.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/hale-street@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "stonebridge-web",
+      "title": "Stonebridge Web Services",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Web Services",
+        "Service Graphic"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/stonebridge-web.webp",
+      "alt": "Stonebridge Web Services marketing graphic",
+      "shortDescription": "A web-services promotion concept presenting laptop and tablet website mockups in a warm workspace.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/stonebridge-web@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "westmere-talent",
+      "title": "Westmere Talent",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Career",
+        "Service Graphic"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/westmere-talent.webp",
+      "alt": "Westmere Talent marketing graphic",
+      "shortDescription": "A career-services promotion concept combining résumé mockups, desk imagery, and editorial typography.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/westmere-talent@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "cedar-plate",
+      "title": "Cedar Plate",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Food & Beverage",
+        "Social Graphic"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/cedar-plate.webp",
+      "alt": "Cedar Plate marketing graphic",
+      "shortDescription": "A restaurant social graphic combining pasta photography with a seasonal menu headline.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/cedar-plate@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "house-of-laurel",
+      "title": "House of Laurel",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Beauty",
+        "Social Graphic"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/house-of-laurel.webp",
+      "alt": "House of Laurel marketing graphic",
+      "shortDescription": "A beauty-service social graphic with salon imagery, soft colors, and appointment-focused typography.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/house-of-laurel@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "kindred-desk",
+      "title": "Kindred Desk",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Workspace",
+        "Social Graphic"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/kindred-desk.webp",
+      "alt": "Kindred Desk marketing graphic",
+      "shortDescription": "A workspace-product social graphic with an overhead desk composition and clean product typography.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/kindred-desk@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "marlow-pantry",
+      "title": "Marlow Pantry",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Food & Beverage",
+        "Social Graphic"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/marlow-pantry.webp",
+      "alt": "Marlow Pantry marketing graphic",
+      "shortDescription": "A bakery social graphic pairing pastry photography, warm café colors, and an editorial headline.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/marlow-pantry@1080.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "north-ledger",
+      "title": "North Ledger Consulting",
+      "categories": [
+        "ads"
+      ],
+      "tags": [
+        "Professional Banner",
+        "Operations"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/north-ledger.webp",
+      "alt": "North Ledger Consulting marketing graphic",
+      "shortDescription": "A professional profile-banner concept pairing operations-dashboard imagery with a concise consulting headline.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/north-ledger@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover"
+    },
+    {
+      "id": "ai-thumbnail-design",
+      "title": "AI & Productivity Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "AI Tools",
+        "Thumbnail Design"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/ai-thumbnail-design.webp",
+      "alt": "AI & Productivity Thumbnail Design sample with headline and supporting imagery",
+      "shortDescription": "An AI-study thumbnail design using a clear headline, student imagery, and study-interface mockups.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/ai-thumbnail-design@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "faith-thumbnail-design",
+      "title": "Faith & Lifestyle Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "Faith / Lifestyle",
+        "Thumbnail Design"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/faith-thumbnail-design.webp",
+      "alt": "Faith & Lifestyle Thumbnail Design sample with headline and supporting imagery",
+      "shortDescription": "A faith-focused thumbnail design combining warm portrait imagery with large, readable editorial type.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/faith-thumbnail-design@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "finance-thumbnail-design",
+      "title": "Finance Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "Finance",
+        "Thumbnail Design"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/finance-thumbnail-design.webp",
+      "alt": "Finance Thumbnail Design sample with headline and supporting imagery",
+      "shortDescription": "A finance thumbnail concept combining a Bitcoin illustration, a presenter, and chart imagery.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/finance-thumbnail-design@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "fitness-thumbnail-design",
+      "title": "Fitness Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "Fitness",
+        "Thumbnail Design"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/fitness-thumbnail-design.webp",
+      "alt": "Fitness Thumbnail Design sample with headline and supporting imagery",
+      "shortDescription": "A fitness thumbnail design with a presenter, bold beginner-training headline, and a weekly-plan visual.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/fitness-thumbnail-design@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "food-thumbnail-design",
+      "title": "Food Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "Food & Beverage",
+        "Thumbnail Design"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/food-thumbnail-design.webp",
+      "alt": "Food Thumbnail Design sample with headline and supporting imagery",
+      "shortDescription": "A food thumbnail design combining a home-cooking scene, plated food, and a large recipe headline.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/food-thumbnail-design@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "real-estate-thumbnail-design",
+      "title": "Real Estate Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "Real Estate",
+        "Thumbnail Design"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/real-estate-thumbnail-design.webp",
+      "alt": "Real Estate Thumbnail Design sample with headline and supporting imagery",
+      "shortDescription": "A real-estate thumbnail design with a presenter, property imagery, and a checklist-based buying headline.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/real-estate-thumbnail-design@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-is-ai-replacing-creativity",
+      "title": "Is AI Replacing Creativity? — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "AI / Productivity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-is-ai-replacing-creativity.webp",
+      "alt": "A creator-focused thumbnail juxtaposing a portrait, creative tools, and AI-interface imagery.",
+      "shortDescription": "A creator-focused thumbnail juxtaposing a portrait, creative tools, and AI-interface imagery.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-is-ai-replacing-creativity@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-crypto-crash-ahead",
+      "title": "Crypto Crash Ahead? — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Finance"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-crypto-crash-ahead.webp",
+      "alt": "A finance thumbnail with a concerned presenter, Bitcoin imagery, red chart movement, and warning typography.",
+      "shortDescription": "A finance thumbnail with a concerned presenter, Bitcoin imagery, red chart movement, and warning typography.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-crypto-crash-ahead@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-god-broke-my-plans",
+      "title": "God Broke My Plans — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Faith / Lifestyle"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-god-broke-my-plans.webp",
+      "alt": "A faith-themed thumbnail combining a portrait, journal imagery, and a warm gold-and-red headline.",
+      "shortDescription": "A faith-themed thumbnail combining a portrait, journal imagery, and a warm gold-and-red headline.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-god-broke-my-plans@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-build-muscle-faster",
+      "title": "Build Muscle Faster — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Fitness"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-build-muscle-faster.webp",
+      "alt": "A fitness thumbnail featuring a presenter, training silhouettes, and a bold blue-and-white headline.",
+      "shortDescription": "A fitness thumbnail featuring a presenter, training silhouettes, and a bold blue-and-white headline.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-build-muscle-faster@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-25-meal-prep",
+      "title": "$25 Meal Prep — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Food & Beverage"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-25-meal-prep.webp",
+      "alt": "A food thumbnail combining a presenter, meal containers, a shopping-list visual, and a green-and-yellow headline.",
+      "shortDescription": "A food thumbnail combining a presenter, meal containers, a shopping-list visual, and a green-and-yellow headline.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-25-meal-prep@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-buy-now-market-update",
+      "title": "Buy Now? Market Update — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Real Estate"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-buy-now-market-update.webp",
+      "alt": "A property thumbnail with a presenter, house imagery, market arrows, and bold blue editorial lettering.",
+      "shortDescription": "A property thumbnail with a presenter, house imagery, market arrows, and bold blue editorial lettering.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-buy-now-market-update@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-ai-side-hustles-that-work",
+      "title": "AI Side Hustles That Work — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "AI / Productivity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-ai-side-hustles-that-work.webp",
+      "alt": "A thumbnail composition pairing a presenter and laptop with neon-green typography and service mockups.",
+      "shortDescription": "A thumbnail composition pairing a presenter and laptop with neon-green typography and service mockups.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-ai-side-hustles-that-work@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-protect-your-crypto",
+      "title": "Protect Your Crypto — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Finance"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-protect-your-crypto.webp",
+      "alt": "A security-themed finance thumbnail with a phone, presenter, lock symbols, and blue-and-orange headline.",
+      "shortDescription": "A security-themed finance thumbnail with a phone, presenter, lock symbols, and blue-and-orange headline.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-protect-your-crypto@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-god-changed-my-desires",
+      "title": "God Changed My Desires — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Faith / Lifestyle"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-god-changed-my-desires.webp",
+      "alt": "A faith-themed thumbnail contrasting two portrait settings beneath a large editorial headline.",
+      "shortDescription": "A faith-themed thumbnail contrasting two portrait settings beneath a large editorial headline.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-god-changed-my-desires@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-home-workouts-can-work",
+      "title": "Home Workouts Can Work — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Fitness"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-home-workouts-can-work.webp",
+      "alt": "A fitness thumbnail combining a home-exercise portrait, plan graphics, and turquoise headline lettering.",
+      "shortDescription": "A fitness thumbnail combining a home-exercise portrait, plan graphics, and turquoise headline lettering.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-home-workouts-can-work@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-date-night-dinner-at-home",
+      "title": "Date Night Dinner at Home — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Food & Beverage"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-date-night-dinner-at-home.webp",
+      "alt": "A food thumbnail presenting a warm dinner scene with plated dishes and serif editorial typography.",
+      "shortDescription": "A food thumbnail presenting a warm dinner scene with plated dishes and serif editorial typography.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-date-night-dinner-at-home@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-worth-moving-here",
+      "title": "Worth Moving Here? — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Real Estate"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-worth-moving-here.webp",
+      "alt": "A property thumbnail combining a presenter, house imagery, and a checklist-style location comparison.",
+      "shortDescription": "A property thumbnail combining a presenter, house imagery, and a checklist-style location comparison.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-worth-moving-here@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-automate-your-business",
+      "title": "Automate Your Business — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "AI / Productivity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-automate-your-business.webp",
+      "alt": "A thumbnail featuring a presenter, cyan headline, and illustrated automation workflows.",
+      "shortDescription": "A thumbnail featuring a presenter, cyan headline, and illustrated automation workflows.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-automate-your-business@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-fix-your-paycheck",
+      "title": "Fix Your Paycheck — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Finance"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-fix-your-paycheck.webp",
+      "alt": "A budgeting thumbnail with a presenter, green headline, and illustrated paycheck-allocation cards.",
+      "shortDescription": "A budgeting thumbnail with a presenter, green headline, and illustrated paycheck-allocation cards.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-fix-your-paycheck@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-god-closed-that-door",
+      "title": "God Closed That Door — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Faith / Lifestyle"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-god-closed-that-door.webp",
+      "alt": "A faith-themed thumbnail using a presenter, dark doorway, warm light, and large gold typography.",
+      "shortDescription": "A faith-themed thumbnail using a presenter, dark doorway, warm light, and large gold typography.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-god-closed-that-door@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-why-you-are-not-losing-fat",
+      "title": "Why You Are Not Losing Fat — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Fitness"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-why-you-are-not-losing-fat.webp",
+      "alt": "A fitness thumbnail with a presenter, illustrated training notes, and high-contrast yellow typography.",
+      "shortDescription": "A fitness thumbnail with a presenter, illustrated training notes, and high-contrast yellow typography.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-why-you-are-not-losing-fat@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-food-myth-busted",
+      "title": "Food Myth Busted — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Food & Beverage"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-food-myth-busted.webp",
+      "alt": "A food thumbnail contrasting two dishes with a presenter, red symbols, and oversized orange lettering.",
+      "shortDescription": "A food thumbnail contrasting two dishes with a presenter, red symbols, and oversized orange lettering.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-food-myth-busted@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-work-10x-faster",
+      "title": "Work 10X Faster — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "AI / Productivity"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-work-10x-faster.webp",
+      "alt": "A productivity thumbnail with a presenter, laptop, blue interface mockups, and oversized cyan lettering.",
+      "shortDescription": "A productivity thumbnail with a presenter, laptop, blue interface mockups, and oversized cyan lettering.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-work-10x-faster@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-altcoins-about-to-run",
+      "title": "Altcoins About to Run? — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Finance"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-altcoins-about-to-run.webp",
+      "alt": "A finance thumbnail combining a presenter, token symbols, chart cards, and a bright green arrow.",
+      "shortDescription": "A finance thumbnail combining a presenter, token symbols, chart cards, and a bright green arrow.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-altcoins-about-to-run@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-god-is-rebuilding-me",
+      "title": "God Is Rebuilding Me — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Faith / Lifestyle"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-god-is-rebuilding-me.webp",
+      "alt": "A faith-themed thumbnail pairing a reflective portrait with warm lighting and bold gold lettering.",
+      "shortDescription": "A faith-themed thumbnail pairing a reflective portrait with warm lighting and bold gold lettering.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-god-is-rebuilding-me@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-stop-training-glutes-wrong",
+      "title": "Stop Training Glutes Wrong — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Fitness"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-stop-training-glutes-wrong.webp",
+      "alt": "A fitness thumbnail pairing a training demonstration with pink and turquoise editorial typography.",
+      "shortDescription": "A fitness thumbnail pairing a training demonstration with pink and turquoise editorial typography.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-stop-training-glutes-wrong@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-viral-food-worth-it",
+      "title": "Viral Food: Worth It? — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Food & Beverage"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-viral-food-worth-it.webp",
+      "alt": "A food thumbnail pairing an expressive presenter and taco imagery with bold red-and-yellow typography.",
+      "shortDescription": "A food thumbnail pairing an expressive presenter and taco imagery with bold red-and-yellow typography.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-viral-food-worth-it@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-buy-before-the-breakout",
+      "title": "Buy Before the Breakout? — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Finance"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-buy-before-the-breakout.webp",
+      "alt": "A finance thumbnail using a presenter, trading-interface imagery, and a green breakout headline.",
+      "shortDescription": "A finance thumbnail using a presenter, trading-interface imagery, and a green breakout headline.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-buy-before-the-breakout@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-god-removed-the-distractions",
+      "title": "God Removed the Distractions — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Faith / Lifestyle"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-god-removed-the-distractions.webp",
+      "alt": "A faith-themed thumbnail contrasting notification imagery with a quiet journaling scene.",
+      "shortDescription": "A faith-themed thumbnail contrasting notification imagery with a quiet journaling scene.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-god-removed-the-distractions@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-stop-training-wrong",
+      "title": "Stop Training Wrong — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Fitness"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-stop-training-wrong.webp",
+      "alt": "A fitness thumbnail using a presenter, training silhouettes, and oversized blue-and-white lettering.",
+      "shortDescription": "A fitness thumbnail using a presenter, training silhouettes, and oversized blue-and-white lettering.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-stop-training-wrong@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-worth-the-hype",
+      "title": "Worth the Hype? — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Food & Beverage"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-worth-the-hype.webp",
+      "alt": "A food thumbnail combining a burger, expressive presenter, and large cream-and-red headline.",
+      "shortDescription": "A food thumbnail combining a burger, expressive presenter, and large cream-and-red headline.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-worth-the-hype@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-start-crypto-the-right-way",
+      "title": "Start Crypto the Right Way — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Finance"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-start-crypto-the-right-way.webp",
+      "alt": "A finance thumbnail pairing a presenter and laptop with turquoise typography and illustrated beginner steps.",
+      "shortDescription": "A finance thumbnail pairing a presenter and laptop with turquoise typography and illustrated beginner steps.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-start-crypto-the-right-way@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-god-changed-my-circle",
+      "title": "God Changed My Circle — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Faith / Lifestyle"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-god-changed-my-circle.webp",
+      "alt": "A faith-themed thumbnail combining a presenter, background figures, and gold editorial typography.",
+      "shortDescription": "A faith-themed thumbnail combining a presenter, background figures, and gold editorial typography.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-god-changed-my-circle@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-i-had-to-let-go",
+      "title": "I Had to Let Go — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Faith / Lifestyle"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-i-had-to-let-go.webp",
+      "alt": "A faith-themed thumbnail with a seated portrait, Bible and journal imagery, and a light neutral headline.",
+      "shortDescription": "A faith-themed thumbnail with a seated portrait, Bible and journal imagery, and a light neutral headline.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-i-had-to-let-go@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-i-was-lukewarm",
+      "title": "I Was Lukewarm — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Faith / Lifestyle"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-i-was-lukewarm.webp",
+      "alt": "A faith-themed thumbnail pairing a reflective presenter with split cool-and-warm lighting.",
+      "shortDescription": "A faith-themed thumbnail pairing a reflective presenter with split cool-and-warm lighting.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-i-was-lukewarm@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-this-season-has-a-purpose",
+      "title": "This Season Has a Purpose — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Faith / Lifestyle"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-this-season-has-a-purpose.webp",
+      "alt": "A faith-themed thumbnail featuring a portrait against a sunset landscape with serif headline lettering.",
+      "shortDescription": "A faith-themed thumbnail featuring a portrait against a sunset landscape with serif headline lettering.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-this-season-has-a-purpose@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-i-stopped-forcing-it",
+      "title": "I Stopped Forcing It — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Faith / Lifestyle"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-i-stopped-forcing-it.webp",
+      "alt": "A faith-themed thumbnail featuring a seated outdoor portrait and warm editorial typography.",
+      "shortDescription": "A faith-themed thumbnail featuring a seated outdoor portrait and warm editorial typography.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-i-stopped-forcing-it@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-stop-running-from-god",
+      "title": "Stop Running from God — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Faith / Lifestyle"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-stop-running-from-god.webp",
+      "alt": "A faith-themed thumbnail combining a wind-swept portrait with large gold typography.",
+      "shortDescription": "A faith-themed thumbnail combining a wind-swept portrait with large gold typography.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-stop-running-from-god@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-the-test-before-the-blessing",
+      "title": "The Test Before the Blessing — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Faith / Lifestyle"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-the-test-before-the-blessing.webp",
+      "alt": "A faith-themed thumbnail contrasting stormy and bright skies behind a presenter and oversized headline.",
+      "shortDescription": "A faith-themed thumbnail contrasting stormy and bright skies behind a presenter and oversized headline.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-the-test-before-the-blessing@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-the-prayer-i-almost-quit",
+      "title": "The Prayer I Almost Quit — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Faith / Lifestyle"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-the-prayer-i-almost-quit.webp",
+      "alt": "A faith-themed thumbnail using a desk portrait, written prayer, and warm gold headline.",
+      "shortDescription": "A faith-themed thumbnail using a desk portrait, written prayer, and warm gold headline.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-the-prayer-i-almost-quit@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    },
+    {
+      "id": "thumbnail-when-god-feels-silent",
+      "title": "When God Feels Silent — Thumbnail Design",
+      "categories": [
+        "thumbnails"
+      ],
+      "tags": [
+        "YouTube",
+        "Thumbnail Design",
+        "Faith / Lifestyle"
+      ],
+      "classification": "Creative Portfolio",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/thumbnail-when-god-feels-silent.webp",
+      "alt": "A faith-themed thumbnail pairing a contemplative portrait and open book with cloudy sky imagery.",
+      "shortDescription": "A faith-themed thumbnail pairing a contemplative portrait and open book with cloudy sky imagery.",
+      "artworkHref": "/assets/images/t001-nova/portfolio/thumbnail-when-god-feels-silent@1280.webp",
+      "actionLabel": "View Artwork",
+      "imageFit": "cover",
+      "mediaAspect": "16:9"
+    }
+  ],
+  "browsing": {
+    "initialCount": 12,
+    "increment": 12
+  }
+}

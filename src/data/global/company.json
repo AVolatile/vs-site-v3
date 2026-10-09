@@ -1,0 +1,38 @@
+{
+  "fullName": "Volatile Solutions",
+  "name": "Volatile Solutions",
+  "branding": {
+    "icon": "ph-star",
+    "font": "Satoshi",
+    "tagline": "Websites for ambitious brands",
+    "logoImage": "/assets/images/t001-nova/t001-nova-navbar-logo.png",
+    "logoWidth": 1539,
+    "logoHeight": 305,
+    "favicon": "/vs-favicon-32x32.png",
+    "logoSuffix": "Logo"
+  },
+  "address": "123 Example Street, 00-001 Warsaw",
+  "zipCode": "00-001",
+  "city": "Warsaw",
+  "phone": "+14015456860",
+  "email": "volatile-solutions@outlook.com",
+  "hours": "Mon-Fri: 8:00 AM - 9:00 PM",
+  "nip": "1234567890",
+  "krs": "0000123456",
+  "regon": "",
+  "siteUrl": "https://volatile-solutions.net",
+  "smtp": {
+    "smtpHost": "smtp.example.com",
+    "smtpPort": 587,
+    "smtpUser": "noreply@yourcompany.com",
+    "smtpPass": ""
+  },
+  "socials": {
+    "facebook": "",
+    "instagram": "https://www.instagram.com/volatile.solutions/",
+    "youtube": "https://www.youtube.com/@anthonyvolatile",
+    "twitter": "",
+    "linkedin": "https://linkedin.com/in/anthony-volatile",
+    "github": "https://github.com/AVolatile"
+  }
+}

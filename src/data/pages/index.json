@@ -1,0 +1,37 @@
+{
+  "seo": {
+    "title": "Anthony Volatile | Developer, Designer & Digital Product Builder",
+    "description": "Founder-led websites, digital products, branding and visual design from Volatile Solutions, serving Rhode Island and remote clients."
+  },
+  "heading": "Developer, Designer & Digital Product Builder",
+  "sections": [
+    {
+      "id": "navbar",
+      "variant": "floating"
+    },
+    {
+      "id": "hero",
+      "variant": "nova"
+    },
+    {
+      "id": "portfolio",
+      "variant": "nova"
+    },
+    {
+      "id": "novaServices",
+      "variant": "default"
+    },
+    {
+      "id": "novaTeam",
+      "variant": "default"
+    },
+    {
+      "id": "faq3",
+      "variant": "default"
+    },
+    {
+      "id": "footer",
+      "variant": "nova"
+    }
+  ]
+}

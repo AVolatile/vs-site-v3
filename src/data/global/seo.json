@@ -1,0 +1,13 @@
+{
+  "defaultTitle": "Volatile Solutions | Anthony Volatile",
+  "defaultDescription": "Web design and development, custom web applications, branding and visual design, and website support and optimization for Rhode Island and remote clients.",
+  "defaultOgImage": "/og-image.png",
+  "index": false,
+  "follow": true,
+  "analytics": {
+    "googleAnalyticsId": "",
+    "googleTagManagerId": "",
+    "facebookPixelId": "",
+    "clarityId": ""
+  }
+}

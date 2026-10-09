@@ -1,0 +1,239 @@
+{
+  "en": {
+    "page": {
+      "title": "Anthony Volatile | Developer, Designer & Digital Product Builder",
+      "description": "Founder-led websites, digital products, branding and visual design from Volatile Solutions, serving Rhode Island and remote clients.",
+      "heading": "Developer, Designer & Digital Product Builder"
+    },
+    "demoBanner": {
+      "label": "This template was designed and built by WebScale.",
+      "downloadLabel": "Download template",
+      "downloadHref": "https://github.com/themewagon/nova-astro",
+      "customizeLabel": "Request customization",
+      "customizeHref": "https://webscale.pl/?utm_source=nova-demo&utm_medium=banner&utm_campaign=t001-nova-custom"
+    },
+    "navigation": {
+      "menu": [
+        {
+          "label": "About Anthony",
+          "href": "/#zespol"
+        },
+        {
+          "label": "Services",
+          "href": "/#services"
+        },
+        {
+          "label": "Portfolio",
+          "href": "/portfolio/"
+        }
+      ],
+      "cta": {
+        "label": "Start a Project",
+        "hoverLabel": "Let’s Talk",
+        "href": "/#contact"
+      },
+      "aria": {
+        "menuOpen": "Open navigation menu",
+        "menuClose": "Close menu",
+        "menuExpand": "Expand submenu",
+        "navMain": "Main navigation",
+        "drawer": "Navigation menu"
+      },
+      "languageLabel": "Choose language"
+    },
+    "sections": {
+      "nova-hero-wireframe": {
+        "eyebrow": "STRATEGY / DESIGN / TECHNOLOGY",
+        "heading": "Developer, Designer &",
+        "headingAccent": "Digital Product Builder",
+        "description": "I build websites, digital products, and visual experiences that connect thoughtful design with practical development. Explore my work or get in touch about a project or opportunity.",
+        "primaryCTA": {
+          "label": "View My Work",
+          "href": "#realizacje"
+        },
+        "secondaryCTA": {
+          "label": "Work With Me",
+          "href": "#contact"
+        },
+        "trustedBy": "",
+        "trustItems": [],
+        "image": "/assets/images/t001-nova/t001-nova-hero-anthony-volatile.webp",
+        "imageAlt": "Anthony Volatile, founder of Volatile Solutions",
+        "stats": [
+          {
+            "value": "—",
+            "label": "Projects"
+          },
+          {
+            "value": "—",
+            "label": "Experience"
+          },
+          {
+            "value": "—",
+            "label": "Development Hours"
+          },
+          {
+            "value": "—",
+            "label": "Creative Pieces"
+          }
+        ]
+      },
+      "nova-projects": {
+        "title": "Selected Work",
+        "description": "A selection of client work and creative projects across web development, digital products, branding, advertising, and visual design.",
+        "linkLabel": "Explore My Work",
+        "linkHref": "/portfolio/",
+        "items": [
+          {
+            "category": "Client Website",
+            "title": "The Moody Brewer",
+            "image": "/assets/images/t001-nova/t001-nova-project-moody-brewer.webp",
+            "alt": "The Moody Brewer website shown on a MacBook in a warm café setting",
+            "href": "/portfolio/#the-moody-brewer"
+          },
+          {
+            "category": "Branding, Ads & Marketing",
+            "title": "Creative Work",
+            "image": "/assets/images/t001-nova/t001-nova-project-creative-work.webp",
+            "alt": "Collage of branding, advertising, social media, and digital design work",
+            "href": "/portfolio/?category=creative"
+          }
+        ]
+      },
+      "nova-services": {
+        "title": "Services",
+        "description": "Websites, web applications, visual design, and ongoing support built around real business needs.",
+        "linkLabel": "Discuss a Project",
+        "linkHref": "#contact",
+        "items": [
+          {
+            "number": "01.",
+            "icon": "palette",
+            "title": "Web Design & Development",
+            "description": "Custom websites built around your brand, goals, and customer experience."
+          },
+          {
+            "number": "02.",
+            "icon": "browser",
+            "title": "Custom Web Applications",
+            "description": "Tailored digital tools, dashboards, and web-based applications built around specific business needs."
+          },
+          {
+            "number": "03.",
+            "icon": "paint-brush",
+            "title": "Branding & Visual Design",
+            "description": "Brand identities, advertisements, social graphics, and visual assets designed for consistency and impact."
+          },
+          {
+            "number": "04.",
+            "icon": "lifebuoy",
+            "title": "Website Support & Optimization",
+            "description": "Ongoing updates, improvements, troubleshooting, and refinements to keep an existing site current, reliable, and effective."
+          }
+        ]
+      },
+      "nova-team": {
+        "title": "About Anthony",
+        "description": "I’m Anthony, the founder of Volatile Solutions. I combine development, design, and practical business thinking to turn ideas into polished digital experiences. From early concepts through launch and ongoing improvements, I stay hands-on throughout the process.",
+        "image": "/assets/images/t001-nova/t001-nova-about-anthony-volatile.webp",
+        "imageAlt": "Anthony Volatile, founder of Volatile Solutions",
+        "checks": [
+          "Development + Design",
+          "Business-Minded Problem Solving",
+          "Hands-On From Concept to Launch"
+        ],
+        "teamCount": "1",
+        "teamLabel": "Founder-led",
+        "teamAriaLabel": "Capabilities",
+        "teamAvatars": [],
+        "buttonLabel": "Let’s Work Together",
+        "buttonHref": "#contact",
+        "capabilities": [
+          {
+            "label": "Development",
+            "icon": "code"
+          },
+          {
+            "label": "Design",
+            "icon": "pen-nib"
+          },
+          {
+            "label": "Business / Strategy",
+            "icon": "compass"
+          }
+        ]
+      },
+      "faq3": {
+        "title": "Frequently asked questions",
+        "description": "Practical answers about projects, working together, and ongoing website support.",
+        "tagline": "FAQ",
+        "items": [
+          {
+            "q": "What kinds of projects do you take on?",
+            "a": "I work on custom websites, web applications, branding, advertisements, social graphics, and other visual assets. I also support and improve existing websites."
+          },
+          {
+            "q": "Do you work with clients outside Rhode Island?",
+            "a": "Yes. Volatile Solutions serves Rhode Island and remote clients. We can discuss your goals and project needs remotely."
+          },
+          {
+            "q": "Can you improve a website I already have?",
+            "a": "Yes. Website Support & Optimization includes updates, troubleshooting, and refinements to an existing site. I start by reviewing what you have and what you want to improve."
+          },
+          {
+            "q": "What happens after I reach out?",
+            "a": "Share a brief overview of your project or opportunity and any relevant links. We can discuss your goals, review the scope, and identify sensible next steps."
+          }
+        ]
+      },
+      "testimonial-v2": {
+        "title": "Reviews that say more",
+        "description": "See how working with us translated into a stronger image and better results for our clients.",
+        "tagline": "Client reviews",
+        "avatarAltPrefix": "Photo of",
+        "items": [
+          { "quote": "The new website finally gave our communication a clear structure and started bringing better enquiries from the first week.", "author": "Anna Kowalska", "initials": "AK", "role": "Founder of a premium brand", "avatar": "https://i.pravatar.cc/150?u=anna-kowalska" },
+          { "quote": "The process was focused, efficient and very well guided. We received a website that genuinely fits our brand.", "author": "Michal Nowak", "initials": "MN", "role": "Operations director", "avatar": "https://i.pravatar.cc/150?u=michal-nowak" },
+          { "quote": "We can finally present our work in a way that reflects its quality. Clients noticed the difference straight away.", "author": "Karolina Wojcik", "initials": "KW", "role": "Studio owner", "avatar": "https://i.pravatar.cc/150?u=karolina-wojcik" }
+        ]
+      }
+    },
+    "footer": {
+      "eyebrow": "Projects / Collaboration / Opportunities",
+      "heading": "Let’s create together",
+      "description": "Have a project or opportunity in mind? Get in touch to discuss what you’re building and how I can contribute.",
+      "primaryLabel": "Get in Touch",
+      "primaryHref": "mailto:volatile-solutions@outlook.com",
+      "secondaryLabel": "Explore Services",
+      "secondaryHref": "/#services",
+      "legalLinks": [
+        {
+          "label": "Privacy policy",
+          "href": "/polityka-prywatnosci/"
+        },
+        {
+          "label": "Cookies",
+          "href": "/cookies/"
+        }
+      ],
+      "footerLinks": [
+        {
+          "label": "About Anthony",
+          "href": "/#zespol"
+        },
+        {
+          "label": "Services",
+          "href": "/#services"
+        },
+        {
+          "label": "Portfolio",
+          "href": "/portfolio/"
+        }
+      ],
+      "ariaLegal": "Legal documents",
+      "ariaNavigation": "Footer navigation",
+      "copyright": "All rights reserved.",
+      "ariaSocials": "Professional profiles"
+    }
+  }
+}

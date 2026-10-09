@@ -1,0 +1,12 @@
+---
+import Layout from '@layouts/Layout.astro';
+import PortfolioCollection from '@components/portfolio/PortfolioCollection.astro';
+import portfolioData from '@data/portfolio.json';
+import type { PortfolioData } from '@/types/portfolio';
+
+const data = portfolioData as PortfolioData;
+---
+
+<Layout title={data.seo.title} description={data.seo.description} locale="en" lang="en" navbarVariant="floating" footerVariant="nova">
+  <PortfolioCollection data={data} />
+</Layout>
