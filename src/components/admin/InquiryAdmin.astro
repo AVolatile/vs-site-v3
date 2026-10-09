@@ -114,7 +114,11 @@ const detailGroups = [
             <form data-admin-follow-up-form novalidate class="admin-form admin-follow-up-panel">
               <Heading tag="h3" variant="feature-title">Follow-up</Heading>
               <Text variant="body" data-admin-follow-up-state></Text>
-              <InquiryField name="nextFollowUpAt" label="Next follow-up date and time" type="datetime-local" hint="Your local timezone. Due today covers the whole calendar day; overdue means before today." />
+              <div class="admin-follow-up-datetime" role="group" aria-label="Follow-up schedule" aria-describedby="admin-follow-up-timezone">
+                <InquiryField compact name="nextFollowUpDate" label="Date" type="date" />
+                <InquiryField compact name="nextFollowUpTime" label="Time" type="time" />
+              </div>
+              <Text id="admin-follow-up-timezone" variant="feature-body-sm" class="text-on-surface-variant">Your local timezone. Set both date and time to schedule; use Clear follow-up to remove it.</Text>
               <InquiryField name="followUpNote" label="Follow-up note" type="textarea" maxLength={2000} hint="What should happen next. Separate from private admin notes." />
               <div class="admin-save-actions"><Button type="submit" variant="primary" class="min-h-11">Save follow-up</Button><Button type="button" variant="outline" class="min-h-11" data-admin-clear-follow-up>Clear follow-up</Button></div>
               <Text variant="body" role="status" aria-live="polite" data-admin-follow-up-message></Text>
@@ -239,7 +243,9 @@ const detailGroups = [
   .admin-area :global(.admin-follow-up) { font-size: .875rem; line-height: 1.55; overflow-wrap: anywhere; }
   .admin-area :global(.admin-follow-up[data-follow-up-state="today"]) { color: var(--color-on-warning-container); background: var(--color-warning-container); padding: var(--spacing-xs); border-radius: var(--ui-radius-sm); }
   .admin-area :global(.admin-follow-up[data-follow-up-state="overdue"]) { color: var(--color-on-error-container); background: var(--color-error-container); padding: var(--spacing-xs); border-radius: var(--ui-radius-sm); }
-  .admin-follow-up-panel :global(input[type="datetime-local"]) { min-width: 0; max-width: 100%; }
+  .admin-follow-up-datetime { display: grid; gap: var(--spacing-md); min-width: 0; }
+  .admin-follow-up-datetime :global(input) { min-width: 0; max-width: 100%; }
+  @media (min-width: 48rem) { .admin-follow-up-datetime { grid-template-columns: repeat(2,minmax(0,1fr)); } }
   @media (min-width: 23.4375rem) {
     .admin-filter-toolbar { grid-template-columns: repeat(2,minmax(0,1fr)); }
     .admin-search-field { grid-column: 1 / -1; }

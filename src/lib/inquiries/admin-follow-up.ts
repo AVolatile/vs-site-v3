@@ -16,23 +16,39 @@ interface FollowUpOptions {
 }
 export function setupAdminFollowUp(options: FollowUpOptions) {
   const { form } = options;
-  const date = form.querySelector<HTMLInputElement>('[name="nextFollowUpAt"]')!;
+  const date = form.querySelector<HTMLInputElement>('[name="nextFollowUpDate"]')!;
+  const time = form.querySelector<HTMLInputElement>('[name="nextFollowUpTime"]')!;
   const note = form.querySelector<HTMLTextAreaElement>('[name="followUpNote"]')!;
   const message = form.querySelector<HTMLElement>('[data-admin-follow-up-message]')!;
   const state = form.querySelector<HTMLElement>('[data-admin-follow-up-state]')!;
   function render(inquiry: Inquiry): void {
-    date.value = localDateTime(inquiry.nextFollowUpAt); note.value = inquiry.followUpNote;
+    const [localDate = '', localTime = ''] = localDateTime(inquiry.nextFollowUpAt).split('T');
+    date.value = localDate; time.value = localTime; note.value = inquiry.followUpNote;
     presentFollowUp(state, inquiry.nextFollowUpAt); message.textContent = ''; options.validate(form, {});
   }
   async function save(clear: boolean): Promise<void> {
     const inquiry = options.current(); if (!inquiry || !options.active() || options.saving()) return;
-    if (!clear && date.validity.badInput) { options.validate(form, { nextFollowUpAt: 'Choose a valid local date and time.' }); return; }
+    const errors: Record<string, string> = {};
+    if (!clear) {
+      if (date.validity.badInput) errors.nextFollowUpDate = 'Choose a valid date.';
+      if (time.validity.badInput || time.validity.stepMismatch) errors.nextFollowUpTime = 'Choose a valid time in hours and minutes.';
+      if (date.value && !time.value) errors.nextFollowUpTime = 'Choose a time for this follow-up.';
+      if (time.value && !date.value) errors.nextFollowUpDate = 'Choose a date for this follow-up.';
+      if (!date.value && !time.value && inquiry.nextFollowUpAt && !Object.keys(errors).length)
+        errors.nextFollowUpDate = 'Use Clear follow-up to remove the saved schedule.';
+      if (Object.keys(errors).length) { options.validate(form, errors); return; }
+    }
+    const localValue = date.value && time.value ? `${date.value}T${time.value}` : '';
     let timestamp: string | null;
     // Retain timestamp seconds/precision when the minute-granularity input is unchanged.
-    try { timestamp = clear ? null : date.value === localDateTime(inquiry.nextFollowUpAt) ? inquiry.nextFollowUpAt : utcDateTime(date.value); }
-    catch { options.validate(form, { nextFollowUpAt: 'Choose a valid local date and time.' }); return; }
+    try { timestamp = clear ? null : localValue === localDateTime(inquiry.nextFollowUpAt) ? inquiry.nextFollowUpAt : utcDateTime(localValue); }
+    catch { options.validate(form, { nextFollowUpDate: 'Choose a valid local date and time; this combination may not exist in your timezone.' }); return; }
     const result = followUpSchema.safeParse({ action: 'follow-up', nextFollowUpAt: timestamp, followUpNote: clear ? '' : note.value, updatedAt: inquiry.updatedAt });
-    if (!result.success) { options.validate(form, fieldErrors(result.error)); return; }
+    if (!result.success) {
+      const fields = fieldErrors(result.error);
+      if (fields.nextFollowUpAt) { fields.nextFollowUpDate = fields.nextFollowUpAt; delete fields.nextFollowUpAt; }
+      options.validate(form, fields); return;
+    }
     options.validate(form, {}); const version = options.version(); options.busy(true); form.setAttribute('aria-busy', 'true');
     message.setAttribute('role', 'status'); message.textContent = clear ? 'Clearing follow-up…' : 'Saving follow-up…';
     try {

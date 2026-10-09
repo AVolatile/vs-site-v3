@@ -2,7 +2,7 @@
 import Label from '@components/ui/atoms/Label.astro';
 import Input from '@components/ui/atoms/Input.astro';
 import Text from '@components/ui/atoms/Text.astro';
-interface Props { name: string; label: string; type?: 'text' | 'email' | 'password' | 'textarea' | 'select' | 'search' | 'datetime-local' | 'date'; required?: boolean; maxLength?: number; autocomplete?: string; options?: { value: string; label: string }[]; hint?: string; placeholder?: string; compact?: boolean; inputMode?: 'decimal' | 'numeric'; }
+interface Props { name: string; label: string; type?: 'text' | 'email' | 'password' | 'textarea' | 'select' | 'search' | 'datetime-local' | 'date' | 'time'; required?: boolean; maxLength?: number; autocomplete?: string; options?: { value: string; label: string }[]; hint?: string; placeholder?: string; compact?: boolean; inputMode?: 'decimal' | 'numeric'; }
 const { name, label, type = 'text', required = false, maxLength, autocomplete, options = [], hint, placeholder, compact = false, inputMode } = Astro.props;
 const id = `inquiry-${name}`;
 ---
@@ -18,8 +18,8 @@ const id = `inquiry-${name}`;
       </select>
       <svg class="inquiry-select-chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><path d="m6 8 4 4 4-4" stroke-linecap="round" stroke-linejoin="round" /></svg>
     </div>
-  ) : type === 'datetime-local' ? (
-    <input id={id} name={name} type="datetime-local" class="ui-form-input" required={required} aria-describedby={`${name}-error${hint ? ` ${name}-hint` : ''}`} />
+  ) : type === 'datetime-local' || type === 'time' ? (
+    <input id={id} name={name} type={type} class="ui-form-input" required={required} aria-describedby={`${name}-error${hint ? ` ${name}-hint` : ''}`} />
   ) : (
     <Input id={id} name={name} type={type} placeholder={placeholder} inputmode={inputMode} required={required} maxlength={maxLength} autocomplete={autocomplete} aria-describedby={`${name}-error${hint ? ` ${name}-hint` : ''}`} />
   )}
