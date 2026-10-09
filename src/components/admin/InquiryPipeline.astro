@@ -1,0 +1,65 @@
+---
+import Heading from '@components/ui/atoms/Heading.astro';
+import Text from '@components/ui/atoms/Text.astro';
+import Button from '@components/ui/atoms/Button.astro';
+import InquiryField from '@components/inquiry/InquiryField.astro';
+import { PIPELINE_STATUS_OPTIONS, STATUS_OPTIONS } from '@/lib/inquiries/contract';
+const title = (status: string) => status[0].toUpperCase() + status.slice(1);
+---
+<div id="admin-pipeline-panel" data-admin-pipeline-panel hidden class="admin-pipeline-panel">
+  <div class="pipeline-header">
+    <div><Heading tag="h2" variant="feature-title">Inquiry pipeline</Heading><Text id="admin-pipeline-help" variant="feature-body-sm">Move inquiries between stages. Archived inquiries are available in List.</Text></div>
+    <Button type="button" variant="outline" class="min-h-11" data-pipeline-refresh>Refresh pipeline</Button>
+  </div>
+  <div class="pipeline-board" data-pipeline-board role="region" aria-label="Inquiry pipeline stages" aria-describedby="admin-pipeline-help" tabindex="0">
+    {PIPELINE_STATUS_OPTIONS.map(status => <div class="pipeline-column" data-pipeline-status={status}>
+      <div class="pipeline-column-heading"><Heading tag="h3" variant="feature-title">{title(status)}</Heading><Text tag="span" variant="feature-body-sm" class="admin-status" data-status={status} data-pipeline-count={status}>—</Text></div>
+      <div class="pipeline-items" data-pipeline-items={status}></div>
+      <Text variant="feature-body-sm" data-pipeline-empty={status} hidden>No inquiries in this stage.</Text>
+    </div>)}
+  </div>
+  <template data-pipeline-card-template>
+    <article class="pipeline-card" data-pipeline-card>
+      <div class="pipeline-card-heading">
+        <Heading tag="h4" variant="feature-title"><a href="/admin/" data-pipeline-open><Text tag="span" data-pipeline-field="name"></Text></a></Heading>
+        <Text variant="feature-body-sm" data-pipeline-field="company"></Text>
+      </div>
+      <dl class="pipeline-facts">
+        {[['projectType','Project type'],['budgetRange','Budget'],['timeline','Timeline'],['createdAt','Submitted']].map(([field,label]) => <div><Text tag="dt" variant="feature-body-sm">{label}</Text><Text tag="dd" variant="feature-body-sm" data-pipeline-field={field}></Text></div>)}
+      </dl>
+      <form data-pipeline-move-form class="pipeline-move-form">
+        <InquiryField name="pipelineStatus" label="Move to" type="select" required options={STATUS_OPTIONS.map(value => ({ value, label: title(value) }))} />
+        <Button type="submit" variant="outline" size="sm" class="min-h-11">Move</Button>
+      </form>
+    </article>
+  </template>
+</div>
+<style>
+  [hidden] { display: none !important; }
+  .admin-pipeline-panel { display: grid; gap: var(--spacing-lg); min-width: 0; }
+  .pipeline-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-md); }
+  .pipeline-header > div { display: grid; gap: var(--spacing-sm); }
+  .pipeline-board { display: grid; gap: var(--spacing-md); min-width: 0; padding: var(--spacing-xs); }
+  .pipeline-column { display: grid; align-content: start; gap: var(--spacing-md); min-width: 0; padding: var(--spacing-md); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-lg); background: var(--color-brand-cream); }
+  .pipeline-column-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-sm); }
+  .pipeline-items { display: grid; gap: var(--spacing-md); }
+  .pipeline-card { display: grid; gap: var(--spacing-md); min-width: 0; padding: var(--spacing-md); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-md); background: var(--color-brand-light); }
+  .pipeline-card-heading { display: grid; gap: var(--spacing-xs); }
+  .pipeline-card-heading :global(h4),.pipeline-card-heading :global(h4 span) { font-size: 1rem; line-height: 1.4; overflow-wrap: anywhere; }
+  .pipeline-card-heading a { color: var(--color-on-surface); text-decoration: underline; text-underline-offset: .2em; text-decoration-color: var(--color-outline); }
+  .pipeline-facts { display: grid; gap: var(--spacing-sm); margin: 0; }
+  .pipeline-facts > div { min-width: 0; }
+  .pipeline-facts :global(dt),.pipeline-card-heading :global([data-pipeline-field="company"]) { color: var(--color-on-surface-variant); }
+  .pipeline-facts :global(dd) { margin: 0; overflow-wrap: anywhere; }
+  .pipeline-move-form { display: grid; gap: var(--spacing-sm); padding-top: var(--spacing-md); border-top: 1px solid var(--color-outline-variant); }
+  .pipeline-move-form :global(.ui-form-label) { color: var(--color-on-surface-variant); }
+  .pipeline-card[data-last-viewed="true"],.pipeline-card:focus-within { border-color: var(--color-on-tertiary-container); }
+  .pipeline-card[data-dragging="true"] { opacity: .65; }
+  .pipeline-column[data-drop-target="true"] { outline: 2px solid var(--color-on-tertiary-container); outline-offset: -2px; }
+  .pipeline-column :global([data-pipeline-empty]) { color: var(--color-on-surface-variant); }
+  @media (pointer: fine) { .pipeline-card[draggable="true"] { cursor: grab; } }
+  @media (min-width: 48rem) {
+    .pipeline-board { grid-auto-flow: column; grid-auto-columns: 18rem; align-items: start; overflow-x: auto; scroll-snap-type: x proximity; padding-bottom: var(--spacing-md); }
+    .pipeline-column { scroll-snap-align: start; }
+  }
+</style>

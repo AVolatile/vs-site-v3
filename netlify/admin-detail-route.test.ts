@@ -37,11 +37,12 @@ beforeEach(() => {
   vi.resetAllMocks(); vi.stubEnv('DATABASE_URL', 'postgresql://test-placeholder');
   mocks.user.mockResolvedValue({ roles: ['admin'] }); row = { ...stored };
   mocks.query.mockImplementation(async (sql: string, parameters: unknown[] = []) => {
-    if (sql.startsWith('UPDATE')) {
+    if (sql.includes('UPDATE inquiries AS inquiry')) {
       if (parameters[0] !== id || parameters[3] !== row.updated_at) return [];
       row = { ...row, status: String(parameters[1]), admin_notes: String(parameters[2]), updated_at: '2026-10-08T13:00:00.456Z' };
       return [row];
     }
+    if (sql.includes('FROM inquiry_activity')) return [];
     if (sql.includes('WHERE id=$1')) return parameters[0] === id ? [row] : [];
     if (sql.includes('FILTER')) return [{ total: 1, new: 1, active: 0, won: 0 }];
     if (sql.includes('count(*)')) return [{ total: 1 }];
@@ -62,7 +63,7 @@ describe('admin detail requests with real handler/store and empty rewrite params
     expect(list.status).toBe(200);
     expect(await list.json()).toMatchObject({ items: [{ id }], metrics: { total: 1 } });
     const detail = await adminEndpoint(request(path + '?id=' + encodeURIComponent(id)), context);
-    expect(detail.status).toBe(200); expect(await detail.json()).toEqual({ inquiry: expected });
+    expect(detail.status).toBe(200); expect(await detail.json()).toEqual({ inquiry: expected, activity: [] });
     expect(mocks.query.mock.calls.find(([sql]) => sql.includes('WHERE id=$1'))?.[1]).toEqual([id]);
     expect(detail.headers.get('cache-control')).toBe('no-store');
   });
@@ -74,7 +75,7 @@ describe('admin detail requests with real handler/store and empty rewrite params
     const saved = { ...expected, status: body.status, adminNotes: body.adminNotes, updatedAt: row.updated_at };
     expect(await response.json()).toEqual({ inquiry: saved });
     expect(mocks.query.mock.calls[0][1]).toEqual([id, body.status, body.adminNotes, body.updatedAt]);
-    expect(await (await adminEndpoint(request(inquiryDetailApiUrl(id)), context)).json()).toEqual({ inquiry: saved });
+    expect(await (await adminEndpoint(request(inquiryDetailApiUrl(id)), context)).json()).toEqual({ inquiry: saved, activity: [] });
     expect((await adminEndpoint(request(inquiryDetailApiUrl(id), 'PATCH', body), context)).status).toBe(409);
   });
 

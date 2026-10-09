@@ -1,7 +1,9 @@
 import { login, logout, getUser, getSettings, handleAuthCallback, acceptInvite, updateUser, requestPasswordRecovery, onAuthChange } from '@netlify/identity';
-import { inquiryContent, optionLabel, STATUS_OPTIONS, updateSchema, fieldErrors, type Inquiry, type InquiryList } from './contract';
+import { inquiryContent, optionLabel, STATUS_OPTIONS, updateSchema, fieldErrors, type Inquiry, type InquiryList, type InquiryDetail } from './contract';
 import { presentInquiryRow, presentInquiryStatus } from './admin-presentation';
-import { inquiryDetailApiUrl } from './admin-routes';
+import { inquiryDetailApiUrl, adminBrowseUrl, adminInquiryUrl, adminViewFromUrl, type AdminView } from './admin-routes';
+import { setupAdminPipeline } from './admin-pipeline';
+import { renderInquiryActivity } from './admin-activity';
 
 export async function setupInquiryAdmin(): Promise<void> {
   const root = document.querySelector<HTMLElement>('[data-inquiry-admin]'); if (!root) return;
@@ -14,6 +16,9 @@ export async function setupInquiryAdmin(): Promise<void> {
   const updateForm = element<HTMLFormElement>('[data-admin-update-form]'); const rows = element<HTMLTableSectionElement>('[data-admin-rows]');
   const filter = element<HTMLSelectElement>('[name="filterStatus"]'); const sort = element<HTMLSelectElement>('[name="sortOrder"]');
   const logoutButton = element<HTMLButtonElement>('[data-admin-logout]');
+  const viewButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-admin-view]')];
+  const activityList = element<HTMLOListElement>('[data-admin-activity-list]'); const activityEmpty = element('[data-admin-activity-empty]');
+  let view: AdminView = adminViewFromUrl(new URL(location.href)); let activityVersion = 0;
   let lead: Inquiry | null = null; let page = 1; let listVersion = 0; let detailVersion = 0;
   let authenticated = false; let authBusy = false; let saving = false; let inviteToken: string | undefined;
   let listAbort: AbortController | undefined; let detailAbort: AbortController | undefined;
@@ -29,6 +34,7 @@ export async function setupInquiryAdmin(): Promise<void> {
     passwordPanel.hidden = true; passwordForm.reset(); element('[data-admin-refresh]').hidden = true;
     dashboard.hidden = true; logoutButton.hidden = true; loginPanel.hidden = false;
     if (document.activeElement?.closest('[hidden]')) element<HTMLInputElement>('[name="loginEmail"]').focus();
+    pipeline.clear(); activityVersion++; renderInquiryActivity(activityList, activityEmpty, []); activityList.removeAttribute('aria-busy');
   }
   class ServiceError extends Error { constructor(public status: number, message: string) { super(message); } }
   async function api<T>(url: string, options: RequestInit = {}): Promise<T> {
@@ -48,8 +54,34 @@ export async function setupInquiryAdmin(): Promise<void> {
     if (key in choices) return optionLabel(choices[key as keyof typeof choices], value);
     return value || 'Not provided';
   };
+  const renderMetrics = (metrics: InquiryList['metrics']) => {
+    for (const [key, value] of Object.entries(metrics)) element(`[data-admin-metric="${key}"]`).textContent = value.toLocaleString();
+  };
+  const syncView = () => {
+    view = adminViewFromUrl(new URL(location.href));
+    viewButtons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.adminView === view)));
+  };
+  const pipeline = setupAdminPipeline({
+    panel: element('[data-admin-pipeline-panel]'), request: api, authenticated: () => authenticated,
+    announce, errorMessage: friendly, metrics: renderMetrics,
+    open: (id, href) => { history.pushState(null, '', href); syncView(); void loadDetail(id); },
+    busy: moving => viewButtons.forEach(button => { button.disabled = moving || saving; }),
+  });
+  async function loadBrowse(): Promise<void> {
+    if (!authenticated) return;
+    syncView();
+    if (view === 'list') { await loadList(); return; }
+    const previousId = lead?.id;
+    listAbort?.abort(); listVersion++; detailAbort?.abort(); detailVersion++; activityVersion++;
+    listPanel.hidden = true; detailPanel.hidden = true;
+    await pipeline.load(previousId);
+    if (authenticated && !element('[data-admin-pipeline-panel]').hidden && previousId) {
+      element('[data-admin-pipeline-panel]').querySelector<HTMLAnchorElement>(`[data-pipeline-open="${previousId}"]`)?.focus();
+    }
+  }
   async function loadList(): Promise<void> {
     if (!authenticated) return;
+    pipeline.hide(); activityVersion++;
     const returningFromDetail = !detailPanel.hidden;
     const previousId = lead?.id;
     const version = ++listVersion; listAbort?.abort(); listAbort = new AbortController();
@@ -68,14 +100,14 @@ export async function setupInquiryAdmin(): Promise<void> {
         const values = [item.name, item.company || '—', label('projectType', item.projectType), label('budgetRange', item.budgetRange), label('timeline', item.timeline), item.status, date(item.createdAt)];
         values.forEach((value, index) => {
           const cell = document.createElement('td');
-          if (index === 0) { const link = document.createElement('a'); link.textContent = value; link.href = '/admin/?inquiry=' + encodeURIComponent(item.id); link.dataset.inquiryId = item.id; cell.append(link); }
+          if (index === 0) { const link = document.createElement('a'); link.textContent = value; link.href = adminInquiryUrl(item.id, 'list'); link.dataset.inquiryId = item.id; cell.append(link); }
           else cell.textContent = value;
           row.append(cell);
         });
         presentInquiryRow(row, item.status, item.id === previousId);
         rows.append(row);
       }
-      for (const [key, value] of Object.entries(result.metrics)) element(`[data-admin-metric="${key}"]`).textContent = value.toLocaleString();
+      renderMetrics(result.metrics);
       const empty = element('[data-admin-empty]'); empty.hidden = result.items.length > 0;
       empty.textContent = filter.value === 'all' ? 'No inquiries yet. New submissions will appear here.' : 'No inquiries match this status. Choose another status to continue.';
       element('[data-admin-page]').textContent = `Page ${page} of ${Math.max(1, Math.ceil(result.total / result.pageSize))} — ${result.total} inquiries`;
@@ -104,6 +136,7 @@ export async function setupInquiryAdmin(): Promise<void> {
   }
   async function loadDetail(id: string): Promise<void> {
     if (!authenticated) return;
+    pipeline.hide(); syncView(); activityVersion++; renderInquiryActivity(activityList, activityEmpty, []);
     const version = ++detailVersion; detailAbort?.abort(); detailAbort = new AbortController();
     listAbort?.abort(); listVersion++;
     lead = null; updateForm.reset();
@@ -112,10 +145,11 @@ export async function setupInquiryAdmin(): Promise<void> {
     root!.querySelectorAll<HTMLElement>('[data-admin-detail]').forEach(node => { node.textContent = ''; });
     announce('Loading inquiry…'); updateForm.hidden = true; detailContent.hidden = true; detailUnavailable.hidden = true;
     try {
-      const result = await api<{ inquiry: Inquiry }>(inquiryDetailApiUrl(id), { signal: detailAbort.signal });
+      const result = await api<InquiryDetail>(inquiryDetailApiUrl(id), { signal: detailAbort.signal });
       if (version !== detailVersion || !authenticated) return;
       if (!result.inquiry) throw new Error('Missing inquiry detail response.');
       renderDetail(result.inquiry); detailContent.hidden = false; updateForm.hidden = false; announce('Inquiry loaded.');
+      renderInquiryActivity(activityList, activityEmpty, result.activity ?? []);
       element('[data-admin-detail-heading]').focus();
     } catch (error) { if (version === detailVersion && !detailAbort.signal.aborted) { announce(friendly(error, 'This inquiry could not be loaded. Return to the list and try again.'), true); if (authenticated) { detailUnavailable.hidden = false; element('[data-admin-back]').focus(); } } }
     finally { if (version === detailVersion) detailPanel.removeAttribute('aria-busy'); }
@@ -130,9 +164,13 @@ export async function setupInquiryAdmin(): Promise<void> {
     }
     authenticated = true; loginPanel.hidden = true; passwordPanel.hidden = true; dashboard.hidden = false;
     // Cookies established by Identity enable the CDN role gate on subsequent requests.
-    if (location.pathname.startsWith('/admin/login')) history.replaceState(null, '', '/admin/');
+    if (location.pathname.startsWith('/admin/login')) {
+      const destination = new URL(location.href); const inquiryId = destination.searchParams.get('inquiry');
+      const destinationView = adminViewFromUrl(destination);
+      history.replaceState(null, '', inquiryId ? adminInquiryUrl(inquiryId, destinationView) : destination.searchParams.has('view') ? adminBrowseUrl(destinationView) : '/admin/');
+    }
     const id = new URL(location.href).searchParams.get('inquiry');
-    if (id) await loadDetail(id); else await loadList();
+    if (id) await loadDetail(id); else await loadBrowse();
   }
   function validation(form: HTMLFormElement, fields: Record<string, string>): void {
     form.querySelectorAll<HTMLElement>('[data-field-error]').forEach(node => { const value = fields[node.dataset.fieldError!]; node.textContent = value ?? ''; node.hidden = !value; });
@@ -178,8 +216,8 @@ export async function setupInquiryAdmin(): Promise<void> {
   });
   logoutButton.addEventListener('click', async () => { clearPrivate(); try { await logout(); announce('Signed out.'); } catch { announce('Local inquiry data was cleared. Sign-out could not be confirmed; close this session and try again.', true); } });
   element('[data-admin-refresh]').addEventListener('click', async () => { clearPrivate(); try { await logout(); announce('Sign in again to apply the updated role.'); } catch { announce('Sign out could not be confirmed. Close this session and sign in again.', true); } });
-  rows.addEventListener('click', event => { const link = (event.target as HTMLElement).closest<HTMLAnchorElement>('a[data-inquiry-id]'); if (!link || event instanceof MouseEvent && (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)) return; event.preventDefault(); history.pushState(null, '', link.href); void loadDetail(link.dataset.inquiryId!); });
-  const backToList = () => { history.pushState(null, '', '/admin/'); void loadList(); };
+  rows.addEventListener('click', event => { const link = (event.target as HTMLElement).closest<HTMLAnchorElement>('a[data-inquiry-id]'); if (!link || event instanceof MouseEvent && (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)) return; event.preventDefault(); history.pushState(null, '', link.href); syncView(); void loadDetail(link.dataset.inquiryId!); });
+  const backToList = () => { history.pushState(null, '', adminBrowseUrl(view)); void loadBrowse(); };
   element('[data-admin-back]').addEventListener('click', backToList);
   element('[data-admin-retry]').addEventListener('click', () => { void loadList(); });
   element('[data-admin-reload]').addEventListener('click', () => { const id = new URL(location.href).searchParams.get('inquiry'); if (id) void loadDetail(id); });
@@ -187,20 +225,32 @@ export async function setupInquiryAdmin(): Promise<void> {
   filter.addEventListener('change', () => { page = 1; void loadList(); }); sort.addEventListener('change', () => { page = 1; void loadList(); });
   element('[data-admin-previous]').addEventListener('click', () => { if (page > 1) { page--; void loadList(); } });
   element('[data-admin-next]').addEventListener('click', () => { page++; void loadList(); });
-  window.addEventListener('popstate', () => { const id = new URL(location.href).searchParams.get('inquiry'); if (id) void loadDetail(id); else void loadList(); });
+  viewButtons.forEach(button => button.addEventListener('click', () => {
+    if (!authenticated || saving || pipeline.isMoving()) return;
+    history.pushState(null, '', adminBrowseUrl(button.dataset.adminView as AdminView)); void loadBrowse();
+  }));
+  window.addEventListener('popstate', () => { syncView(); const id = new URL(location.href).searchParams.get('inquiry'); if (id) void loadDetail(id); else void loadBrowse(); });
   updateForm.addEventListener('submit', async event => {
     event.preventDefault(); if (!lead || saving) return;
     const fields = new FormData(updateForm); const result = updateSchema.safeParse({ status: fields.get('status'), adminNotes: fields.get('adminNotes'), updatedAt: lead.updatedAt });
     if (!result.success) { validation(updateForm, fieldErrors(result.error)); return; }
     validation(updateForm, {}); saving = true; updateForm.setAttribute('aria-busy', 'true');
-    const controls = [...detailPanel.querySelectorAll<HTMLButtonElement | HTMLSelectElement | HTMLTextAreaElement>('button,select,textarea')]; controls.forEach(control => { control.disabled = true; });
+    const version = detailVersion; const inquiryId = lead.id;
+    const controls = [...detailPanel.querySelectorAll<HTMLButtonElement | HTMLSelectElement | HTMLTextAreaElement>('button,select,textarea'), ...viewButtons]; controls.forEach(control => { control.disabled = true; });
     const saveMessage = element('[data-admin-save-message]'); saveMessage.textContent = 'Saving…';
     try {
-      const response = await api<{ inquiry: Inquiry }>(inquiryDetailApiUrl(lead.id), { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(result.data) });
-      if (!authenticated) return;
+      const response = await api<{ inquiry: Inquiry }>(inquiryDetailApiUrl(inquiryId), { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(result.data) });
+      if (!authenticated || version !== detailVersion) return;
       renderDetail(response.inquiry); saveMessage.textContent = 'Changes saved.';
-    } catch (error) { saveMessage.textContent = friendly(error, 'Changes could not be saved. Your edits are still here. Please try again.'); }
-    finally { saving = false; updateForm.removeAttribute('aria-busy'); controls.forEach(control => { control.disabled = false; }); if (authenticated && !detailPanel.hidden) updateForm.querySelector<HTMLButtonElement>('button[type="submit"]')?.focus(); }
+      const activityRequest = ++activityVersion; activityList.setAttribute('aria-busy', 'true');
+      try {
+        const refreshed = await api<InquiryDetail>(inquiryDetailApiUrl(inquiryId));
+        if (authenticated && version === detailVersion && activityRequest === activityVersion) renderInquiryActivity(activityList, activityEmpty, refreshed.activity ?? []);
+      } catch {
+        if (authenticated && version === detailVersion) saveMessage.textContent = 'Changes saved. Activity could not be refreshed; use Reload inquiry to try again.';
+      } finally { if (activityRequest === activityVersion) activityList.removeAttribute('aria-busy'); }
+    } catch (error) { if (authenticated && version === detailVersion) saveMessage.textContent = friendly(error, 'Changes could not be saved. Your edits are still here. Please try again.'); }
+    finally { saving = false; updateForm.removeAttribute('aria-busy'); controls.forEach(control => { control.disabled = false; }); if (authenticated && version === detailVersion && !detailPanel.hidden) updateForm.querySelector<HTMLButtonElement>('button[type="submit"]')?.focus(); }
   });
   try {
     const callback = await handleAuthCallback();

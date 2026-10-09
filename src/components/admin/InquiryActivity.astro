@@ -1,0 +1,17 @@
+---
+import Heading from '@components/ui/atoms/Heading.astro';
+import Text from '@components/ui/atoms/Text.astro';
+---
+<div class="admin-activity" aria-labelledby="admin-activity-heading">
+  <div class="activity-heading"><Heading id="admin-activity-heading" tag="h3" variant="feature-title">Activity</Heading><Text variant="feature-body-sm">Newest first</Text></div>
+  <Text variant="body" data-admin-activity-empty>No activity recorded yet.</Text>
+  <ol class="activity-list" data-admin-activity-list></ol>
+</div>
+<style>
+  .admin-activity { grid-column: 1 / -1; display: grid; gap: var(--spacing-md); min-width: 0; padding-top: var(--spacing-lg); border-top: 1px solid var(--color-outline-variant); }
+  .activity-heading { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--spacing-md); }
+  .activity-list { display: grid; gap: var(--spacing-md); list-style: none; padding: 0; margin: 0; }
+  .activity-list :global(li) { display: grid; gap: var(--spacing-xs); padding-bottom: var(--spacing-md); border-bottom: 1px solid var(--color-outline-variant); overflow-wrap: anywhere; }
+  .activity-list :global(.activity-label) { font-weight: 600; }
+  .activity-list :global(time),.activity-heading :global(p),.admin-activity :global([data-admin-activity-empty]) { color: var(--color-on-surface-variant); }
+</style>

@@ -1,5 +1,30 @@
 # Client inquiry and admin foundation
 
+## Phase 2: Pipeline and inquiry activity — October 9, 2026
+
+The user reports Phase 1 is verified on live staging. Phase 2 adds only Pipeline and persistent inquiry activity; the Phase 1 record below remains historical.
+
+**Deployment prerequisite:** manually apply `database/migrations/002_create_inquiry_activity.sql` once to the intended Neon staging/development branch, then redeploy Phase 2. Do not rerun the already-applied `001` migration. This pass does not connect to Neon or apply either migration there. Tests execute both migrations only in an isolated in-memory PostgreSQL instance using the already-installed PGlite package.
+
+- List remains the default with existing filters, sorting, 25-row pages and detail view. Switching uses `/admin/?view=list` and `/admin/?view=pipeline`; `/admin/?inquiry=<uuid>` remains valid. Pipeline detail retains `view=pipeline`, including Back/Forward and sign-in return context.
+- Protected `GET /api/admin/inquiries?view=pipeline` returns all non-archived summaries and the existing real metrics. It makes two queries independent of card count. Cards show name/company/project type/budget/timeline/submitted date and carry an `updatedAt` version; no notes, full detail or activity are fetched for each card. Seven columns cover New through Lost. Mobile stacks sections; tablet/desktop use a contained horizontally scrollable board.
+- Drag/drop and each card's labeled Move to select/Move button use the existing protected `PATCH /api/admin/inquiries?id=<uuid>`. A strict `{action:"move",status,updatedAt}` body preserves notes on the server. Normal saves still require the unchanged `{status,adminNotes,updatedAt}` validation. Both use the same locked, timestamp-guarded SQL update and activity logic. Cards change only after confirmed persistence; failures preserve saved state and conflicts ask for a board refresh.
+- `002` creates `inquiry_activity` with UUID/FK IDs, millisecond timestamps, three event types, optional from/to status, a short note field and system/admin actor. Full note bodies are never copied into activity. An index supports newest-first history; a partial unique index permits only one creation event. `ON DELETE CASCADE` deliberately removes activity if a future explicit inquiry deletion is approved. Archiving retains both records. No delete UI or historical backfill is included.
+- A new inquiry and `inquiry_created`/system event commit in one statement. Identical retries reuse the receipt without adding events; changed content with a reused key still conflicts. Pre-activity records receive no fabricated event on retry.
+- The shared update locks previous values, checks `updatedAt`, saves, and inserts `status_changed` and/or `admin_note_updated` only for actual changes. Event insertion failure rolls the inquiry change back. Updated timestamps advance at least one millisecond to retain stale-edit protection for fast saves.
+- Detail GET returns `{inquiry,activity}`. Activity loads only with an opened detail and refreshes after its confirmed save. A history read failure never turns a confirmed write into an apparent failed save. Old records show "No activity recorded yet." Reads, filtering, login and refresh add no events. Logout/authorization failure clears board and activity data from the browser.
+- Identity/admin checks, same-origin mutations, parameterized SQL, private response headers, public receipt-only responses and runtime secrets remain. No email automation, proposals, uploads, reminders, tasks, portal or charts are added.
+
+### Phase 2 validation and deployment boundary
+
+- All 76 data JSON files parse. `npm run check:types` checks 426 files with zero errors. A direct Astro static build into a temporary directory emits eight routes without running favicon/font/image generators. Both modern Functions bundle successfully with Netlify's esbuild bundler.
+- The focused inquiry/auth/store/detail/CRM/URL run passes 77 tests, including 15 real in-memory PostgreSQL workflow tests and seven view/deep-link cases. The full repository run reports 925 passed / 10 failed: seven failures concern untouched LinkedIn expectations, retired Polish routes and a disabled development-thumbnail route; three QA-runner cases encounter sandbox `tsx` IPC restrictions. These unrelated failures are not changed in this pass.
+- Chrome checks at 320/375/430/768/1024/1440px pass List filtering/sorting, Pipeline counts, detail navigation, Back/Forward, Move and native drag event handlers, archived retention, actual PostgreSQL rollback/stale conflicts, note preservation, history persistence after refresh/logout/login, and authorization-loss cleanup. Labels, duplicate IDs, hidden focus, reduced-motion rendering and page overflow were checked. Identity responses are synthetic; private requests execute the actual Function/store against isolated in-memory PostgreSQL, never Neon.
+- The unchanged public wizard passes all five steps, validation, Back/Edit, consent, failure/retry, stable submission keys, double-submit protection, keyboard and public CTA navigation at the same six widths with synthetic receipt responses. No browser runtime errors were recorded. Hash comparisons preserve migration 001, auth helpers, Identity callbacks, public UI/data, assets, dependencies and deployment configuration. Temporary browser fixtures are removed.
+- This is local validation only. Migration 002 still requires manual execution on the intended Neon branch before Phase 2 deployment; no live database or deployment was modified.
+
+## Historical Phase 1 implementation
+
 Implemented October 8, 2026. This is Phase 1, not a full CRM. The source implementation is ready for configuration; no live Neon migration or Identity account was created during this pass.
 
 ## Public workflow

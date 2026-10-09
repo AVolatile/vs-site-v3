@@ -15,7 +15,7 @@ describe('parameterized inquiry persistence', () => {
     expect(await createInquiry(input,'34d33c7b-a40a-43b5-ae42-ec4160995bc3')).toBe('receipt');
     const [statement, values] = mocks.query.mock.calls[0];
     expect(statement).not.toContain(input.name); expect(values[0]).toBe(input.name);
-    expect(statement).toContain('ON CONFLICT (submission_key)'); expect(statement).toContain('payload_fingerprint = EXCLUDED.payload_fingerprint');
+    expect(statement).toContain('ON CONFLICT (submission_key) DO NOTHING'); expect(statement).toContain('INSERT INTO inquiry_activity');
   });
   it('detects a reused key for different input', async () => {
     mocks.query.mockResolvedValue([]);

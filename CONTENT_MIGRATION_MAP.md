@@ -4,7 +4,15 @@ Repository snapshot: October 7, 2026. This document specifies existing capacity 
 
 The repository-root `AGENTS.md` governs future work. Relevant documentation inspected includes `AI-QUICKSTART.md`, `CUSTOMIZATION.md`, `CONTENT-GUIDE.md`, `DESIGN_RULES.md`, the Nova design documentation, CSS-layer documentation, deployment guidance, and asset/license documentation. Preserve active runtime behavior where older documentation differs. No documentation discrepancy is resolved here.
 
-# Current inquiry and admin foundation — October 8, 2026
+# Current Phase 2 inquiry workflow — October 9, 2026
+
+The user confirms Phase 1 is live-staging verified and authorizes only Pipeline plus inquiry activity. List remains first-class/default. `/admin/?view=pipeline` uses the seven existing statuses New through Lost; Archived remains available in List. Detail retains the existing `inquiry` query and view context through Back/Forward.
+
+New private UI modules are `InquiryPipeline.astro`, `InquiryActivity.astro`, `admin-pipeline.ts` and `admin-activity.ts`. They reuse Nova atoms, status colors, controls and the existing admin shell. The protected API adds pipeline summary loading and activity in detail GET. Strict move requests use the existing PATCH, preserve notes server-side and retain timestamp conflict protection. Board counts come from all returned non-archived summaries; there is no per-card detail/activity fetch.
+
+The shared store atomically records creation, actual status changes and actual note changes. Retries and unchanged saves add no duplicate events; full note text is not copied. `002_create_inquiry_activity.sql` is a separate migration with deliberate cascading cleanup, a history index and one-creation-event guard. `001` is unchanged, existing records are not backfilled, and `002` requires manual Neon execution before deployment. Details are recorded in `INQUIRY_ADMIN_SETUP.md`. No email, proposal, upload, reminder, task, portal, analytics, dependency, public-wizard UI or unrelated website change is included.
+
+# Historical inquiry and admin foundation — October 8, 2026
 
 The user explicitly approved a public project inquiry wizard, server-side Netlify Functions, Neon persistence and the initial private Netlify Identity admin workspace. This supersedes earlier mailto-only/no-admin/no-auth/no-Neon restrictions only for this Phase 1 scope. No real database connection, migration, Identity user, invitation or deployment was created: DATABASE_URL and a linked Netlify project were absent locally.
 

@@ -3,6 +3,8 @@ import content from '@data/inquiry.json';
 
 export { content as inquiryContent };
 export const STATUS_OPTIONS = ['new', 'reviewing', 'contacted', 'qualified', 'proposal', 'won', 'lost', 'archived'] as const;
+export const PIPELINE_STATUS_OPTIONS = STATUS_OPTIONS.filter((status): status is Exclude<typeof STATUS_OPTIONS[number], 'archived'> => status !== 'archived');
+export const ACTIVITY_TYPES = ['inquiry_created', 'status_changed', 'admin_note_updated'] as const;
 export const MAX_BODY_BYTES = 16_384;
 export const MIN_INTERACTION_MS = 3_000;
 const choice = (options: { value: string }[], message: string) => z.enum(options.map(option => option.value) as [string, ...string[]], { message });
@@ -39,6 +41,11 @@ export const updateSchema = z.object({
   adminNotes: text(10_000),
   updatedAt: z.string().datetime(),
 }).strict();
+export const moveSchema = z.object({
+  action: z.literal('move'),
+  status: z.enum(STATUS_OPTIONS),
+  updatedAt: z.string().datetime(),
+}).strict();
 export const STEP_FIELDS = [
   ['projectType'], ['name', 'email', 'company', 'website'],
   ['projectSummary', 'helpNeeded', 'projectStage'], ['budgetRange', 'timeline'],
@@ -59,4 +66,19 @@ export type InquirySummary = Pick<Inquiry, 'id' | 'name' | 'company' | 'projectT
 export interface InquiryList {
   items: InquirySummary[]; page: number; pageSize: number; total: number;
   metrics: { total: number; new: number; active: number; won: number };
+}
+export type PipelineInquiry = InquirySummary & Pick<Inquiry, 'updatedAt'>;
+export interface InquiryPipeline {
+  items: PipelineInquiry[];
+  metrics: InquiryList['metrics'];
+}
+export interface InquiryActivity {
+  id: string; inquiryId: string; createdAt: string;
+  type: typeof ACTIVITY_TYPES[number];
+  fromStatus: InquiryStatus | null; toStatus: InquiryStatus | null;
+  note: string; actor: 'system' | 'admin';
+}
+export interface InquiryDetail {
+  inquiry: Inquiry;
+  activity: InquiryActivity[];
 }

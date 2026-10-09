@@ -4,7 +4,15 @@ Recorded: October 7, 2026. Asset and visual decisions A1–A7 added October 8, 2
 
 **This file stores factual source material. It is not final website copy, a redesign, a marketing exercise, or authorization to begin migration.**
 
-# Current inquiry and admin foundation — October 8, 2026
+# Current Phase 2 inquiry workflow — October 9, 2026
+
+The user reports the full Phase 1 workflow is verified on live staging: Identity/admin roles, Neon, intake, list/detail, status/notes and filtering/sorting. Phase 2 explicitly approves a same-route List/Pipeline switch and private persistent inquiry activity. The earlier Kanban deferral is superseded only for this scope; automation, proposals, uploads, reminders, tasks, portal and advanced analytics remain deferred.
+
+Pipeline uses seven existing status columns (New through Lost), excludes Archived, reuses detail and the protected update endpoint, and supports drag/drop plus a labeled non-drag Move control. List stays the default and keeps archived/filter/sort access. View/detail context lives in the URL with Back/Forward support. Counts derive from returned records; card summaries contain no notes or activity.
+
+Migration `002_create_inquiry_activity.sql` is new; `001` remains unchanged. Creation, actual status changes and actual note changes are recorded atomically on the server with system/admin actors. Full notes are not copied into history. Old records are not backfilled and show "No activity recorded yet." Archiving retains history. Apply `002` manually to the intended Neon branch before deploying Phase 2. This pass performs no Neon migration. Full operational/API contracts are in `INQUIRY_ADMIN_SETUP.md`.
+
+# Historical inquiry and admin foundation — October 8, 2026
 
 The user explicitly approved a public project inquiry wizard, server-side Netlify Functions, Neon persistence and the initial private Netlify Identity admin workspace. This supersedes earlier mailto-only/no-admin/no-auth/no-Neon restrictions only for this Phase 1 scope. No real database connection, migration, Identity user, invitation or deployment was created: DATABASE_URL and a linked Netlify project were absent locally.
 

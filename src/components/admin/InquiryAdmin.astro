@@ -5,6 +5,8 @@ import Heading from '@components/ui/atoms/Heading.astro';
 import Text from '@components/ui/atoms/Text.astro';
 import Button from '@components/ui/atoms/Button.astro';
 import InquiryField from '@components/inquiry/InquiryField.astro';
+import InquiryPipeline from '@components/admin/InquiryPipeline.astro';
+import InquiryActivity from '@components/admin/InquiryActivity.astro';
 import { STATUS_OPTIONS } from '@/lib/inquiries/contract';
 import { INQUIRY_COLUMNS } from '@/lib/inquiries/admin-presentation';
 const statuses = STATUS_OPTIONS.map(value => ({ value, label: value[0].toUpperCase() + value.slice(1) }));
@@ -54,7 +56,11 @@ const detailGroups = [
         <div class="admin-metrics" role="group" aria-label="Inquiry summary">
           {[['new','New inquiries'],['total','Total inquiries'],['active','Active inquiries'],['won','Won']].map(([key,label]) => <div class="admin-metric"><Text variant="feature-body-sm">{label}</Text><Heading tag="p" variant="section-title" data-admin-metric={key}>—</Heading></div>)}
         </div>
-        <div data-admin-list-panel class="admin-list-panel">
+        <div class="admin-view-switch" role="group" aria-label="Inquiry view">
+          <Button type="button" variant="outline" size="sm" class="min-h-11" data-admin-view="list" aria-pressed="true" aria-controls="admin-list-panel">List</Button>
+          <Button type="button" variant="outline" size="sm" class="min-h-11" data-admin-view="pipeline" aria-pressed="false" aria-controls="admin-pipeline-panel">Pipeline</Button>
+        </div>
+        <div id="admin-list-panel" data-admin-list-panel class="admin-list-panel">
           <Heading tag="h2" variant="feature-title">Project inquiries</Heading>
           <div class="admin-controls">
             <div><InquiryField name="filterStatus" label="Status" type="select" required options={[{ value: 'all', label: 'All statuses' },...statuses]} /></div>
@@ -67,6 +73,7 @@ const detailGroups = [
           <Text variant="body" data-admin-empty hidden>No inquiries yet. New submissions will appear here.</Text>
           <div class="admin-pagination"><Button type="button" variant="outline" class="min-h-11" data-admin-previous>Previous</Button><Text tag="span" variant="feature-body-sm" data-admin-page></Text><Button type="button" variant="outline" class="min-h-11" data-admin-next>Next</Button></div>
         </div>
+        <InquiryPipeline />
         <div data-admin-detail-panel hidden class="admin-detail-panel">
           <div class="admin-detail-nav"><Button type="button" variant="outline" size="sm" class="min-h-11" data-admin-back><svg slot="icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><path d="M19 12H5m6-6-6 6 6 6" stroke-linecap="round" stroke-linejoin="round" /></svg>Back to inquiries</Button></div>
           <div class="admin-detail-actions"><Heading tag="h2" variant="feature-title" tabindex="-1" data-admin-detail-heading>Inquiry details</Heading><Button href="mailto:" variant="outline" class="min-h-11" data-admin-email hidden>Email contact</Button></div>
@@ -89,6 +96,7 @@ const detailGroups = [
               <div class="admin-save-actions"><Button type="submit" variant="primary" class="min-h-11">Save changes</Button><Button type="button" variant="outline" class="min-h-11" data-admin-reload>Reload inquiry</Button></div>
               <Text variant="body" role="status" data-admin-save-message aria-live="polite"></Text>
             </form>
+            <InquiryActivity />
           </div>
         </div>
       </div>
@@ -114,6 +122,9 @@ const detailGroups = [
   :global(.admin-area:has([data-admin-dashboard]:not([hidden]))) :global([data-admin-message]) { padding: var(--spacing-md); border-radius: var(--ui-radius-sm); background: var(--color-brand-cream); }
   :global(.admin-area:has([data-admin-dashboard]:not([hidden]))) :global([data-admin-message][role="alert"]) { background: var(--color-error-container); color: var(--color-on-error-container); }
   .admin-dashboard { gap: var(--spacing-lg); }
+  .admin-area,.admin-dashboard { min-width: 0; }
+  .admin-view-switch { display: flex; flex-wrap: wrap; gap: var(--spacing-sm); }
+  .admin-view-switch :global([aria-pressed="true"]) { background: var(--color-brand-dark); color: var(--color-on-primary); border-color: var(--color-brand-dark); }
   .admin-metrics { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--spacing-md); }
   .admin-metric { display: grid; gap: var(--spacing-md); padding: clamp(1rem,2vw,1.5rem); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-lg); background: var(--color-brand-cream); }
   .admin-metric :global([data-admin-metric]) { font-size: clamp(2rem,3vw,3rem); line-height: 1; font-variant-numeric: tabular-nums; }

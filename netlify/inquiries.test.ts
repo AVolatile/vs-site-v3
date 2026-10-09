@@ -4,9 +4,9 @@ import submit from './functions/inquiries.mts';
 import adminEndpoint from './functions/admin-inquiries.mts';
 import { submissionSchema } from '../src/lib/inquiries/contract';
 
-const mocks = vi.hoisted(() => ({ user: vi.fn(), create: vi.fn(), list: vi.fn(), get: vi.fn(), update: vi.fn() }));
+const mocks = vi.hoisted(() => ({ user: vi.fn(), create: vi.fn(), list: vi.fn(), get: vi.fn(), update: vi.fn(), activity: vi.fn(), pipeline: vi.fn() }));
 vi.mock('@netlify/identity', () => ({ getUser: mocks.user }));
-vi.mock('./lib/inquiry-store', () => ({ createInquiry: mocks.create, listInquiries: mocks.list, getInquiry: mocks.get, updateInquiry: mocks.update }));
+vi.mock('./lib/inquiry-store', () => ({ createInquiry: mocks.create, listInquiries: mocks.list, getInquiry: mocks.get, updateInquiry: mocks.update, listInquiryActivity: mocks.activity, getInquiryPipeline: mocks.pipeline }));
 const id = '34d33c7b-a40a-43b5-ae42-ec4160995bc3';
 const payload = () => ({ projectType: 'website', name: '  Test Visitor  ', email: 'TEST@example.com', company: '', website: 'example.com',
   projectStage: 'new', projectSummary: 'A website for a local business.', helpNeeded: '', budgetRange: 'unsure', timeline: 'flexible',
@@ -15,7 +15,7 @@ const request = (body: unknown, path = '/api/inquiries', method = 'POST', origin
   method, headers: { Origin: origin, 'Content-Type': 'application/json' }, ...(method !== 'GET' ? { body: JSON.stringify(body) } : {}),
 });
 const context = (inquiryId?: string) => ({ params: inquiryId ? { id: inquiryId } : {} }) as Context;
-beforeEach(() => { vi.resetAllMocks(); mocks.user.mockResolvedValue(null); mocks.create.mockResolvedValue(id); });
+beforeEach(() => { vi.resetAllMocks(); mocks.user.mockResolvedValue(null); mocks.create.mockResolvedValue(id); mocks.activity.mockResolvedValue([]); });
 
 describe('public inquiry submission', () => {
   it('normalizes validated fields and only returns a receipt', async () => {
