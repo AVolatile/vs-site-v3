@@ -5,6 +5,68 @@
 [build.environment]
   NODE_VERSION = "22"
 
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Explicit API aliases must precede the existing general page rewrite.
+[[redirects]]
+  from = "/api/inquiries"
+  to = "/.netlify/functions/inquiries"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/admin/inquiries/:id"
+  to = "/.netlify/functions/admin-inquiries?id=:id"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/admin/inquiries"
+  to = "/.netlify/functions/admin-inquiries"
+  status = 200
+  force = true
+
+# Public login/callback shell; no private inquiry data is embedded in it.
+[[redirects]]
+  from = "/admin/login"
+  to = "/admin/login/index.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/admin"
+  to = "/admin/index.html"
+  status = 200
+  force = true
+  conditions = { Role = ["admin"] }
+
+[[redirects]]
+  from = "/admin"
+  to = "/admin/login/"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/admin/*"
+  to = "/admin/index.html"
+  status = 200
+  force = true
+  conditions = { Role = ["admin"] }
+
+[[redirects]]
+  from = "/admin/*"
+  to = "/admin/login/"
+  status = 302
+  force = true
+
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    Cache-Control = "no-store"
+    X-Robots-Tag = "noindex, nofollow"
+
 # Preview deployment — kazdy branch to osobna domena
 [context.deploy-preview]
   command = "npm run build"

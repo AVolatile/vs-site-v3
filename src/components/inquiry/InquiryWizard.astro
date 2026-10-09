@@ -1,0 +1,125 @@
+---
+import Section from '@components/ui/layout/Section.astro';
+import Container from '@components/ui/layout/Container.astro';
+import Heading from '@components/ui/atoms/Heading.astro';
+import Text from '@components/ui/atoms/Text.astro';
+import Button from '@components/ui/atoms/Button.astro';
+import FormStatus from '@components/ui/patterns/FormStatus.astro';
+import InquiryField from '@components/inquiry/InquiryField.astro';
+import copy from '@data/inquiry.json';
+import company from '@data/global/company.json';
+const reviewGroups = [
+  [['projectType', 'Project type']],
+  [['name', 'Name'], ['email', 'Email'], ['company', 'Business / Company'], ['website', 'Current website']],
+  [['projectSummary', 'Project summary'], ['helpNeeded', 'Help needed'], ['projectStage', 'Starting point']],
+  [['budgetRange', 'Budget'], ['timeline', 'Timeline']],
+];
+---
+<Section tone="page" class="py-12 sm:py-16">
+  <Container class="max-w-4xl">
+    <div class="inquiry-intro">
+      <Text variant="accent-label">Projects / Collaboration</Text>
+      <Heading tag="h1" variant="section-title">{copy.heading}</Heading>
+      <Text variant="lead">{copy.description}</Text>
+    </div>
+    <div data-inquiry-wizard class="inquiry-wizard">
+      <div data-inquiry-progress hidden>
+        <Text variant="feature-body-sm" data-step-status aria-live="polite">Step 1 of 5 — Project type</Text>
+        <ol class="inquiry-progress" aria-label="Inquiry steps">
+          {copy.steps.map((step, index) => <li data-progress-step={index}><Text tag="span" variant="feature-body-sm">{index + 1} — {step}</Text></li>)}
+        </ol>
+      </div>
+      <noscript><Text variant="body">Please enable JavaScript to use the inquiry form, or <a href={`mailto:${company.email}`}>email {company.email}</a>.</Text></noscript>
+      <form data-inquiry-form novalidate hidden>
+        <div class="inquiry-step" data-inquiry-step="0" role="group" aria-labelledby="inquiry-step-0">
+          <Heading tag="h2" variant="feature-title" id="inquiry-step-0" tabindex="-1">What can I help you build?</Heading>
+          <fieldset class="inquiry-choices">
+            <Text tag="legend" variant="feature-body-sm" class="sr-only">Choose one project type</Text>
+            {copy.projectTypes.map(option => <label class="inquiry-choice"><input type="radio" name="projectType" value={option.value} required aria-describedby="projectType-error" /><Text tag="span" variant="body">{option.label}</Text></label>)}
+          </fieldset>
+          <Text id="projectType-error" variant="feature-body-sm" class="text-[var(--color-error)]" data-field-error="projectType" hidden></Text>
+        </div>
+        <div class="inquiry-step" data-inquiry-step="1" role="group" aria-labelledby="inquiry-step-1" hidden>
+          <Heading tag="h2" variant="feature-title" id="inquiry-step-1" tabindex="-1">Tell me a little about you</Heading>
+          <div class="inquiry-field-grid">
+            <InquiryField name="name" label="Name" required maxLength={120} autocomplete="name" />
+            <InquiryField name="email" label="Email" type="email" required maxLength={254} autocomplete="email" />
+            <InquiryField name="company" label="Business / Company" maxLength={160} autocomplete="organization" />
+            <InquiryField name="website" label="Current website" maxLength={2048} autocomplete="url" hint="A domain such as example.com is fine." />
+          </div>
+        </div>
+        <div class="inquiry-step" data-inquiry-step="2" role="group" aria-labelledby="inquiry-step-2" hidden>
+          <Heading tag="h2" variant="feature-title" id="inquiry-step-2" tabindex="-1">What do you have in mind?</Heading>
+          <InquiryField name="projectSummary" label="Project summary" type="textarea" required maxLength={4000} hint="Tell me about your goals and what you want to build or improve." />
+          <InquiryField name="helpNeeded" label="What are you looking for help with?" type="textarea" maxLength={2000} />
+          <InquiryField name="projectStage" label="Starting point" type="select" required options={copy.projectStages} />
+        </div>
+        <div class="inquiry-step" data-inquiry-step="3" role="group" aria-labelledby="inquiry-step-3" hidden>
+          <Heading tag="h2" variant="feature-title" id="inquiry-step-3" tabindex="-1">Budget and timing</Heading>
+          <Text variant="body">These ranges help frame the conversation. They are not a quote or a commitment to a delivery date.</Text>
+          <div class="inquiry-field-grid">
+            <InquiryField name="budgetRange" label="Estimated budget" type="select" required options={copy.budgets} />
+            <InquiryField name="timeline" label="Preferred timeline" type="select" required options={copy.timelines} />
+          </div>
+        </div>
+        <div class="inquiry-step" data-inquiry-step="4" role="group" aria-labelledby="inquiry-step-4" hidden>
+          <Heading tag="h2" variant="feature-title" id="inquiry-step-4" tabindex="-1">Review your inquiry</Heading>
+          <Text variant="body">Check the details below before sending them to Anthony.</Text>
+          <div data-inquiry-review class="inquiry-review">
+            {reviewGroups.map((fields, index) => <div class="review-group">
+              <Heading tag="h3" variant="feature-title">{copy.steps[index]}</Heading>
+              <dl>{fields.map(([name, label]) => <div><Text tag="dt" variant="feature-body-sm">{label}</Text><Text tag="dd" variant="body" data-review-value={name}></Text></div>)}</dl>
+              <Button type="button" variant="outline" class="min-h-11" data-inquiry-edit={index} aria-label={`Edit ${copy.steps[index]}`}>Edit</Button>
+            </div>)}
+          </div>
+          <label class="inquiry-consent"><input type="checkbox" name="consent" required aria-describedby="consent-error" /><Text tag="span" variant="body">{copy.consent} <a href="/polityka-prywatnosci/" target="_blank" rel="noopener noreferrer">Privacy policy</a></Text></label>
+          <Text id="consent-error" variant="feature-body-sm" class="text-[var(--color-error)]" data-field-error="consent" hidden></Text>
+        </div>
+        <div class="inquiry-honeypot" aria-hidden="true"><label for="inquiry-honeypot">Leave this field empty</label><input id="inquiry-honeypot" name="honeypot" tabindex="-1" autocomplete="off" /></div>
+        <Text variant="body" role="alert" data-inquiry-error class="text-[var(--color-error)]" hidden></Text>
+        <div class="inquiry-actions">
+          <Button type="button" variant="outline" class="min-h-11" data-inquiry-back hidden>Back</Button>
+          <Button type="button" variant="primary" class="min-h-11" data-inquiry-next>Continue</Button>
+          <Button type="submit" variant="primary" class="min-h-11" data-inquiry-submit hidden>Submit Inquiry</Button>
+        </div>
+        <Text variant="feature-body-sm" class="text-on-surface-variant">Prefer email? <a href={`mailto:${company.email}`}>{company.email}</a></Text>
+      </form>
+      <div data-inquiry-success tabindex="-1" hidden><FormStatus type="success" title={copy.successHeading} description={copy.successDescription} /><div class="inquiry-success-link"><Button href="/portfolio/" variant="outline">Explore My Work</Button></div></div>
+    </div>
+  </Container>
+</Section>
+<script>
+  import { setupInquiryWizard } from '@/lib/inquiries/wizard';
+  setupInquiryWizard();
+  document.addEventListener('astro:page-load', setupInquiryWizard);
+</script>
+<style>
+  [hidden] { display: none !important; }
+  .inquiry-intro { display: grid; gap: 1.25rem; margin-bottom: 2.5rem; }
+  .inquiry-wizard { display: grid; gap: 2rem; }
+  .inquiry-progress { margin: .75rem 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: .75rem; }
+  .inquiry-progress li { padding-top: .75rem; border-top: 2px solid var(--color-outline-variant); color: var(--color-on-surface-variant); }
+  .inquiry-progress li[aria-current='step'] { border-color: var(--color-brand-accent); color: var(--color-on-surface); }
+  form, .inquiry-step { display: grid; gap: 1.5rem; }
+  .inquiry-step :global(h2) { scroll-margin-top: calc(var(--site-header-height, 5rem) + 1.5rem); }
+  .inquiry-field-grid, .inquiry-choices { display: grid; gap: 1.25rem; }
+  .inquiry-choices { padding: 0; border: 0; margin: 0; }
+  .inquiry-choice { display: flex; align-items: center; gap: .75rem; border: 1px solid var(--color-outline-variant); padding: 1.25rem; border-radius: var(--ui-radius-lg); cursor: pointer; min-height: 5rem; }
+  .inquiry-choice:has(input:checked) { border-color: var(--color-brand-accent); background: var(--color-brand-cream); }
+  .inquiry-choice:focus-within { outline: 2px solid var(--color-brand-accent); outline-offset: 3px; }
+  input[type='radio'], input[type='checkbox'] { accent-color: var(--color-brand-accent); width: 1.25rem; height: 1.25rem; flex-shrink: 0; }
+  .inquiry-consent { display: flex; align-items: flex-start; gap: .75rem; }
+  .inquiry-consent input { margin-top: .35rem; }
+  .inquiry-actions { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; }
+  .inquiry-actions :global(button:only-child) { margin-left: auto; }
+  .inquiry-honeypot { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .inquiry-success-link { padding-top: 1.5rem; }
+  .inquiry-review { display: grid; gap: 1.5rem; }
+  .inquiry-review :global(.review-group) { display: grid; gap: .75rem; border-bottom: 1px solid var(--color-outline-variant); padding-bottom: 1.25rem; }
+  .inquiry-review :global(dl) { display: grid; gap: .5rem; margin: 0; }
+  .inquiry-review :global(dt) { color: var(--color-on-surface-variant); font-size: .875rem; }
+  .inquiry-review :global(dd) { margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+  .inquiry-review :global(button) { justify-self: start; }
+  @media (min-width: 40rem) { .inquiry-choices, .inquiry-field-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+  @media (max-width: 39.99rem) { .inquiry-progress { display: none; } }
+</style>

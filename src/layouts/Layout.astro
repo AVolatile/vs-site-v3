@@ -194,6 +194,16 @@ const mainPaddingStyle = fullBleedTop
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+		<!-- Identity emails may land on the homepage; forward only recognized auth callbacks. -->
+		<script is:inline>
+			(() => {
+			const identityHash = new URLSearchParams(window.location.hash.slice(1));
+			if (['invite_token', 'recovery_token', 'confirmation_token', 'email_change_token'].some(key => identityHash.has(key))) {
+				window.location.replace('/admin/login/' + window.location.hash);
+			}
+			})();
+		</script>
 		{theme === 'nova' && (
 			<>
 				<!-- Nova uses these local fonts above the fold; preload prevents fallback text from changing the layout. -->

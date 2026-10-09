@@ -1,0 +1,178 @@
+---
+import Section from '@components/ui/layout/Section.astro';
+import Container from '@components/ui/layout/Container.astro';
+import Heading from '@components/ui/atoms/Heading.astro';
+import Text from '@components/ui/atoms/Text.astro';
+import Button from '@components/ui/atoms/Button.astro';
+import InquiryField from '@components/inquiry/InquiryField.astro';
+import { STATUS_OPTIONS } from '@/lib/inquiries/contract';
+import { INQUIRY_COLUMNS } from '@/lib/inquiries/admin-presentation';
+const statuses = STATUS_OPTIONS.map(value => ({ value, label: value[0].toUpperCase() + value.slice(1) }));
+const detailGroups = [
+  { title: 'Contact', fields: [['name','Name'],['email','Email'],['company','Company'],['website','Website']] },
+  { title: 'Project', fields: [['projectType','Project type'],['projectStage','Starting point'],['projectSummary','Project summary'],['helpNeeded','Help needed']] },
+  { title: 'Scope', fields: [['budgetRange','Budget'],['timeline','Timeline'],['createdAt','Submitted']] },
+  { title: 'Record details', fields: [['updatedAt','Last updated'],['consentAt','Consent recorded'],['source','Source']] },
+];
+---
+<Section tone="page" class="py-10 sm:py-14">
+  <Container class="max-w-7xl">
+    <div data-inquiry-admin class="admin-area">
+      <div class="admin-heading">
+        <div>
+          <Text variant="accent-label">Volatile Solutions / Admin</Text>
+          <Heading tag="h1" variant="section-title"><Text tag="span" class="admin-title-text admin-auth-title">Client inquiries</Text><Text tag="span" class="admin-title-text admin-dashboard-title">Inquiries</Text></Heading>
+          <Text variant="body" class="admin-dashboard-context">Review and manage project inquiries submitted through Volatile Solutions.</Text>
+        </div>
+        <Button type="button" variant="outline" class="min-h-11" data-admin-logout hidden>Sign out</Button>
+      </div>
+      <Text variant="body" role="status" data-admin-message aria-live="polite">Checking access…</Text>
+      <noscript><Text variant="body">JavaScript is required to sign in and manage inquiries.</Text></noscript>
+      <div data-admin-login hidden>
+        <div class="admin-login-panel">
+          <Heading tag="h2" variant="feature-title">Sign in</Heading>
+          <Text variant="body">This workspace is for invited administrators.</Text>
+          <form data-admin-login-form novalidate class="admin-form">
+            <InquiryField name="loginEmail" label="Email" type="email" required maxLength={254} autocomplete="username" />
+            <InquiryField name="loginPassword" label="Password" type="password" required autocomplete="current-password" />
+            <Button type="submit" variant="primary" class="min-h-11">Sign in</Button>
+            <Button type="button" variant="outline" class="min-h-11" data-admin-recovery>Reset password</Button>
+          </form>
+          <Button type="button" variant="outline" class="min-h-11" data-admin-refresh hidden>Sign in again</Button>
+        </div>
+      </div>
+      <div data-admin-password hidden class="admin-login-panel">
+        <Heading tag="h2" variant="feature-title">Set your password</Heading>
+        <Text variant="body">Choose a password for your invited administrator account.</Text>
+        <form data-admin-password-form novalidate class="admin-form">
+          <InquiryField name="newPassword" label="New password" type="password" required autocomplete="new-password" hint="Use at least 12 characters." />
+          <InquiryField name="confirmPassword" label="Confirm password" type="password" required autocomplete="new-password" />
+          <Button type="submit" variant="primary" class="min-h-11">Save password</Button>
+        </form>
+      </div>
+      <div data-admin-dashboard hidden class="admin-dashboard">
+        <div class="admin-metrics" role="group" aria-label="Inquiry summary">
+          {[['new','New inquiries'],['total','Total inquiries'],['active','Active inquiries'],['won','Won']].map(([key,label]) => <div class="admin-metric"><Text variant="feature-body-sm">{label}</Text><Heading tag="p" variant="section-title" data-admin-metric={key}>—</Heading></div>)}
+        </div>
+        <div data-admin-list-panel class="admin-list-panel">
+          <Heading tag="h2" variant="feature-title">Project inquiries</Heading>
+          <div class="admin-controls">
+            <div><InquiryField name="filterStatus" label="Status" type="select" required options={[{ value: 'all', label: 'All statuses' },...statuses]} /></div>
+            <div><InquiryField name="sortOrder" label="Sort" type="select" required options={[{ value: 'newest', label: 'Newest first' },{ value: 'oldest', label: 'Oldest first' },{ value: 'status', label: 'Status' }]} /></div>
+            <Button type="button" variant="outline" class="min-h-11" data-admin-retry>Refresh inquiries</Button>
+          </div>
+          <div class="admin-table-wrap" role="region" aria-label="Project inquiry list">
+            <table role="table"><caption class="sr-only">Project inquiries</caption><thead role="rowgroup"><tr role="row">{INQUIRY_COLUMNS.map(label => <th scope="col" role="columnheader"><Text tag="span" variant="feature-body-sm">{label}</Text></th>)}</tr></thead><tbody role="rowgroup" data-admin-rows></tbody></table>
+          </div>
+          <Text variant="body" data-admin-empty hidden>No inquiries yet. New submissions will appear here.</Text>
+          <div class="admin-pagination"><Button type="button" variant="outline" class="min-h-11" data-admin-previous>Previous</Button><Text tag="span" variant="feature-body-sm" data-admin-page></Text><Button type="button" variant="outline" class="min-h-11" data-admin-next>Next</Button></div>
+        </div>
+        <div data-admin-detail-panel hidden class="admin-detail-panel">
+          <div class="admin-detail-actions"><Button type="button" variant="outline" class="min-h-11" data-admin-back>Back to inquiries</Button><Button href="mailto:" variant="outline" class="min-h-11" data-admin-email hidden>Email contact</Button></div>
+          <Heading tag="h2" variant="feature-title" tabindex="-1" data-admin-detail-heading>Inquiry details</Heading>
+          <div class="admin-detail-content">
+            <div class="admin-detail-sections">
+              {detailGroups.map(({ title, fields }) => <div class="admin-detail-group">
+                <Heading tag="h3" variant="feature-title">{title}</Heading>
+                <dl class="admin-details">{fields.map(([key,label]) => <div>
+                  <Text tag="dt" variant="feature-body-sm" class="text-on-surface-variant">{label}</Text>
+                  <Text tag="dd" variant="body" data-admin-detail={key}></Text>
+                </div>)}</dl>
+              </div>)}
+            </div>
+            <form data-admin-update-form novalidate class="admin-form admin-edit-panel">
+              <Heading tag="h3" variant="feature-title">Admin</Heading>
+              <div class="admin-current-status"><Text variant="feature-body-sm">Current status</Text><Text tag="span" variant="feature-body-sm" data-admin-detail="status" class="admin-status"></Text></div>
+              <InquiryField name="status" label="Update status" type="select" required options={statuses} />
+              <InquiryField name="adminNotes" label="Private admin notes" type="textarea" maxLength={10000} hint="Visible only to administrators." />
+              <div class="admin-save-actions"><Button type="submit" variant="primary" class="min-h-11">Save changes</Button><Button type="button" variant="outline" class="min-h-11" data-admin-reload>Reload inquiry</Button></div>
+              <Text variant="body" role="status" data-admin-save-message aria-live="polite"></Text>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Container>
+</Section>
+<script>
+  import { setupInquiryAdmin } from '@/lib/inquiries/admin';
+  setupInquiryAdmin();
+</script>
+<style>
+  [hidden] { display: none !important; }
+  .admin-area,.admin-dashboard,.admin-form,.admin-list-panel,.admin-detail-panel { display: grid; gap: 1.5rem; }
+  .admin-heading,.admin-detail-actions,.admin-pagination { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+  .admin-heading > div { display: grid; gap: .75rem; }
+  .admin-login-panel { display: grid; gap: 1.25rem; max-width: 30rem; padding: clamp(1rem,4vw,2rem); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-lg); background: var(--color-brand-cream); }
+  .admin-heading :global(.admin-title-text) { line-height: inherit; }
+  .admin-heading :global(.admin-dashboard-title),.admin-heading :global(.admin-dashboard-context) { display: none; }
+  :global(.admin-area:has([data-admin-dashboard]:not([hidden]))) .admin-heading :global(.admin-auth-title) { display: none; }
+  :global(.admin-area:has([data-admin-dashboard]:not([hidden]))) .admin-heading :global(.admin-dashboard-title) { display: inline; }
+  :global(.admin-area:has([data-admin-dashboard]:not([hidden]))) .admin-heading :global(.admin-dashboard-context) { display: block; color: var(--color-on-surface-variant); }
+  :global(.admin-area:has([data-admin-dashboard]:not([hidden]))) .admin-heading :global(.ui-type-accent-label),.admin-dashboard :global(.ui-form-label) { color: var(--color-on-surface-variant); }
+  :global(.admin-area:has([data-admin-dashboard]:not([hidden]))) :global([data-admin-message]) { padding: var(--spacing-md); border-radius: var(--ui-radius-sm); background: var(--color-brand-cream); }
+  :global(.admin-area:has([data-admin-dashboard]:not([hidden]))) :global([data-admin-message][role="alert"]) { background: var(--color-error-container); color: var(--color-on-error-container); }
+  .admin-dashboard { gap: var(--spacing-lg); }
+  .admin-metrics { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--spacing-md); }
+  .admin-metric { display: grid; gap: var(--spacing-md); padding: clamp(1rem,2vw,1.5rem); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-lg); background: var(--color-brand-cream); }
+  .admin-metric :global([data-admin-metric]) { font-size: clamp(2rem,3vw,3rem); line-height: 1; font-variant-numeric: tabular-nums; }
+  .admin-list-panel,.admin-detail-panel { padding: clamp(1rem,2vw,1.5rem); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-lg); min-width: 0; }
+  .admin-controls { display: grid; gap: var(--spacing-md); align-items: end; padding-bottom: var(--spacing-md); border-bottom: 1px solid var(--color-outline-variant); }
+  .admin-controls > div { min-width: 0; }
+  .admin-table-wrap { min-width: 0; max-width: 100%; }
+  table { width: 100%; table-layout: fixed; text-align: left; border-collapse: collapse; }
+  th,.admin-table-wrap :global(td) { padding: .875rem .75rem; vertical-align: top; border-bottom: 1px solid var(--color-outline-variant); overflow-wrap: anywhere; }
+  th { background: var(--color-brand-cream); font-weight: 600; }
+  th:nth-child(1) { width: 19%; }
+  th:nth-child(2),th:nth-child(3),th:nth-child(7) { width: 15%; }
+  th:nth-child(4),th:nth-child(5),th:nth-child(6) { width: 12%; }
+  .admin-table-wrap :global(td) { font-size: .875rem; line-height: 1.55; }
+  .admin-table-wrap :global(td:last-child) { color: var(--color-on-surface-variant); font-size: .8125rem; }
+  .admin-table-wrap :global(td:first-child a) { font-weight: 700; color: var(--color-on-surface); text-decoration: underline; text-decoration-color: var(--color-outline); text-underline-offset: .2em; }
+  .admin-table-wrap :global(tr:hover),.admin-table-wrap :global(tr:focus-within) { background: var(--color-brand-cream); }
+  .admin-table-wrap :global(tr[data-last-viewed="true"]) { background: var(--color-tertiary-container); }
+  .admin-table-wrap :global(.admin-last-viewed) { display: block; padding-top: var(--spacing-xs); font-size: .75rem; color: var(--color-on-tertiary-container); }
+  .admin-area :global(.admin-status) { display: inline-flex; align-items: center; width: fit-content; max-width: 100%; padding: .25rem .5rem; border-radius: var(--rounded-full); background: var(--color-secondary-container); color: var(--color-on-surface-variant); font-size: .75rem; line-height: 1.4; font-weight: 600; overflow-wrap: anywhere; }
+  .admin-area :global(.admin-status[data-status="new"]) { background: var(--color-info-container); color: var(--color-on-info-container); }
+  .admin-area :global(.admin-status[data-status="reviewing"]),.admin-area :global(.admin-status[data-status="contacted"]) { background: var(--color-tertiary-container); color: var(--color-on-tertiary-container); }
+  .admin-area :global(.admin-status[data-status="qualified"]),.admin-area :global(.admin-status[data-status="proposal"]) { background: var(--color-warning-container); color: var(--color-on-warning-container); }
+  .admin-area :global(.admin-status[data-status="won"]) { background: var(--color-success-container); color: var(--color-on-success-container); }
+  .admin-area :global(.admin-status[data-status="lost"]) { background: var(--color-error-container); color: var(--color-on-error-container); }
+  .admin-list-panel :global([data-admin-empty]:not([hidden])) { padding: var(--spacing-lg) var(--spacing-md); border: 1px dashed var(--color-outline-variant); border-radius: var(--ui-radius-md); color: var(--color-on-surface-variant); }
+  .admin-pagination { padding-top: var(--spacing-md); border-top: 1px solid var(--color-outline-variant); }
+  .admin-detail-content,.admin-detail-sections,.admin-detail-group { display: grid; gap: var(--spacing-lg); min-width: 0; align-items: start; }
+  .admin-detail-group { gap: var(--spacing-md); }
+  .admin-details { display: grid; gap: var(--spacing-md); margin: 0; }
+  .admin-details > div { min-width: 0; }
+  .admin-details :global(dd) { margin: .25rem 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .admin-detail-group { padding-bottom: var(--spacing-lg); border-bottom: 1px solid var(--color-outline-variant); }
+  .admin-edit-panel { padding: clamp(1rem,2vw,1.5rem); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-lg); background: var(--color-brand-cream); min-width: 0; }
+  .admin-edit-panel :global(.ui-form-label > span) { font: inherit; letter-spacing: inherit; text-transform: none; }
+  .admin-current-status,.admin-save-actions { display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-md); }
+  .admin-current-status { justify-content: space-between; }
+  .admin-save-actions > :global(button) { flex: 1 1 12rem; }
+  .admin-edit-panel :global([data-admin-save-message]) { min-height: 1.5rem; overflow-wrap: anywhere; }
+  @media (min-width: 48rem) {
+    .admin-metrics { grid-template-columns: repeat(4,minmax(0,1fr)); }
+    .admin-controls { grid-template-columns: minmax(0,1fr) minmax(0,1fr) auto; }
+    .admin-detail-sections { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  }
+  @media (min-width: 80rem) { .admin-detail-content { grid-template-columns: minmax(0,1.7fr) minmax(20rem,1fr); } }
+  @media (max-width: 63.999rem) {
+    table { display: block; }
+    thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    .admin-table-wrap :global(tbody) { display: grid; gap: var(--spacing-md); }
+    .admin-table-wrap :global(tr) { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--spacing-md); padding: var(--spacing-md); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-md); }
+    .admin-table-wrap :global(td) { display: block; padding: 0; border: 0; min-width: 0; }
+    .admin-table-wrap :global(td:first-child) { grid-column: 1 / -1; padding-bottom: var(--spacing-sm); border-bottom: 1px solid var(--color-outline-variant); font-size: 1rem; }
+    .admin-table-wrap :global(td::before) { content: attr(data-label); display: block; margin-bottom: var(--spacing-xs); color: var(--color-on-surface-variant); font-size: .75rem; font-weight: 500; }
+    .admin-table-wrap :global(td:first-child::before) { display: none; }
+  }
+  @media (min-width: 48rem) and (max-width: 63.999rem) { .admin-table-wrap :global(tbody) { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+  @media (max-width: 47.999rem) {
+    .admin-pagination { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); grid-template-areas: 'summary summary' 'previous next'; }
+    .admin-pagination :global([data-admin-page]) { grid-area: summary; text-align: center; }
+    .admin-pagination :global([data-admin-previous]) { grid-area: previous; }
+    .admin-pagination :global([data-admin-next]) { grid-area: next; }
+  }
+</style>

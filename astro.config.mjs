@@ -6,6 +6,8 @@ import { SITE_URL } from './site.config.mjs';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
+import netlify from '@netlify/vite-plugin';
+import inquiryApiAliases from './netlify/dev-api-aliases.mjs';
 
 // https://astro.build/config
 export default defineConfig({
@@ -30,14 +32,14 @@ export default defineConfig({
   integrations: [
     react(),
     sitemap({
-      filter: (page) => !page.includes('/dev/') && !page.includes('/qa/'),
+      filter: (page) => !page.includes('/dev/') && !page.includes('/qa/') && !page.includes('/admin/'),
       serialize(item) {
         return { ...item, lastmod: new Date().toISOString() };
       },
     }),
   ],
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [tailwindcss(), inquiryApiAliases(), netlify({ redirects: { enabled: false }, images: { enabled: false }, headers: { enabled: false } })],
     // Why: Agents and scripts write files in batches (JSON, .astro, tests).
     // Without this, Vite reloads the module when only some of the files
     // already exists, and says "Cannot find module" for those just created

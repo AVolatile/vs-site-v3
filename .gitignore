@@ -19,6 +19,9 @@ pnpm-debug.log*
 # environment variables
 .env
 .env.production
+.env.*
+!.env.example
+.netlify/
 oauth-config.php
 
 # CMS - lokalny config wygenerowany (zawiera tylko local_backend, ale jest

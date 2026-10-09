@@ -1,0 +1,29 @@
+---
+import Label from '@components/ui/atoms/Label.astro';
+import Input from '@components/ui/atoms/Input.astro';
+import Text from '@components/ui/atoms/Text.astro';
+interface Props { name: string; label: string; type?: 'text' | 'email' | 'password' | 'textarea' | 'select'; required?: boolean; maxLength?: number; autocomplete?: string; options?: { value: string; label: string }[]; hint?: string; }
+const { name, label, type = 'text', required = false, maxLength, autocomplete, options = [], hint } = Astro.props;
+const id = `inquiry-${name}`;
+---
+<div class="inquiry-field">
+  <Label for={id}>{label}{!required && <Text tag="span" variant="feature-body-sm"> (optional)</Text>}</Label>
+  {type === 'textarea' ? (
+    <textarea id={id} name={name} class="ui-form-input" rows="5" required={required} maxlength={maxLength} aria-describedby={`${name}-error${hint ? ` ${name}-hint` : ''}`}></textarea>
+  ) : type === 'select' ? (
+    <select id={id} name={name} class="ui-form-input" required={required} aria-describedby={`${name}-error${hint ? ` ${name}-hint` : ''}`}>
+      <option value="">Choose an option</option>
+      {options.map(option => <option value={option.value}>{option.label}</option>)}
+    </select>
+  ) : (
+    <Input id={id} name={name} type={type} required={required} maxlength={maxLength} autocomplete={autocomplete} aria-describedby={`${name}-error${hint ? ` ${name}-hint` : ''}`} />
+  )}
+  {hint && <Text id={`${name}-hint`} variant="feature-body-sm" class="text-on-surface-variant">{hint}</Text>}
+  <Text id={`${name}-error`} variant="feature-body-sm" class="text-[var(--color-error)]" data-field-error={name} hidden></Text>
+</div>
+<style>
+  .inquiry-field { display: grid; gap: .5rem; min-width: 0; }
+  textarea { resize: vertical; min-height: 9rem; }
+  select { min-height: 3rem; }
+  [hidden] { display: none !important; }
+</style>

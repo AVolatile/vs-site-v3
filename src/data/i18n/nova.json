@@ -30,7 +30,7 @@
       "cta": {
         "label": "Start a Project",
         "hoverLabel": "Let’s Talk",
-        "href": "/#contact"
+        "href": "/start-a-project/"
       },
       "aria": {
         "menuOpen": "Open navigation menu",
@@ -53,7 +53,7 @@
         },
         "secondaryCTA": {
           "label": "Work With Me",
-          "href": "#contact"
+          "href": "/start-a-project/"
         },
         "trustedBy": "",
         "trustItems": [],
@@ -104,7 +104,7 @@
         "title": "Services",
         "description": "Websites, web applications, visual design, and ongoing support built around real business needs.",
         "linkLabel": "Discuss a Project",
-        "linkHref": "#contact",
+        "linkHref": "/start-a-project/",
         "items": [
           {
             "number": "01.",
@@ -147,7 +147,7 @@
         "teamAriaLabel": "Capabilities",
         "teamAvatars": [],
         "buttonLabel": "Let’s Work Together",
-        "buttonHref": "#contact",
+        "buttonHref": "/start-a-project/",
         "capabilities": [
           {
             "label": "Development",
@@ -192,9 +192,27 @@
         "tagline": "Client reviews",
         "avatarAltPrefix": "Photo of",
         "items": [
-          { "quote": "The new website finally gave our communication a clear structure and started bringing better enquiries from the first week.", "author": "Anna Kowalska", "initials": "AK", "role": "Founder of a premium brand", "avatar": "https://i.pravatar.cc/150?u=anna-kowalska" },
-          { "quote": "The process was focused, efficient and very well guided. We received a website that genuinely fits our brand.", "author": "Michal Nowak", "initials": "MN", "role": "Operations director", "avatar": "https://i.pravatar.cc/150?u=michal-nowak" },
-          { "quote": "We can finally present our work in a way that reflects its quality. Clients noticed the difference straight away.", "author": "Karolina Wojcik", "initials": "KW", "role": "Studio owner", "avatar": "https://i.pravatar.cc/150?u=karolina-wojcik" }
+          {
+            "quote": "The new website finally gave our communication a clear structure and started bringing better enquiries from the first week.",
+            "author": "Anna Kowalska",
+            "initials": "AK",
+            "role": "Founder of a premium brand",
+            "avatar": "https://i.pravatar.cc/150?u=anna-kowalska"
+          },
+          {
+            "quote": "The process was focused, efficient and very well guided. We received a website that genuinely fits our brand.",
+            "author": "Michal Nowak",
+            "initials": "MN",
+            "role": "Operations director",
+            "avatar": "https://i.pravatar.cc/150?u=michal-nowak"
+          },
+          {
+            "quote": "We can finally present our work in a way that reflects its quality. Clients noticed the difference straight away.",
+            "author": "Karolina Wojcik",
+            "initials": "KW",
+            "role": "Studio owner",
+            "avatar": "https://i.pravatar.cc/150?u=karolina-wojcik"
+          }
         ]
       }
     },

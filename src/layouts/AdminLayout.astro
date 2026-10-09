@@ -1,0 +1,96 @@
+---
+import '@styles/global.css';
+import '@styles/.generated/phosphor.css';
+import company from '@data/global/company.json';
+import Text from '@components/ui/atoms/Text.astro';
+
+interface Props {
+  loginPresentation?: boolean;
+}
+
+const { loginPresentation = false } = Astro.props;
+---
+<!doctype html>
+<html lang="en" data-theme="nova">
+  <head>
+    <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" /><meta name="referrer" content="no-referrer" />
+    <title>Inquiry Admin | Volatile Solutions</title>
+  </head>
+  <body class:list={{ 'admin-login-layout': loginPresentation }}>
+    <header class="admin-header">
+      <a href="/" aria-label="Volatile Solutions home"><img src={company.branding.logoImage} width={company.branding.logoWidth} height={company.branding.logoHeight} alt="Volatile Solutions" /></a>
+      <Text tag="span" variant="feature-body-sm">Private workspace</Text>
+    </header>
+    <main id="main-content" class:list={{ 'admin-login-shell': loginPresentation }}>
+      {loginPresentation ? (
+        <>
+          <div class="admin-login-content"><slot /></div>
+          <aside class="admin-login-brand" aria-hidden="true">
+            <img src="/assets/images/t001-nova/t001-nova-admin-mark.png" width="1254" height="1254" alt="" decoding="async" />
+          </aside>
+        </>
+      ) : <slot />}
+    </main>
+  </body>
+</html>
+<style>
+  .admin-header { max-width: 80rem; margin: auto; padding: 1.25rem clamp(1rem,4vw,3rem); display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--color-outline-variant); }
+  .admin-header img { height: 2.5rem; width: auto; max-width: 100%; }
+  .admin-header a { min-width: 0; }
+  .admin-login-brand { display: none; }
+
+  /* The existing auth component reveals the dashboard in place after sign-in. */
+  :global(.admin-login-layout:has([data-admin-dashboard][hidden])) .admin-header { display: none; }
+  :global(.admin-login-shell:has([data-admin-dashboard][hidden])) {
+    display: grid;
+    grid-template-areas: 'brand' 'form';
+    grid-template-rows: auto 1fr;
+    min-height: 100svh;
+  }
+  :global(.admin-login-shell:has([data-admin-dashboard][hidden])) .admin-login-content {
+    grid-area: form;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    padding: var(--spacing-lg) var(--spacing-container-px);
+  }
+  :global(.admin-login-shell:has([data-admin-dashboard][hidden])) .admin-login-brand {
+    grid-area: brand;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-md);
+    background: var(--color-brand-dark);
+  }
+  .admin-login-brand img { width: auto; height: 8rem; max-width: 100%; object-fit: contain; }
+  :global(.admin-login-shell:has([data-admin-dashboard][hidden])) :global(.ui-section) {
+    width: 100%;
+    padding: 0;
+    background: transparent;
+  }
+  :global(.admin-login-shell:has([data-admin-dashboard][hidden])) :global(.ui-container) {
+    width: 100%;
+    max-width: 30rem;
+    margin: 0;
+    padding: 0;
+  }
+  :global(.admin-login-shell:has([data-admin-dashboard][hidden])) :global(.admin-login-panel) {
+    max-width: none;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+  @media (min-width: 64rem) {
+    :global(.admin-login-shell:has([data-admin-dashboard][hidden])) {
+      grid-template-areas: 'form brand';
+      grid-template-columns: minmax(0,48fr) minmax(0,52fr);
+      grid-template-rows: 1fr;
+    }
+    :global(.admin-login-shell:has([data-admin-dashboard][hidden])) .admin-login-content,
+    :global(.admin-login-shell:has([data-admin-dashboard][hidden])) .admin-login-brand { padding: var(--spacing-xl) var(--spacing-container-px); }
+    .admin-login-brand img { height: auto; width: min(100%,30rem); }
+  }
+  @media (max-width: 24rem) { .admin-header { flex-wrap: wrap; } }
+</style>
