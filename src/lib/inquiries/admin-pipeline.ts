@@ -1,4 +1,6 @@
 import { inquiryContent, optionLabel, PIPELINE_STATUS_OPTIONS, STATUS_OPTIONS, type InquiryPipeline, type Inquiry, type InquiryStatus, type PipelineInquiry } from './contract';
+import { presentFollowUp } from './follow-up';
+import { browseApiQuery, hasBrowseFilters, type AdminBrowse } from './admin-browse';
 import { adminInquiryUrl, inquiryDetailApiUrl } from './admin-routes';
 
 interface PipelineOptions {
@@ -10,6 +12,7 @@ interface PipelineOptions {
   metrics: (metrics: InquiryPipeline['metrics']) => void;
   open: (id: string, href: string) => void;
   busy: (moving: boolean) => void;
+  browse: () => AdminBrowse;
 }
 
 export function setupAdminPipeline(options: PipelineOptions) {
@@ -19,6 +22,7 @@ export function setupAdminPipeline(options: PipelineOptions) {
   let items = new Map<string, PipelineInquiry>();
   let lastMetrics: InquiryPipeline['metrics'] | undefined;
   let loadVersion = 0; let generation = 0; let moving = false; let draggedId: string | null = null;
+  let loadedQuery = '';
   let loadAbort: AbortController | undefined; let moveAbort: AbortController | undefined;
 
   function controls(): void {
@@ -42,7 +46,7 @@ export function setupAdminPipeline(options: PipelineOptions) {
       card.dataset.pipelineCard = item.id;
       if (item.id === lastViewed) card.dataset.lastViewed = 'true';
       const link = card.querySelector<HTMLAnchorElement>('[data-pipeline-open]')!;
-      link.dataset.pipelineOpen = item.id; link.href = adminInquiryUrl(item.id, 'pipeline'); link.draggable = false;
+      link.dataset.pipelineOpen = item.id; link.href = adminInquiryUrl(item.id, 'pipeline', options.browse()); link.draggable = false;
       const fields = {
         name: item.name, company: item.company || 'No company provided',
         projectType: optionLabel(inquiryContent.projectTypes, item.projectType),
@@ -50,6 +54,8 @@ export function setupAdminPipeline(options: PipelineOptions) {
         createdAt: new Date(item.createdAt).toLocaleDateString(undefined, { dateStyle: 'medium' }),
       };
       for (const [field, text] of Object.entries(fields)) card.querySelector<HTMLElement>(`[data-pipeline-field="${field}"]`)!.textContent = text;
+      const followUp = card.querySelector<HTMLElement>('[data-pipeline-follow-up]')!;
+      followUp.hidden = !item.nextFollowUpAt; if (item.nextFollowUpAt) presentFollowUp(followUp, item.nextFollowUpAt);
       const select = card.querySelector<HTMLSelectElement>('select')!;
       const id = 'pipeline-status-' + item.id;
       select.id = id; select.value = item.status;
@@ -65,19 +71,32 @@ export function setupAdminPipeline(options: PipelineOptions) {
       label.textContent = String(count); label.setAttribute('aria-label', `${count} inquiries`);
       panel.querySelector<HTMLElement>(`[data-pipeline-empty="${status}"]`)!.hidden = count > 0;
     }
+    const empty = panel.querySelector<HTMLElement>('[data-pipeline-no-results]')!;
+    empty.hidden = items.size > 0;
+    empty.textContent = hasBrowseFilters({ ...options.browse(), status: 'all' }) ? 'No inquiries match these filters. Adjust or clear filters to continue.' : 'No active inquiries yet. New submissions will appear here.';
     controls(); lastMetrics = data.metrics; metrics(data.metrics);
   }
 
+  function clearResults(): void {
+    items.clear();
+    panel.querySelectorAll<HTMLElement>('[data-pipeline-items]').forEach(element => element.replaceChildren());
+    panel.querySelectorAll<HTMLElement>('[data-pipeline-count]').forEach(element => { element.textContent = '—'; element.removeAttribute('aria-label'); });
+    panel.querySelectorAll<HTMLElement>('[data-pipeline-empty]').forEach(element => { element.hidden = true; });
+    panel.querySelector<HTMLElement>('[data-pipeline-no-results]')!.hidden = true;
+    controls();
+  }
   async function load(lastViewed?: string): Promise<boolean> {
     if (!authenticated()) return false;
     const version = ++loadVersion; loadAbort?.abort(); loadAbort = new AbortController();
+    const query = browseApiQuery(options.browse()).toString();
+    if (query !== loadedQuery) clearResults();
     panel.hidden = false; panel.setAttribute('aria-busy', 'true'); announce('Loading pipeline…');
     try {
-      const data = await request<InquiryPipeline>('/api/admin/inquiries?view=pipeline', { signal: loadAbort.signal });
+      const data = await request<InquiryPipeline>('/api/admin/inquiries?view=pipeline&' + query, { signal: loadAbort.signal });
       if (version !== loadVersion || !authenticated() || panel.hidden) return false;
       if (!data.items.every(item => typeof item.updatedAt === 'string')) throw new Error('Missing pipeline version data.');
       const previousFocus = document.activeElement;
-      render(data, lastViewed); announce(`${data.items.length} inquiries in the pipeline.`);
+      render(data, lastViewed); loadedQuery = query; announce(`${data.items.length} inquiries in the pipeline.`);
       if (previousFocus !== document.body && !previousFocus?.isConnected) refresh.focus();
       return true;
     } catch (error) {
@@ -100,7 +119,7 @@ export function setupAdminPipeline(options: PipelineOptions) {
       });
       if (epoch !== generation || !authenticated()) return;
       // The card only changes after the protected PATCH confirms persistence.
-      items.set(id, { ...item, status: saved.status, updatedAt: saved.updatedAt });
+      items.set(id, { ...item, status: saved.status, updatedAt: saved.updatedAt, nextFollowUpAt: saved.nextFollowUpAt });
       if (lastMetrics) render({ items: [...items.values()], metrics: lastMetrics }, id);
       const refreshed = await load(id);
       if (epoch !== generation || !authenticated()) return;
@@ -168,10 +187,7 @@ export function setupAdminPipeline(options: PipelineOptions) {
   }
   function clear(): void {
     hide(); generation++; moveAbort?.abort(); moving = false; items.clear(); lastMetrics = undefined;
-    panel.querySelectorAll<HTMLElement>('[data-pipeline-items]').forEach(element => element.replaceChildren());
-    panel.querySelectorAll<HTMLElement>('[data-pipeline-count]').forEach(element => { element.textContent = '—'; element.removeAttribute('aria-label'); });
-    panel.querySelectorAll<HTMLElement>('[data-pipeline-empty]').forEach(element => { element.hidden = true; });
-    controls();
+    loadedQuery = ''; clearResults();
   }
   return { load, hide, clear, isMoving: () => moving };
 }

@@ -4,7 +4,15 @@ Repository snapshot: October 7, 2026. This document specifies existing capacity 
 
 The repository-root `AGENTS.md` governs future work. Relevant documentation inspected includes `AI-QUICKSTART.md`, `CUSTOMIZATION.md`, `CONTENT-GUIDE.md`, `DESIGN_RULES.md`, the Nova design documentation, CSS-layer documentation, deployment guidance, and asset/license documentation. Preserve active runtime behavior where older documentation differs. No documentation discrepancy is resolved here.
 
-# Current Phase 2 inquiry workflow — October 9, 2026
+# Current Phase 3 inquiry operations — October 9, 2026
+
+The user confirms Phase 1/2 is live-verified and approves private server-side search across name/email/company/project summary, shared enum filters, follow-up scheduling/tracking/activity and a compact operational summary. The current List/Pipeline/detail/status/notes/public intake architecture remains. URL queries preserve view/filter/sort/page/deep-link context; Clear filters preserves view. List totals and Pipeline counts are filtered; clearly labeled summary metrics stay global.
+
+Follow-up dates are stored in UTC and displayed/filtered by browser-local calendar days (including DST); due today covers today, overdue means before today, upcoming starts tomorrow. Separate follow-up notes are bounded and excluded from activity bodies. The protected PATCH retains same-origin/admin/stale-edit checks and atomic server-generated scheduled/updated/cleared events. Archived records keep their schedules and history but do not contribute to due/overdue metrics.
+
+`003_add_follow_up_fields.sql` adds safe NULL/empty defaults and follow-up activity timestamps/types. Migrations 001/002 are unchanged. **Migration 003 requires manual Neon execution before deployment; no live database or deployment is modified.** Runtime and validation details are in `INQUIRY_ADMIN_SETUP.md`. No outbound email, notifications, proposals, invoices, payments, uploads, calendar, portal, charts or task management are included.
+
+# Historical Phase 2 inquiry workflow — October 9, 2026
 
 The user confirms Phase 1 is live-staging verified and authorizes only Pipeline plus inquiry activity. List remains first-class/default. `/admin/?view=pipeline` uses the seven existing statuses New through Lost; Archived remains available in List. Detail retains the existing `inquiry` query and view context through Back/Forward.
 

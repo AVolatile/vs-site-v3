@@ -6,7 +6,7 @@ import { submissionSchema } from '../src/lib/inquiries/contract';
 
 const mocks = vi.hoisted(() => ({ user: vi.fn(), create: vi.fn(), list: vi.fn(), get: vi.fn(), update: vi.fn(), activity: vi.fn(), pipeline: vi.fn() }));
 vi.mock('@netlify/identity', () => ({ getUser: mocks.user }));
-vi.mock('./lib/inquiry-store', () => ({ createInquiry: mocks.create, listInquiries: mocks.list, getInquiry: mocks.get, updateInquiry: mocks.update, listInquiryActivity: mocks.activity, getInquiryPipeline: mocks.pipeline }));
+vi.mock('./lib/inquiry-store', () => ({ createInquiry: mocks.create, listInquiries: mocks.list, getInquiry: mocks.get, updateInquiry: mocks.update, updateFollowUp: mocks.update, listInquiryActivity: mocks.activity, getInquiryPipeline: mocks.pipeline }));
 const id = '34d33c7b-a40a-43b5-ae42-ec4160995bc3';
 const payload = () => ({ projectType: 'website', name: '  Test Visitor  ', email: 'TEST@example.com', company: '', website: 'example.com',
   projectStage: 'new', projectSummary: 'A website for a local business.', helpNeeded: '', budgetRange: 'unsure', timeline: 'flexible',
@@ -75,7 +75,7 @@ describe('private inquiry authorization and mutations', () => {
   it('permits authenticated admin list/detail reads', async () => {
     mocks.user.mockResolvedValue({ roles: ['admin'] }); mocks.list.mockResolvedValue({ items: [], metrics: { total:0,new:0,active:0,won:0 } }); mocks.get.mockResolvedValue({ id,adminNotes:'Private note' });
     const list = await adminEndpoint(request(null, '/api/admin/inquiries?status=new&sort=oldest', 'GET'), context());
-    expect(list.status).toBe(200); expect(mocks.list).toHaveBeenCalledWith('new','oldest',1);
+    expect(list.status).toBe(200); expect(mocks.list).toHaveBeenCalledWith('new','oldest',1,expect.objectContaining({ status: 'new', sort: 'oldest', search: '' }));
     const detail = await adminEndpoint(request(null, '/api/admin/inquiries/' + id, 'GET'), context(id)); expect(detail.status).toBe(200);
   });
   it('validates status/notes and performs authorized updates', async () => {

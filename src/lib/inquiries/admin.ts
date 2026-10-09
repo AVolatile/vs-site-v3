@@ -2,6 +2,9 @@ import { login, logout, getUser, getSettings, handleAuthCallback, acceptInvite, 
 import { inquiryContent, optionLabel, STATUS_OPTIONS, updateSchema, fieldErrors, type Inquiry, type InquiryList, type InquiryDetail } from './contract';
 import { presentInquiryRow, presentInquiryStatus } from './admin-presentation';
 import { inquiryDetailApiUrl, adminBrowseUrl, adminInquiryUrl, adminViewFromUrl, type AdminView } from './admin-routes';
+import { browseSchema, browseApiQuery, browseDefaults, browseFromUrl, hasBrowseFilters, type AdminBrowse } from './admin-browse';
+import { setupAdminFollowUp } from './admin-follow-up';
+import { presentFollowUp } from './follow-up';
 import { setupAdminPipeline } from './admin-pipeline';
 import { renderInquiryActivity } from './admin-activity';
 
@@ -15,26 +18,30 @@ export async function setupInquiryAdmin(): Promise<void> {
   const loginForm = element<HTMLFormElement>('[data-admin-login-form]'); const passwordForm = element<HTMLFormElement>('[data-admin-password-form]');
   const updateForm = element<HTMLFormElement>('[data-admin-update-form]'); const rows = element<HTMLTableSectionElement>('[data-admin-rows]');
   const filter = element<HTMLSelectElement>('[name="filterStatus"]'); const sort = element<HTMLSelectElement>('[name="sortOrder"]');
+  const filterForm = element<HTMLFormElement>('[data-admin-filter-form]');
+  const followUpForm = element<HTMLFormElement>('[data-admin-follow-up-form]');
   const logoutButton = element<HTMLButtonElement>('[data-admin-logout]');
   const viewButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-admin-view]')];
   const activityList = element<HTMLOListElement>('[data-admin-activity-list]'); const activityEmpty = element('[data-admin-activity-empty]');
+  let browse: AdminBrowse = browseFromUrl(new URL(location.href));
   let view: AdminView = adminViewFromUrl(new URL(location.href)); let activityVersion = 0;
-  let lead: Inquiry | null = null; let page = 1; let listVersion = 0; let detailVersion = 0;
+  let lead: Inquiry | null = null; let page = browse.page; let listVersion = 0; let detailVersion = 0;
   let authenticated = false; let authBusy = false; let saving = false; let inviteToken: string | undefined;
+  let loadedListQuery = '';
   let listAbort: AbortController | undefined; let detailAbort: AbortController | undefined;
-  filter.value = 'all'; sort.value = 'newest';
+  const filterFields = { search: 'search', status: 'filterStatus', projectType: 'filterProjectType', budget: 'filterBudget', timeline: 'filterTimeline', followUp: 'filterFollowUp', sort: 'sortOrder' } as const;
   const friendly = (error: unknown, fallback: string) => error instanceof ServiceError ? error.message : fallback;
   function announce(text: string, error = false): void {
     message.textContent = text; message.setAttribute('role', error ? 'alert' : 'status');
   }
   function clearPrivate(): void {
-    authenticated = false; listAbort?.abort(); detailAbort?.abort(); lead = null; rows.replaceChildren(); updateForm.reset();
+    authenticated = false; listAbort?.abort(); detailAbort?.abort(); lead = null; rows.replaceChildren(); loadedListQuery = ''; updateForm.reset();
     root!.querySelectorAll<HTMLElement>('[data-admin-detail],[data-admin-metric]').forEach(node => { node.textContent = ''; });
     const emailAction = element<HTMLAnchorElement>('[data-admin-email]'); emailAction.href = 'mailto:'; emailAction.hidden = true;
     passwordPanel.hidden = true; passwordForm.reset(); element('[data-admin-refresh]').hidden = true;
     dashboard.hidden = true; logoutButton.hidden = true; loginPanel.hidden = false;
     if (document.activeElement?.closest('[hidden]')) element<HTMLInputElement>('[name="loginEmail"]').focus();
-    pipeline.clear(); activityVersion++; renderInquiryActivity(activityList, activityEmpty, []); activityList.removeAttribute('aria-busy');
+    pipeline.clear(); followUp.clear(); activityVersion++; renderInquiryActivity(activityList, activityEmpty, []); activityList.removeAttribute('aria-busy');
   }
   class ServiceError extends Error { constructor(public status: number, message: string) { super(message); } }
   async function api<T>(url: string, options: RequestInit = {}): Promise<T> {
@@ -58,18 +65,40 @@ export async function setupInquiryAdmin(): Promise<void> {
     for (const [key, value] of Object.entries(metrics)) element(`[data-admin-metric="${key}"]`).textContent = value.toLocaleString();
   };
   const syncView = () => {
+    browse = browseFromUrl(new URL(location.href)); page = browse.page;
+    for (const [key, name] of Object.entries(filterFields)) (filterForm.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement).value = String(browse[key as keyof AdminBrowse]);
+    element('[data-admin-clear-filters]').hidden = !hasBrowseFilters(browse) && browse.sort === 'newest';
+    element('[data-admin-status-filter]').hidden = adminViewFromUrl(new URL(location.href)) === 'pipeline';
     view = adminViewFromUrl(new URL(location.href));
     viewButtons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.adminView === view)));
   };
   const pipeline = setupAdminPipeline({
+    browse: () => browse,
     panel: element('[data-admin-pipeline-panel]'), request: api, authenticated: () => authenticated,
     announce, errorMessage: friendly, metrics: renderMetrics,
     open: (id, href) => { history.pushState(null, '', href); syncView(); void loadDetail(id); },
     busy: moving => viewButtons.forEach(button => { button.disabled = moving || saving; }),
   });
+  const followUp = setupAdminFollowUp({
+    form: followUpForm, current: () => lead, active: () => authenticated, version: () => detailVersion, saving: () => saving,
+    busy: setSaving, request: api, saved: inquiry => renderDetail(inquiry, 'notes'), refreshActivity, validate: validation, error: friendly,
+  });
+  function setSaving(value: boolean): void {
+    saving = value;
+    [...detailPanel.querySelectorAll<HTMLButtonElement | HTMLSelectElement | HTMLTextAreaElement | HTMLInputElement>('button,select,textarea,input'), ...viewButtons].forEach(control => { control.disabled = value; });
+  }
+  async function refreshActivity(id: string, version: number): Promise<boolean> {
+    const requestVersion = ++activityVersion; activityList.setAttribute('aria-busy', 'true');
+    try {
+      const refreshed = await api<InquiryDetail>(inquiryDetailApiUrl(id));
+      if (authenticated && version === detailVersion && requestVersion === activityVersion) renderInquiryActivity(activityList, activityEmpty, refreshed.activity ?? []);
+      return true;
+    } catch { return false; }
+    finally { if (requestVersion === activityVersion) activityList.removeAttribute('aria-busy'); }
+  }
   async function loadBrowse(): Promise<void> {
     if (!authenticated) return;
-    syncView();
+    syncView(); filterForm.hidden = false;
     if (view === 'list') { await loadList(); return; }
     const previousId = lead?.id;
     listAbort?.abort(); listVersion++; detailAbort?.abort(); detailVersion++; activityVersion++;
@@ -90,26 +119,27 @@ export async function setupInquiryAdmin(): Promise<void> {
     announce('Loading inquiries…');
     element<HTMLButtonElement>('[data-admin-previous]').disabled = true; element<HTMLButtonElement>('[data-admin-next]').disabled = true;
     try {
-      const query = new URLSearchParams({ status: filter.value, sort: sort.value, page: String(page) });
+      const query = browseApiQuery({ ...browse, page });
+      if (query.toString() !== loadedListQuery) { rows.replaceChildren(); element('[data-admin-page]').textContent = ''; element('[data-admin-empty]').hidden = true; }
       const result = await api<InquiryList>('/api/admin/inquiries?' + query, { signal: listAbort.signal });
       if (version !== listVersion || !authenticated) return;
-      if (page > 1 && !result.items.length) { page = Math.max(1, Math.ceil(result.total / result.pageSize)); await loadList(); return; }
+      if (page > 1 && !result.items.length) { page = Math.max(1, Math.ceil(result.total / result.pageSize)); browse.page = page; history.replaceState(null, '', adminBrowseUrl(view, browse)); await loadList(); return; }
       rows.replaceChildren();
       for (const item of result.items) {
         const row = document.createElement('tr');
-        const values = [item.name, item.company || '—', label('projectType', item.projectType), label('budgetRange', item.budgetRange), label('timeline', item.timeline), item.status, date(item.createdAt)];
+        const values = [item.name, item.company || '—', label('projectType', item.projectType), label('budgetRange', item.budgetRange), label('timeline', item.timeline), item.status, date(item.createdAt), ''];
         values.forEach((value, index) => {
           const cell = document.createElement('td');
-          if (index === 0) { const link = document.createElement('a'); link.textContent = value; link.href = adminInquiryUrl(item.id, 'list'); link.dataset.inquiryId = item.id; cell.append(link); }
+          if (index === 0) { const link = document.createElement('a'); link.textContent = value; link.href = adminInquiryUrl(item.id, 'list', { ...browse, page }); link.dataset.inquiryId = item.id; cell.append(link); }
           else cell.textContent = value;
           row.append(cell);
         });
-        presentInquiryRow(row, item.status, item.id === previousId);
+        presentInquiryRow(row, item.status, item.id === previousId); presentFollowUp(row.cells[7], item.nextFollowUpAt);
         rows.append(row);
       }
-      renderMetrics(result.metrics);
+      loadedListQuery = query.toString(); renderMetrics(result.metrics);
       const empty = element('[data-admin-empty]'); empty.hidden = result.items.length > 0;
-      empty.textContent = filter.value === 'all' ? 'No inquiries yet. New submissions will appear here.' : 'No inquiries match this status. Choose another status to continue.';
+      empty.textContent = !hasBrowseFilters(browse) ? 'No inquiries yet. New submissions will appear here.' : 'No inquiries match these filters. Adjust or clear filters to continue.';
       element('[data-admin-page]').textContent = `Page ${page} of ${Math.max(1, Math.ceil(result.total / result.pageSize))} — ${result.total} inquiries`;
       element<HTMLButtonElement>('[data-admin-previous]').disabled = page === 1;
       element<HTMLButtonElement>('[data-admin-next]').disabled = page * result.pageSize >= result.total;
@@ -121,7 +151,7 @@ export async function setupInquiryAdmin(): Promise<void> {
     } catch (error) { if (version === listVersion && !listAbort.signal.aborted) announce(friendly(error, 'Inquiries could not be loaded. Please try Refresh inquiries.'), true); }
     finally { if (version === listVersion) listPanel.removeAttribute('aria-busy'); }
   }
-  function renderDetail(inquiry: Inquiry): void {
+  function renderDetail(inquiry: Inquiry, preserve?: 'notes' | 'follow-up'): void {
     lead = inquiry;
     root!.querySelectorAll<HTMLElement>('[data-admin-detail]').forEach(node => {
       const key = node.dataset.adminDetail as keyof Inquiry; const value = String(inquiry[key]);
@@ -130,13 +160,16 @@ export async function setupInquiryAdmin(): Promise<void> {
     presentInquiryStatus(element('[data-admin-detail="status"]'), inquiry.status);
     element<HTMLAnchorElement>('[data-admin-email]').href = 'mailto:' + encodeURIComponent(inquiry.email);
     element('[data-admin-email]').hidden = false;
-    element<HTMLSelectElement>('[name="status"]').value = inquiry.status;
-    element<HTMLTextAreaElement>('[name="adminNotes"]').value = inquiry.adminNotes;
+    if (preserve !== 'notes') {
+      element<HTMLSelectElement>('[name="status"]').value = inquiry.status;
+      element<HTMLTextAreaElement>('[name="adminNotes"]').value = inquiry.adminNotes;
+    }
+    if (preserve !== 'follow-up') followUp.render(inquiry);
     element('[data-admin-save-message]').textContent = '';
   }
   async function loadDetail(id: string): Promise<void> {
     if (!authenticated) return;
-    pipeline.hide(); syncView(); activityVersion++; renderInquiryActivity(activityList, activityEmpty, []);
+    pipeline.hide(); syncView(); filterForm.hidden = true; followUp.clear(); activityVersion++; renderInquiryActivity(activityList, activityEmpty, []);
     const version = ++detailVersion; detailAbort?.abort(); detailAbort = new AbortController();
     listAbort?.abort(); listVersion++;
     lead = null; updateForm.reset();
@@ -167,7 +200,7 @@ export async function setupInquiryAdmin(): Promise<void> {
     if (location.pathname.startsWith('/admin/login')) {
       const destination = new URL(location.href); const inquiryId = destination.searchParams.get('inquiry');
       const destinationView = adminViewFromUrl(destination);
-      history.replaceState(null, '', inquiryId ? adminInquiryUrl(inquiryId, destinationView) : destination.searchParams.has('view') ? adminBrowseUrl(destinationView) : '/admin/');
+      history.replaceState(null, '', inquiryId ? adminInquiryUrl(inquiryId, destinationView, browseFromUrl(destination)) : adminBrowseUrl(destinationView, browseFromUrl(destination)));
     }
     const id = new URL(location.href).searchParams.get('inquiry');
     if (id) await loadDetail(id); else await loadBrowse();
@@ -217,41 +250,51 @@ export async function setupInquiryAdmin(): Promise<void> {
   logoutButton.addEventListener('click', async () => { clearPrivate(); try { await logout(); announce('Signed out.'); } catch { announce('Local inquiry data was cleared. Sign-out could not be confirmed; close this session and try again.', true); } });
   element('[data-admin-refresh]').addEventListener('click', async () => { clearPrivate(); try { await logout(); announce('Sign in again to apply the updated role.'); } catch { announce('Sign out could not be confirmed. Close this session and sign in again.', true); } });
   rows.addEventListener('click', event => { const link = (event.target as HTMLElement).closest<HTMLAnchorElement>('a[data-inquiry-id]'); if (!link || event instanceof MouseEvent && (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)) return; event.preventDefault(); history.pushState(null, '', link.href); syncView(); void loadDetail(link.dataset.inquiryId!); });
-  const backToList = () => { history.pushState(null, '', adminBrowseUrl(view)); void loadBrowse(); };
+  const backToList = () => { history.pushState(null, '', adminBrowseUrl(view, browse)); void loadBrowse(); };
   element('[data-admin-back]').addEventListener('click', backToList);
   element('[data-admin-retry]').addEventListener('click', () => { void loadList(); });
   element('[data-admin-reload]').addEventListener('click', () => { const id = new URL(location.href).searchParams.get('inquiry'); if (id) void loadDetail(id); });
   element('[data-admin-detail-retry]').addEventListener('click', () => { const id = new URL(location.href).searchParams.get('inquiry'); if (id) void loadDetail(id); });
-  filter.addEventListener('change', () => { page = 1; void loadList(); }); sort.addEventListener('change', () => { page = 1; void loadList(); });
-  element('[data-admin-previous]').addEventListener('click', () => { if (page > 1) { page--; void loadList(); } });
-  element('[data-admin-next]').addEventListener('click', () => { page++; void loadList(); });
+  function applyFilters(): void {
+    if (!authenticated || saving || pipeline.isMoving()) return;
+    const values = Object.fromEntries(Object.entries(filterFields).map(([key, name]) => [key, (filterForm.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement).value]));
+    const result = browseSchema.safeParse({ ...values, page: 1 });
+    if (!result.success) { validation(filterForm, fieldErrors(result.error)); announce('Check the search and filter values.', true); return; }
+    validation(filterForm, {}); browse = result.data;
+    history.pushState(null, '', adminBrowseUrl(view, browse)); void loadBrowse();
+  }
+  filterForm.addEventListener('submit', event => { event.preventDefault(); applyFilters(); });
+  filterForm.querySelectorAll('select').forEach(select => select.addEventListener('change', applyFilters));
+  element('[data-admin-clear-filters]').addEventListener('click', () => {
+    if (saving || pipeline.isMoving()) return;
+    validation(filterForm, {}); browse = browseDefaults(); history.pushState(null, '', adminBrowseUrl(view, browse)); void loadBrowse();
+    element<HTMLInputElement>('[name="search"]').focus();
+  });
+  function changePage(next: number): void { browse.page = next; history.pushState(null, '', adminBrowseUrl(view, browse)); void loadBrowse(); }
+  element('[data-admin-previous]').addEventListener('click', () => { if (page > 1) changePage(page - 1); });
+  element('[data-admin-next]').addEventListener('click', () => { changePage(page + 1); });
   viewButtons.forEach(button => button.addEventListener('click', () => {
     if (!authenticated || saving || pipeline.isMoving()) return;
-    history.pushState(null, '', adminBrowseUrl(button.dataset.adminView as AdminView)); void loadBrowse();
+    history.pushState(null, '', adminBrowseUrl(button.dataset.adminView as AdminView, browse)); void loadBrowse();
   }));
   window.addEventListener('popstate', () => { syncView(); const id = new URL(location.href).searchParams.get('inquiry'); if (id) void loadDetail(id); else void loadBrowse(); });
   updateForm.addEventListener('submit', async event => {
     event.preventDefault(); if (!lead || saving) return;
     const fields = new FormData(updateForm); const result = updateSchema.safeParse({ status: fields.get('status'), adminNotes: fields.get('adminNotes'), updatedAt: lead.updatedAt });
     if (!result.success) { validation(updateForm, fieldErrors(result.error)); return; }
-    validation(updateForm, {}); saving = true; updateForm.setAttribute('aria-busy', 'true');
+    validation(updateForm, {}); setSaving(true); updateForm.setAttribute('aria-busy', 'true');
     const version = detailVersion; const inquiryId = lead.id;
-    const controls = [...detailPanel.querySelectorAll<HTMLButtonElement | HTMLSelectElement | HTMLTextAreaElement>('button,select,textarea'), ...viewButtons]; controls.forEach(control => { control.disabled = true; });
     const saveMessage = element('[data-admin-save-message]'); saveMessage.textContent = 'Saving…';
     try {
       const response = await api<{ inquiry: Inquiry }>(inquiryDetailApiUrl(inquiryId), { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(result.data) });
       if (!authenticated || version !== detailVersion) return;
-      renderDetail(response.inquiry); saveMessage.textContent = 'Changes saved.';
-      const activityRequest = ++activityVersion; activityList.setAttribute('aria-busy', 'true');
-      try {
-        const refreshed = await api<InquiryDetail>(inquiryDetailApiUrl(inquiryId));
-        if (authenticated && version === detailVersion && activityRequest === activityVersion) renderInquiryActivity(activityList, activityEmpty, refreshed.activity ?? []);
-      } catch {
-        if (authenticated && version === detailVersion) saveMessage.textContent = 'Changes saved. Activity could not be refreshed; use Reload inquiry to try again.';
-      } finally { if (activityRequest === activityVersion) activityList.removeAttribute('aria-busy'); }
+      renderDetail(response.inquiry, 'follow-up'); saveMessage.textContent = 'Changes saved.';
+      const refreshed = await refreshActivity(inquiryId, version);
+      if (authenticated && version === detailVersion && !refreshed) saveMessage.textContent = 'Changes saved. Activity could not be refreshed; use Reload inquiry to try again.';
     } catch (error) { if (authenticated && version === detailVersion) saveMessage.textContent = friendly(error, 'Changes could not be saved. Your edits are still here. Please try again.'); }
-    finally { saving = false; updateForm.removeAttribute('aria-busy'); controls.forEach(control => { control.disabled = false; }); if (authenticated && version === detailVersion && !detailPanel.hidden) updateForm.querySelector<HTMLButtonElement>('button[type="submit"]')?.focus(); }
+    finally { setSaving(false); updateForm.removeAttribute('aria-busy'); if (authenticated && version === detailVersion && !detailPanel.hidden) updateForm.querySelector<HTMLButtonElement>('button[type="submit"]')?.focus(); }
   });
+  syncView();
   try {
     const callback = await handleAuthCallback();
     if (callback?.type === 'invite' || callback?.type === 'recovery') {

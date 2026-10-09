@@ -7,7 +7,7 @@ import Button from '@components/ui/atoms/Button.astro';
 import InquiryField from '@components/inquiry/InquiryField.astro';
 import InquiryPipeline from '@components/admin/InquiryPipeline.astro';
 import InquiryActivity from '@components/admin/InquiryActivity.astro';
-import { STATUS_OPTIONS } from '@/lib/inquiries/contract';
+import { STATUS_OPTIONS, FOLLOW_UP_OPTIONS, inquiryContent } from '@/lib/inquiries/contract';
 import { INQUIRY_COLUMNS } from '@/lib/inquiries/admin-presentation';
 const statuses = STATUS_OPTIONS.map(value => ({ value, label: value[0].toUpperCase() + value.slice(1) }));
 const detailGroups = [
@@ -53,20 +53,30 @@ const detailGroups = [
         </form>
       </div>
       <div data-admin-dashboard hidden class="admin-dashboard">
-        <div class="admin-metrics" role="group" aria-label="Inquiry summary">
+        <Text variant="feature-body-sm" class="admin-global-context">All inquiries — global totals. Follow-up counts exclude archived inquiries.</Text>
+        <div class="admin-metrics" role="group" aria-label="Global inquiry summary">
           {[['new','New inquiries'],['total','Total inquiries'],['active','Active inquiries'],['won','Won']].map(([key,label]) => <div class="admin-metric"><Text variant="feature-body-sm">{label}</Text><Heading tag="p" variant="section-title" data-admin-metric={key}>—</Heading></div>)}
+        </div>
+        <div class="admin-follow-up-summary" role="group" aria-label="Global follow-up summary">
+          <Text variant="body">Due today: <Text tag="strong" data-admin-metric="followUpToday">—</Text></Text>
+          <Text variant="body">Overdue: <Text tag="strong" data-admin-metric="followUpOverdue">—</Text></Text>
         </div>
         <div class="admin-view-switch" role="group" aria-label="Inquiry view">
           <Button type="button" variant="outline" size="sm" class="min-h-11" data-admin-view="list" aria-pressed="true" aria-controls="admin-list-panel">List</Button>
           <Button type="button" variant="outline" size="sm" class="min-h-11" data-admin-view="pipeline" aria-pressed="false" aria-controls="admin-pipeline-panel">Pipeline</Button>
         </div>
+        <form data-admin-filter-form novalidate class="admin-filter-toolbar" aria-label="Search and filter inquiries">
+          <div class="admin-search-field"><InquiryField name="search" label="Search inquiries" type="search" maxLength={160} hint="Name, email, company or project summary" /></div>
+          <div data-admin-status-filter><InquiryField name="filterStatus" label="Status" type="select" required options={[{ value: 'all', label: 'All statuses' },...statuses]} /></div>
+          <InquiryField name="filterProjectType" label="Project type" type="select" required options={[{ value: 'all', label: 'All project types' },...inquiryContent.projectTypes]} />
+          <InquiryField name="filterBudget" label="Budget" type="select" required options={[{ value: 'all', label: 'All budgets' },...inquiryContent.budgets]} />
+          <InquiryField name="filterTimeline" label="Timeline" type="select" required options={[{ value: 'all', label: 'All timelines' },...inquiryContent.timelines]} />
+          <InquiryField name="filterFollowUp" label="Follow-up" type="select" required options={[...FOLLOW_UP_OPTIONS]} />
+          <InquiryField name="sortOrder" label="Sort" type="select" required options={[{ value: 'newest', label: 'Newest first' },{ value: 'oldest', label: 'Oldest first' },{ value: 'status', label: 'Status' }]} />
+          <div class="admin-filter-actions"><Button type="submit" variant="outline" class="min-h-11">Apply filters</Button><Button type="button" variant="outline" class="min-h-11" data-admin-clear-filters hidden>Clear filters</Button></div>
+        </form>
         <div id="admin-list-panel" data-admin-list-panel class="admin-list-panel">
-          <Heading tag="h2" variant="feature-title">Project inquiries</Heading>
-          <div class="admin-controls">
-            <div><InquiryField name="filterStatus" label="Status" type="select" required options={[{ value: 'all', label: 'All statuses' },...statuses]} /></div>
-            <div><InquiryField name="sortOrder" label="Sort" type="select" required options={[{ value: 'newest', label: 'Newest first' },{ value: 'oldest', label: 'Oldest first' },{ value: 'status', label: 'Status' }]} /></div>
-            <Button type="button" variant="outline" class="min-h-11" data-admin-retry>Refresh inquiries</Button>
-          </div>
+          <div class="admin-list-heading"><Heading tag="h2" variant="feature-title">Project inquiries</Heading><Button type="button" variant="outline" class="min-h-11" data-admin-retry>Refresh inquiries</Button></div>
           <div class="admin-table-wrap" role="region" aria-label="Project inquiry list">
             <table role="table"><caption class="sr-only">Project inquiries</caption><thead role="rowgroup"><tr role="row">{INQUIRY_COLUMNS.map(label => <th scope="col" role="columnheader"><Text tag="span" variant="feature-body-sm">{label}</Text></th>)}</tr></thead><tbody role="rowgroup" data-admin-rows></tbody></table>
           </div>
@@ -96,6 +106,14 @@ const detailGroups = [
               <div class="admin-save-actions"><Button type="submit" variant="primary" class="min-h-11">Save changes</Button><Button type="button" variant="outline" class="min-h-11" data-admin-reload>Reload inquiry</Button></div>
               <Text variant="body" role="status" data-admin-save-message aria-live="polite"></Text>
             </form>
+            <form data-admin-follow-up-form novalidate class="admin-form admin-follow-up-panel">
+              <Heading tag="h3" variant="feature-title">Follow-up</Heading>
+              <Text variant="body" data-admin-follow-up-state></Text>
+              <InquiryField name="nextFollowUpAt" label="Next follow-up date and time" type="datetime-local" hint="Your local timezone. Due today covers the whole calendar day; overdue means before today." />
+              <InquiryField name="followUpNote" label="Follow-up note" type="textarea" maxLength={2000} hint="What should happen next. Separate from private admin notes." />
+              <div class="admin-save-actions"><Button type="submit" variant="primary" class="min-h-11">Save follow-up</Button><Button type="button" variant="outline" class="min-h-11" data-admin-clear-follow-up>Clear follow-up</Button></div>
+              <Text variant="body" role="status" aria-live="polite" data-admin-follow-up-message></Text>
+            </form>
             <InquiryActivity />
           </div>
         </div>
@@ -110,7 +128,7 @@ const detailGroups = [
 <style>
   [hidden] { display: none !important; }
   .admin-area,.admin-dashboard,.admin-form,.admin-list-panel,.admin-detail-panel { display: grid; gap: 1.5rem; }
-  .admin-heading,.admin-detail-actions,.admin-pagination { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+  .admin-heading,.admin-detail-actions,.admin-pagination,.admin-list-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
   .admin-heading > div { display: grid; gap: .75rem; }
   .admin-login-panel { display: grid; gap: 1.25rem; max-width: 30rem; padding: clamp(1rem,4vw,2rem); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-lg); background: var(--color-brand-cream); }
   .admin-heading :global(.admin-title-text) { line-height: inherit; }
@@ -129,15 +147,16 @@ const detailGroups = [
   .admin-metric { display: grid; gap: var(--spacing-md); padding: clamp(1rem,2vw,1.5rem); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-lg); background: var(--color-brand-cream); }
   .admin-metric :global([data-admin-metric]) { font-size: clamp(2rem,3vw,3rem); line-height: 1; font-variant-numeric: tabular-nums; }
   .admin-list-panel,.admin-detail-panel { padding: clamp(1rem,2vw,1.5rem); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-lg); min-width: 0; }
-  .admin-controls { display: grid; gap: var(--spacing-md); align-items: end; padding-bottom: var(--spacing-md); border-bottom: 1px solid var(--color-outline-variant); }
-  .admin-controls > div { min-width: 0; }
+  .admin-filter-toolbar { display: grid; gap: var(--spacing-md); align-items: end; padding-bottom: var(--spacing-md); border-bottom: 1px solid var(--color-outline-variant); }
+  .admin-filter-toolbar > div { min-width: 0; }
   .admin-table-wrap { min-width: 0; max-width: 100%; }
   table { width: 100%; table-layout: fixed; text-align: left; border-collapse: collapse; }
   th,.admin-table-wrap :global(td) { padding: .875rem .75rem; vertical-align: top; border-bottom: 1px solid var(--color-outline-variant); overflow-wrap: anywhere; }
   th { background: var(--color-brand-cream); font-weight: 600; }
-  th:nth-child(1) { width: 19%; }
-  th:nth-child(2),th:nth-child(3),th:nth-child(7) { width: 15%; }
-  th:nth-child(4),th:nth-child(5),th:nth-child(6) { width: 12%; }
+  th:nth-child(1),th:nth-child(8) { width: 17%; }
+  th:nth-child(2),th:nth-child(3) { width: 12%; }
+  th:nth-child(4),th:nth-child(5),th:nth-child(6) { width: 10%; }
+  th:nth-child(7) { width: 12%; }
   .admin-table-wrap :global(td) { font-size: .875rem; line-height: 1.55; }
   .admin-table-wrap :global(td:last-child) { color: var(--color-on-surface-variant); font-size: .8125rem; }
   .admin-table-wrap :global(td:first-child a) { font-weight: 700; color: var(--color-on-surface); text-decoration: underline; text-decoration-color: var(--color-outline); text-underline-offset: .2em; }
@@ -167,9 +186,19 @@ const detailGroups = [
   .admin-edit-panel :global([data-admin-save-message]) { min-height: 1.5rem; overflow-wrap: anywhere; }
   @media (min-width: 48rem) {
     .admin-metrics { grid-template-columns: repeat(4,minmax(0,1fr)); }
-    .admin-controls { grid-template-columns: minmax(0,1fr) minmax(0,1fr) auto; }
+    .admin-filter-toolbar { grid-template-columns: repeat(2,minmax(0,1fr)); }
     .admin-detail-sections { grid-template-columns: repeat(2,minmax(0,1fr)); }
   }
+  .admin-global-context { color: var(--color-on-surface-variant); }
+  .admin-follow-up-summary,.admin-filter-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-md); }
+  .admin-filter-actions { grid-column: 1 / -1; }
+  .admin-follow-up-summary { padding: var(--spacing-md); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-md); }
+  .admin-follow-up-panel { grid-column: 1 / -1; min-width: 0; padding-top: var(--spacing-lg); border-top: 1px solid var(--color-outline-variant); }
+  .admin-area :global(.admin-follow-up) { font-size: .875rem; line-height: 1.55; overflow-wrap: anywhere; }
+  .admin-area :global(.admin-follow-up[data-follow-up-state="today"]) { color: var(--color-on-warning-container); background: var(--color-warning-container); padding: var(--spacing-xs); border-radius: var(--ui-radius-sm); }
+  .admin-area :global(.admin-follow-up[data-follow-up-state="overdue"]) { color: var(--color-on-error-container); background: var(--color-error-container); padding: var(--spacing-xs); border-radius: var(--ui-radius-sm); }
+  .admin-follow-up-panel :global(input[type="datetime-local"]) { min-width: 0; max-width: 100%; }
+  @media (min-width: 64rem) { .admin-filter-toolbar { grid-template-columns: repeat(4,minmax(0,1fr)); } .admin-search-field { grid-column: span 2; } }
   @media (min-width: 80rem) { .admin-detail-content { grid-template-columns: minmax(0,1.7fr) minmax(20rem,1fr); } }
   @media (max-width: 63.999rem) {
     table { display: block; }

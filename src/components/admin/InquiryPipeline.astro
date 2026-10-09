@@ -11,6 +11,7 @@ const title = (status: string) => status[0].toUpperCase() + status.slice(1);
     <div><Heading tag="h2" variant="feature-title">Inquiry pipeline</Heading><Text id="admin-pipeline-help" variant="feature-body-sm">Move inquiries between stages. Archived inquiries are available in List.</Text></div>
     <Button type="button" variant="outline" class="min-h-11" data-pipeline-refresh>Refresh pipeline</Button>
   </div>
+  <Text variant="body" data-pipeline-no-results hidden>No inquiries match these filters. Adjust or clear filters to continue.</Text>
   <div class="pipeline-board" data-pipeline-board role="region" aria-label="Inquiry pipeline stages" aria-describedby="admin-pipeline-help" tabindex="0">
     {PIPELINE_STATUS_OPTIONS.map(status => <div class="pipeline-column" data-pipeline-status={status}>
       <div class="pipeline-column-heading"><Heading tag="h3" variant="feature-title">{title(status)}</Heading><Text tag="span" variant="feature-body-sm" class="admin-status" data-status={status} data-pipeline-count={status}>—</Text></div>
@@ -27,6 +28,7 @@ const title = (status: string) => status[0].toUpperCase() + status.slice(1);
       <dl class="pipeline-facts">
         {[['projectType','Project type'],['budgetRange','Budget'],['timeline','Timeline'],['createdAt','Submitted']].map(([field,label]) => <div><Text tag="dt" variant="feature-body-sm">{label}</Text><Text tag="dd" variant="feature-body-sm" data-pipeline-field={field}></Text></div>)}
       </dl>
+      <Text variant="feature-body-sm" data-pipeline-follow-up hidden></Text>
       <form data-pipeline-move-form class="pipeline-move-form">
         <InquiryField name="pipelineStatus" label="Move to" type="select" required options={STATUS_OPTIONS.map(value => ({ value, label: title(value) }))} />
         <Button type="submit" variant="outline" size="sm" class="min-h-11">Move</Button>

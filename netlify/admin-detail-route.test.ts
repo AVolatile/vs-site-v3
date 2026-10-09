@@ -25,7 +25,7 @@ const expected = {
   id, name: stored.name, email: stored.email, company: stored.company, website: stored.website,
   projectType: stored.project_type, projectStage: stored.project_stage, projectSummary: stored.project_summary,
   helpNeeded: stored.help_needed, budgetRange: stored.budget_range, timeline: stored.timeline,
-  status: stored.status, source: stored.source, adminNotes: stored.admin_notes,
+  status: stored.status, source: stored.source, adminNotes: stored.admin_notes, nextFollowUpAt: null, followUpNote: '',
   createdAt: stored.created_at, updatedAt: stored.updated_at, consentAt: stored.consent_at,
 };
 const request = (path: string, method = 'GET', body?: unknown) => new Request(origin + path, {

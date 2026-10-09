@@ -1,6 +1,6 @@
 import type { InquiryStatus } from './contract';
 
-export const INQUIRY_COLUMNS = ['Name', 'Company', 'Project type', 'Budget', 'Timeline', 'Status', 'Submitted'] as const;
+export const INQUIRY_COLUMNS = ['Name', 'Company', 'Project type', 'Budget', 'Timeline', 'Status', 'Submitted', 'Follow-up'] as const;
 
 export function presentInquiryStatus(element: HTMLElement, status: InquiryStatus): void {
   element.classList.add('admin-status');

@@ -1,8 +1,9 @@
 import type { Context } from '@netlify/functions';
 import { z } from 'zod';
-import { STATUS_OPTIONS, updateSchema, moveSchema, fieldErrors } from '../../src/lib/inquiries/contract';
+import { updateSchema, moveSchema, followUpSchema, fieldErrors } from '../../src/lib/inquiries/contract';
+import { browseSchema } from '../../src/lib/inquiries/admin-browse';
 import { requireAdmin } from '../lib/authorize';
-import { listInquiries, getInquiry, updateInquiry, listInquiryActivity, getInquiryPipeline } from '../lib/inquiry-store';
+import { listInquiries, getInquiry, updateInquiry, updateFollowUp, listInquiryActivity, getInquiryPipeline } from '../lib/inquiry-store';
 import { json, readJson, sameOrigin, failure, HttpError } from '../lib/http';
 
 export default async (request: Request, context: Context): Promise<Response> => {
@@ -17,19 +18,22 @@ export default async (request: Request, context: Context): Promise<Response> => 
         return json({ inquiry, activity });
       }
       const url = new URL(request.url);
-      if (url.searchParams.get('view') === 'pipeline') return json(await getInquiryPipeline());
-      if (url.searchParams.has('view') && url.searchParams.get('view') !== 'list') throw new HttpError(400, 'Choose a valid inquiry view.');
-      const status = url.searchParams.get('status') ?? 'all';
-      const sort = url.searchParams.get('sort') ?? 'newest';
-      const page = Number(url.searchParams.get('page') ?? '1');
-      if ((status !== 'all' && !STATUS_OPTIONS.includes(status as typeof STATUS_OPTIONS[number])) || !['newest','oldest','status'].includes(sort) || !Number.isInteger(page) || page < 1 || page > 10_000) {
-        throw new HttpError(400, 'Choose a valid status, sort order and page.');
-      }
-      return json(await listInquiries(status, sort, page));
+      const view = url.searchParams.get('view') ?? 'list';
+      if (!['list', 'pipeline'].includes(view)) throw new HttpError(400, 'Choose a valid inquiry view.');
+      const result = browseSchema.safeParse(Object.fromEntries(url.searchParams));
+      if (!result.success) throw new HttpError(400, 'Choose valid search and filter values.', fieldErrors(result.error));
+      const filters = result.data;
+      if (view === 'pipeline') return json(await getInquiryPipeline(filters));
+      return json(await listInquiries(filters.status, filters.sort, filters.page, filters));
     }
     if (request.method === 'PATCH' && id) {
       sameOrigin(request);
       const body = await readJson(request);
+      if (typeof body === 'object' && body !== null && 'action' in body && body.action === 'follow-up') {
+        const result = followUpSchema.safeParse(body);
+        if (!result.success) throw new HttpError(422, 'Check the highlighted fields.', fieldErrors(result.error));
+        return json({ inquiry: await updateFollowUp(id, result.data.nextFollowUpAt, result.data.followUpNote, result.data.updatedAt) });
+      }
       const moving = typeof body === 'object' && body !== null && 'action' in body && body.action === 'move';
       const result = moving ? moveSchema.safeParse(body) : updateSchema.safeParse(body);
       if (!result.success) throw new HttpError(422, 'Check the highlighted fields.', fieldErrors(result.error));

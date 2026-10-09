@@ -4,7 +4,11 @@ import content from '@data/inquiry.json';
 export { content as inquiryContent };
 export const STATUS_OPTIONS = ['new', 'reviewing', 'contacted', 'qualified', 'proposal', 'won', 'lost', 'archived'] as const;
 export const PIPELINE_STATUS_OPTIONS = STATUS_OPTIONS.filter((status): status is Exclude<typeof STATUS_OPTIONS[number], 'archived'> => status !== 'archived');
-export const ACTIVITY_TYPES = ['inquiry_created', 'status_changed', 'admin_note_updated'] as const;
+export const ACTIVITY_TYPES = ['inquiry_created', 'status_changed', 'admin_note_updated', 'follow_up_scheduled', 'follow_up_updated', 'follow_up_cleared'] as const;
+export const FOLLOW_UP_OPTIONS = [
+  { value: 'all', label: 'All follow-ups' }, { value: 'today', label: 'Due today' },
+  { value: 'overdue', label: 'Overdue' }, { value: 'upcoming', label: 'Upcoming' }, { value: 'none', label: 'No follow-up' },
+] as const;
 export const MAX_BODY_BYTES = 16_384;
 export const MIN_INTERACTION_MS = 3_000;
 const choice = (options: { value: string }[], message: string) => z.enum(options.map(option => option.value) as [string, ...string[]], { message });
@@ -46,6 +50,12 @@ export const moveSchema = z.object({
   status: z.enum(STATUS_OPTIONS),
   updatedAt: z.string().datetime(),
 }).strict();
+export const followUpSchema = z.object({
+  action: z.literal('follow-up'),
+  nextFollowUpAt: z.string().datetime({ message: 'Choose a valid date and time.' }).nullable(),
+  followUpNote: text(2000),
+  updatedAt: z.string().datetime(),
+}).strict();
 export const STEP_FIELDS = [
   ['projectType'], ['name', 'email', 'company', 'website'],
   ['projectSummary', 'helpNeeded', 'projectStage'], ['budgetRange', 'timeline'],
@@ -61,11 +71,12 @@ export type InquiryStatus = typeof STATUS_OPTIONS[number];
 export interface Inquiry extends InquiryInput {
   id: string; createdAt: string; updatedAt: string; consentAt: string;
   status: InquiryStatus; source: string; adminNotes: string;
+  nextFollowUpAt: string | null; followUpNote: string;
 }
-export type InquirySummary = Pick<Inquiry, 'id' | 'name' | 'company' | 'projectType' | 'budgetRange' | 'timeline' | 'status' | 'createdAt'>;
+export type InquirySummary = Pick<Inquiry, 'id' | 'name' | 'company' | 'projectType' | 'budgetRange' | 'timeline' | 'status' | 'createdAt' | 'nextFollowUpAt'>;
 export interface InquiryList {
   items: InquirySummary[]; page: number; pageSize: number; total: number;
-  metrics: { total: number; new: number; active: number; won: number };
+  metrics: { total: number; new: number; active: number; won: number; followUpToday: number; followUpOverdue: number };
 }
 export type PipelineInquiry = InquirySummary & Pick<Inquiry, 'updatedAt'>;
 export interface InquiryPipeline {
@@ -76,7 +87,7 @@ export interface InquiryActivity {
   id: string; inquiryId: string; createdAt: string;
   type: typeof ACTIVITY_TYPES[number];
   fromStatus: InquiryStatus | null; toStatus: InquiryStatus | null;
-  note: string; actor: 'system' | 'admin';
+  note: string; actor: 'system' | 'admin'; followUpAt: string | null;
 }
 export interface InquiryDetail {
   inquiry: Inquiry;
