@@ -32,7 +32,7 @@ export default defineConfig({
   integrations: [
     react(),
     sitemap({
-      filter: (page) => !page.includes('/dev/') && !page.includes('/qa/') && !page.includes('/admin/'),
+      filter: (page) => !page.includes('/dev/') && !page.includes('/qa/') && !page.includes('/admin/') && !page.includes('/proposal/'),
       serialize(item) {
         return { ...item, lastmod: new Date().toISOString() };
       },

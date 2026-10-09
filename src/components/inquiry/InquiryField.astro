@@ -2,8 +2,8 @@
 import Label from '@components/ui/atoms/Label.astro';
 import Input from '@components/ui/atoms/Input.astro';
 import Text from '@components/ui/atoms/Text.astro';
-interface Props { name: string; label: string; type?: 'text' | 'email' | 'password' | 'textarea' | 'select' | 'search' | 'datetime-local'; required?: boolean; maxLength?: number; autocomplete?: string; options?: { value: string; label: string }[]; hint?: string; placeholder?: string; compact?: boolean; }
-const { name, label, type = 'text', required = false, maxLength, autocomplete, options = [], hint, placeholder, compact = false } = Astro.props;
+interface Props { name: string; label: string; type?: 'text' | 'email' | 'password' | 'textarea' | 'select' | 'search' | 'datetime-local' | 'date'; required?: boolean; maxLength?: number; autocomplete?: string; options?: { value: string; label: string }[]; hint?: string; placeholder?: string; compact?: boolean; inputMode?: 'decimal' | 'numeric'; }
+const { name, label, type = 'text', required = false, maxLength, autocomplete, options = [], hint, placeholder, compact = false, inputMode } = Astro.props;
 const id = `inquiry-${name}`;
 ---
 <div class:list={["inquiry-field", compact && "inquiry-field-compact"]}>
@@ -21,7 +21,7 @@ const id = `inquiry-${name}`;
   ) : type === 'datetime-local' ? (
     <input id={id} name={name} type="datetime-local" class="ui-form-input" required={required} aria-describedby={`${name}-error${hint ? ` ${name}-hint` : ''}`} />
   ) : (
-    <Input id={id} name={name} type={type} placeholder={placeholder} required={required} maxlength={maxLength} autocomplete={autocomplete} aria-describedby={`${name}-error${hint ? ` ${name}-hint` : ''}`} />
+    <Input id={id} name={name} type={type} placeholder={placeholder} inputmode={inputMode} required={required} maxlength={maxLength} autocomplete={autocomplete} aria-describedby={`${name}-error${hint ? ` ${name}-hint` : ''}`} />
   )}
   {hint && <Text id={`${name}-hint`} variant="feature-body-sm" class="text-on-surface-variant">{hint}</Text>}
   <Text id={`${name}-error`} variant="feature-body-sm" class="text-[var(--color-error)]" data-field-error={name} hidden></Text>

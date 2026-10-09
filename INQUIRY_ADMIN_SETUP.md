@@ -1,6 +1,48 @@
 # Client inquiry and admin foundation
 
-## Phase 3: Search, filters and follow-up operations — October 9, 2026
+## Phase 4: Proposals and estimates — October 9, 2026
+
+The existing live CRM is retained. Phase 4 adds one current proposal per inquiry, a private editor and an anonymous client review link. This supersedes earlier proposal deferrals only for the scope below; earlier phase records remain historical.
+
+**Migration 004 requires manual Neon execution before deployment.** Apply `database/migrations/004_create_proposals.sql` once on the intended Neon branch after 001–003, then deploy. Migrations 001–003 are byte-identical. This pass does not connect to Neon, apply live migrations or deploy.
+
+### Model and pricing
+
+- `proposals` stores UUID/inquiry IDs, millisecond timestamps, a unique proposal number, status, title/summary, authoritative integer-cent subtotal/fixed discount/tax/total, tax basis points, USD currency, optional draft validity date, public token, sent/accepted/declined timestamps and separate internal/client notes. `proposal_items` stores ordered descriptions, positive whole-number quantities and integer-cent rates, with a database-generated line total. One proposal per inquiry is enforced by `UNIQUE(inquiry_id)`; versioning remains future work.
+- The server obtains `VS-YYYY-NNNN` numbers from a PostgreSQL sequence with the current UTC year. The sequence does not reset annually, may have gaps after conflicts/rollbacks, and expands beyond four digits without truncating. UUIDs and row counts are never used as displayed numbers.
+- Limits: title 160 characters; summary and each notes field 4,000; at most 25 items; description 500; whole quantities 1–10,000; rate at most 100,000,000 cents; subtotal at most 1,000,000,000 cents. Negative prices, fractional quantities, forged totals, invalid dates, unknown fields and unsafe arithmetic are rejected. Draft item descriptions may be empty; Send requires complete descriptions and at least one item, plus a title, summary and valid-through date today or later.
+- Fixed discount cannot exceed subtotal. Optional tax defaults to 0%; its single input supports two decimal places (0–100%, stored as 0–10,000 basis points). Tax is computed on subtotal minus discount and rounded half up to a cent using integer arithmetic. Server totals are authoritative; browser totals are a preview. No location-based tax assumptions are applied. Currency is USD only.
+- Validity is inclusive through the selected UTC calendar date, explicitly labeled **Valid through (UTC)**. Sent offers with a date before today display as Expired and reject responses. Expiration is derived on reads/mutations without a scheduled job; accepted/declined decisions remain final.
+- Proposals reference inquiries with `ON DELETE RESTRICT`, preserving business records if a future inquiry deletion is attempted. Items cascade only if a proposal is explicitly deleted in a future approved feature. Existing inquiries receive no proposals or fabricated history.
+
+### Admin workflow and routing
+
+- Inquiry detail loads a compact proposal summary only when opened: number, status, total, validity date and Create/View/Edit actions. Edit appears for Draft only; sent/final offers are read-only so the client offer cannot change after publication. Inquiry status, private notes and follow-up fields remain independent; sending/accepting never automatically moves an inquiry.
+- `/admin/proposals/?proposal=<uuid>&back=<encoded-inquiry-url>` reuses AdminLayout, Nova controls and the existing Identity admin role. Back preserves List/Pipeline, filters, search and selected inquiry. Login return preserves a valid proposal ID. CDN role gates are additional to mandatory Function role verification.
+- The editor supports title, summary, valid-through date, add/remove/reorder item rows, fixed discount, tax, private internal notes and client-visible notes, with live pricing and a client-safe preview. Save draft permits incomplete content. Stale edits or failed saves preserve inputs and offer Reload proposal. Unchanged saves do not add activity.
+- Send proposal requires saved complete content, marks Sent, freezes editing and allocates a unique 256-bit cryptographically random token (`randomBytes(32)`, 43-character base64url). The resulting relative public link is converted to the current origin for manual Copy link. No outbound email is sent. Logout/authorization loss clears proposal data, preview and copied-link fields.
+- Protected `/api/admin/proposals` supports GET by `id` or `inquiry`, POST create and PATCH save/send. Anonymous `/api/proposal?token=<token>` supports GET and confirmed POST accept/decline. Explicit production rewrites precede the general admin rewrite; local dev aliases mirror APIs and token-page rendering. BUILD_SCOPE retains the new static shell; admin/proposal utility routes remain excluded from the sitemap.
+
+### Public document and security
+
+- `/proposal/<token>/` is accessible without login and renders the existing Volatile Solutions logo, proposal number/date/status/validity, prepared-for name/company/email, title/summary, line items, totals and client notes. No UUIDs, internal notes, inquiry notes, activity or token fields occur in the public JSON document. Submitted copy is rendered with textContent, never interpreted as HTML.
+- Accept and Decline use a native confirmation dialog before a server write. Only unexpired Sent proposals can respond. Row locking/status/date guards prevent repeated or racing responses, record the respective timestamp and log the client action atomically. Invalid and unavailable tokens share a generic unavailable response. Possession of the link authorizes review/response; this is not a signature or verified client identity.
+- Same-origin mutations, strict bounded payloads, native endpoint rate limiting and no-store responses remain. Proposal pages/API responses use no-referrer/noindex controls; token links must be treated as confidential. No Identity SDK, database driver or database secret is loaded in the public proposal page.
+- Admin authorization is checked before database access. Every query binds parameters. Proposal/items/activity writes use one PostgreSQL data-modifying CTE statement, an atomic transaction under the Neon HTTP query model. Fresh committed results come from that statement, avoiding a second read that could misreport a successful write as failure. Save/send guards use advancing millisecond versions. Shared database transport preserves the earlier inquiry query/runtime-secret behavior.
+- Print / Save as PDF uses browser print CSS: A4, existing logo, client-safe details, repeated table headers, unbroken item rows and grouped totals, without controls/navigation. Block-flow print layout avoids overlapping totals on multi-page documents. No server PDF generator is added.
+
+### Activity and rollout validation
+
+- `004` adds `proposal_created`, `proposal_updated`, `proposal_sent`, `proposal_accepted` and `proposal_declined`, with a bounded proposal-number field on inquiry activity. Created/updated/sent use Admin; accepted/declined use Client. Existing system/admin event guards remain. Full proposal text and notes are not copied into activity; failed or unchanged saves add no events.
+- The focused proposal/inquiry/CRM/URL suite passes 144 tests across eight files, including 34 proposal cases on isolated PostgreSQL (PGlite): sequence concurrency, arithmetic, validation, privacy/auth, transitions, expiration, rollback and existing inquiry compatibility. Astro/TypeScript checks 445 files with zero errors. A direct temporary Astro build emits ten pages without asset regeneration; all four modern Functions bundle with Netlify esbuild. All 76 data JSON files parse.
+- Isolated Chrome at 320/375/430/768/1024/1440px verifies create/editor/back context, add/remove/reorder, draft/send, unsaved-input preservation, actual database failure rollback/stale rejection, read-only publication, copy link, anonymous client privacy, confirmation/cancel/accept/decline/expiry, keyboard/focus/labels/live feedback, duplicate IDs, reduced motion and no overflow. One-page and 25-item/three-page PDF renders are visually reviewed without table/total overlap.
+- Existing List/Pipeline/search/combined filters/history/detail/status/notes/follow-up/global metrics/archived exclusion/refresh/logout browser checks pass. The five-step public wizard also passes validation, Back/Edit, consent, failure/retry, stable keys, double-submit protection, keyboard and client-router entrance at all six widths. Identity and public intake receipts are explicitly synthetic; private and proposal requests execute actual Functions/store SQL against in-memory PostgreSQL. No live Identity/Neon/CDN/deployment result is claimed.
+- Hash checks preserve migrations 001–003, auth verification/Identity callback and login logic, all data/images/legacy assets, public wizard/Function, dependencies and global CSS. Styles are limited to proposal components/layout/page and compact admin additions; deployment/build configuration changes serve only proposal routes. Temporary browser database fixtures are removed after testing.
+- After manually applying 004 and deploying, create a real proposal from the existing test inquiry, copy its link, review anonymously in an incognito window, accept and verify the recorded client event. This staged/live check remains a rollout step, not a result of local testing.
+
+No invoices, Stripe/payments, contracts/signatures, uploads, client portal, outbound email/reminders, proposal version history, accounting exports or recurring billing are added.
+
+## Historical Phase 3: Search, filters and follow-up operations — October 9, 2026
 
 The user reports the complete Phase 1/2 system is live-verified. Phase 3 adds only private search, richer filters and follow-up operations. The earlier implementation records below are historical.
 

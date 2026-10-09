@@ -5,7 +5,8 @@ export function renderInquiryActivity(list: HTMLOListElement, empty: HTMLElement
   for (const event of activity) {
     const item = document.createElement('li');
     const label = document.createElement('span'); label.className = 'activity-label ui-type-text-feature-sm';
-    label.textContent = { inquiry_created: 'Created', status_changed: 'Status changed', admin_note_updated: 'Admin notes updated', follow_up_scheduled: 'Follow-up scheduled', follow_up_updated: 'Follow-up updated', follow_up_cleared: 'Follow-up cleared' }[event.type];
+    label.textContent = { inquiry_created: 'Created', status_changed: 'Status changed', admin_note_updated: 'Admin notes updated', follow_up_scheduled: 'Follow-up scheduled', follow_up_updated: 'Follow-up updated', follow_up_cleared: 'Follow-up cleared', proposal_created: 'Proposal created', proposal_updated: 'Proposal updated', proposal_sent: 'Proposal sent', proposal_accepted: 'Proposal accepted', proposal_declined: 'Proposal declined' }[event.type];
+    if (event.proposalNumber) label.textContent += ' · ' + event.proposalNumber;
     item.append(label);
     if (event.type === 'status_changed' && event.fromStatus && event.toStatus) {
       const detail = document.createElement('span'); detail.className = 'ui-type-text-feature-sm';
@@ -17,7 +18,7 @@ export function renderInquiryActivity(list: HTMLOListElement, empty: HTMLElement
       schedule.textContent = 'Scheduled for ' + new Date(event.followUpAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }); item.append(schedule);
     }
     const time = document.createElement('time'); time.className = 'ui-type-text-feature-sm'; time.dateTime = event.createdAt;
-    time.textContent = new Date(event.createdAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) + (event.actor === 'system' ? ' · System' : ' · Admin');
+    time.textContent = new Date(event.createdAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) + (event.actor === 'system' ? ' · System' : event.actor === 'client' ? ' · Client' : ' · Admin');
     item.append(time); fragment.append(item);
   }
   list.replaceChildren(fragment); empty.hidden = activity.length > 0;

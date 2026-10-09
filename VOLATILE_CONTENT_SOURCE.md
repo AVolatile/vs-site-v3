@@ -4,7 +4,19 @@ Recorded: October 7, 2026. Asset and visual decisions A1–A7 added October 8, 2
 
 **This file stores factual source material. It is not final website copy, a redesign, a marketing exercise, or authorization to begin migration.**
 
-# Current Phase 3 inquiry operations — October 9, 2026
+# Current Phase 4 proposal and estimate workflow — October 9, 2026
+
+The user authorizes a proposal workflow on the existing live CRM. One proposal per inquiry is accessed from compact inquiry detail and edited at `/admin/proposals/?proposal=<uuid>` with preserved Back/search/filter/view context. Drafts can be incomplete; Send validates saved complete content, freezes the offer and reveals a manually copied public `/proposal/<random-token>/` link. No email is sent. Inquiry status, notes and follow-up scheduling remain independent.
+
+`004_create_proposals.sql` adds proposals, ordered line items, safe sequence numbers (`VS-YYYY-NNNN`) and five proposal activity types. Money is server-calculated integer cents in USD: positive whole quantities, fixed discount and optional basis-point tax (default 0%, rounded half up on the discounted subtotal). Valid-through dates use inclusive UTC calendar days; expired Sent proposals cannot respond. Future versions remain deferred. Migrations 001–003 are unchanged and existing inquiries receive no proposals/backfill.
+
+The anonymous branded document exposes only client-safe proposal/contact information, with confirmed Accept/Decline, server timestamps and Client activity. Published offers are read-only; repeated/racing decisions are rejected. Tokens have 256 bits of cryptographic entropy. Admin role checks, same-origin mutations, strict validation, parameterized SQL and atomic proposal/items/activity writes preserve the private boundary. Browser print/Save as PDF is supported without a generator; no private notes or IDs are sent to public clients.
+
+**Migration 004 requires manual Neon execution before deployment.** No live migration or deployment occurs. The local proposal and CRM/URL suite passes 144 tests (34 proposal cases), Astro/TypeScript passes, ten static routes and four Function bundles pass, and six-width browser checks preserve the CRM and public wizard. One-page and three-page proposal PDFs were visually checked. Identity/receipt fixtures are synthetic; proposal/private requests use actual Functions and isolated PostgreSQL. Runtime limits, route contracts, security, validation boundaries and the manual rollout are recorded in `INQUIRY_ADMIN_SETUP.md`.
+
+No invoice/payment/Stripe, signature/contract, upload, portal, outbound email/reminder, version history or accounting feature is included. Existing content, portfolio, imagery, localization and global CSS remain.
+
+# Historical Phase 3 inquiry operations — October 9, 2026
 
 The user confirms Phase 1/2 is live-verified and approves private server-side search across name/email/company/project summary, shared enum filters, follow-up scheduling/tracking/activity and a compact operational summary. The current List/Pipeline/detail/status/notes/public intake architecture remains. URL queries preserve view/filter/sort/page/deep-link context; Clear filters preserves view. List totals and Pipeline counts are filtered; clearly labeled summary metrics stay global.
 

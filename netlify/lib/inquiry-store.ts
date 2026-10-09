@@ -1,15 +1,9 @@
-import { neon } from '@neondatabase/serverless';
+import { query } from './database';
 import { createHash } from 'node:crypto';
 import type { Inquiry, InquiryActivity, InquiryInput, InquiryList, InquiryPipeline, InquiryStatus, InquirySummary } from '../../src/lib/inquiries/contract';
 import { HttpError } from './http';
 import { browseDefaults, type AdminBrowse } from '../../src/lib/inquiries/admin-browse';
 
-async function query(statement: string, parameters: unknown[] = []): Promise<Record<string, unknown>[]> {
-  const runtime = globalThis as typeof globalThis & { Netlify?: { env: { get: (name: string) => string | undefined } } };
-  const url = runtime.Netlify?.env.get('DATABASE_URL') ?? process.env.DATABASE_URL;
-  if (!url) throw new HttpError(503, 'The inquiry service is temporarily unavailable. Please try again.');
-  return neon(url).query(statement, parameters, { fetchOptions: { signal: AbortSignal.timeout(10_000) } });
-}
 const iso = (value: unknown) => (value instanceof Date ? value : new Date(String(value))).toISOString();
 function detail(row: Record<string, unknown>): Inquiry {
   return {
@@ -115,13 +109,13 @@ export async function updateInquiry(id: string, status: InquiryStatus, adminNote
 }
 
 export async function listInquiryActivity(id: string): Promise<InquiryActivity[]> {
-  const rows = await query(`SELECT id,inquiry_id,created_at,activity_type,from_status,to_status,note,actor,follow_up_at
+  const rows = await query(`SELECT id,inquiry_id,created_at,activity_type,from_status,to_status,note,actor,follow_up_at,proposal_number
     FROM inquiry_activity WHERE inquiry_id=$1 ORDER BY created_at DESC,id DESC`, [id]);
   return rows.map(row => ({
     id: String(row.id), inquiryId: String(row.inquiry_id), createdAt: iso(row.created_at),
     type: row.activity_type as InquiryActivity['type'],
     fromStatus: row.from_status as InquiryStatus | null, toStatus: row.to_status as InquiryStatus | null,
-    note: String(row.note), actor: row.actor as InquiryActivity['actor'], followUpAt: row.follow_up_at == null ? null : iso(row.follow_up_at),
+    note: String(row.note), actor: row.actor as InquiryActivity['actor'], followUpAt: row.follow_up_at == null ? null : iso(row.follow_up_at), proposalNumber: row.proposal_number == null ? null : String(row.proposal_number),
   }));
 }
 

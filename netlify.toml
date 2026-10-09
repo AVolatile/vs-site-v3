@@ -22,6 +22,51 @@
   status = 200
   force = true
 
+# Proposal APIs use the same server-side admin protection and explicit aliases.
+[[redirects]]
+  from = "/api/admin/proposals"
+  to = "/.netlify/functions/admin-proposals"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/proposal"
+  to = "/.netlify/functions/proposal"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/proposal/*"
+  to = "/proposal/index.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/admin/proposals"
+  to = "/admin/proposals/index.html"
+  status = 200
+  force = true
+  conditions = { Role = ["admin"] }
+
+[[redirects]]
+  from = "/admin/proposals"
+  to = "/admin/login/"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/admin/proposals/*"
+  to = "/admin/proposals/index.html"
+  status = 200
+  force = true
+  conditions = { Role = ["admin"] }
+
+[[redirects]]
+  from = "/admin/proposals/*"
+  to = "/admin/login/"
+  status = 302
+  force = true
+
 # Public login/callback shell; no private inquiry data is embedded in it.
 [[redirects]]
   from = "/admin/login"
@@ -127,3 +172,11 @@
   from = "/studio"
   to = "/404/"
   status = 404
+
+[[headers]]
+  for = "/proposal/*"
+  [headers.values]
+    Cache-Control = "no-store"
+    X-Robots-Tag = "noindex, nofollow"
+    Referrer-Policy = "no-referrer"
+

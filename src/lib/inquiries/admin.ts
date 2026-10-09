@@ -5,6 +5,8 @@ import { inquiryDetailApiUrl, adminBrowseUrl, adminInquiryUrl, adminViewFromUrl,
 import { browseSchema, browseApiQuery, browseDefaults, browseFromUrl, hasBrowseFilters, type AdminBrowse } from './admin-browse';
 import { setupAdminFollowUp } from './admin-follow-up';
 import { presentFollowUp } from './follow-up';
+import { setupInquiryProposal } from '../proposals/inquiry-panel';
+import { proposalAdminUrl } from '../proposals/contract';
 import { setupAdminPipeline } from './admin-pipeline';
 import { renderInquiryActivity } from './admin-activity';
 
@@ -41,7 +43,7 @@ export async function setupInquiryAdmin(): Promise<void> {
     passwordPanel.hidden = true; passwordForm.reset(); element('[data-admin-refresh]').hidden = true;
     dashboard.hidden = true; logoutButton.hidden = true; loginPanel.hidden = false;
     if (document.activeElement?.closest('[hidden]')) element<HTMLInputElement>('[name="loginEmail"]').focus();
-    pipeline.clear(); followUp.clear(); activityVersion++; renderInquiryActivity(activityList, activityEmpty, []); activityList.removeAttribute('aria-busy');
+    pipeline.clear(); followUp.clear(); inquiryProposal.clear(); activityVersion++; renderInquiryActivity(activityList, activityEmpty, []); activityList.removeAttribute('aria-busy');
   }
   class ServiceError extends Error { constructor(public status: number, message: string) { super(message); } }
   async function api<T>(url: string, options: RequestInit = {}): Promise<T> {
@@ -83,6 +85,7 @@ export async function setupInquiryAdmin(): Promise<void> {
     form: followUpForm, current: () => lead, active: () => authenticated, version: () => detailVersion, saving: () => saving,
     busy: setSaving, request: api, saved: inquiry => renderDetail(inquiry, 'notes'), refreshActivity, validate: validation, error: friendly,
   });
+  const inquiryProposal = setupInquiryProposal({panel: element('[data-inquiry-proposal]'), current: () => lead, active: () => authenticated, version: () => detailVersion, announce, request: api});
   function setSaving(value: boolean): void {
     saving = value;
     [...detailPanel.querySelectorAll<HTMLButtonElement | HTMLSelectElement | HTMLTextAreaElement | HTMLInputElement>('button,select,textarea,input'), ...viewButtons].forEach(control => { control.disabled = value; });
@@ -98,7 +101,7 @@ export async function setupInquiryAdmin(): Promise<void> {
   }
   async function loadBrowse(): Promise<void> {
     if (!authenticated) return;
-    syncView(); filterForm.hidden = false;
+    syncView(); filterForm.hidden = false; inquiryProposal.clear();
     if (view === 'list') { await loadList(); return; }
     const previousId = lead?.id;
     listAbort?.abort(); listVersion++; detailAbort?.abort(); detailVersion++; activityVersion++;
@@ -169,7 +172,7 @@ export async function setupInquiryAdmin(): Promise<void> {
   }
   async function loadDetail(id: string): Promise<void> {
     if (!authenticated) return;
-    pipeline.hide(); syncView(); filterForm.hidden = true; followUp.clear(); activityVersion++; renderInquiryActivity(activityList, activityEmpty, []);
+    pipeline.hide(); syncView(); inquiryProposal.clear(); filterForm.hidden = true; followUp.clear(); activityVersion++; renderInquiryActivity(activityList, activityEmpty, []);
     const version = ++detailVersion; detailAbort?.abort(); detailAbort = new AbortController();
     listAbort?.abort(); listVersion++;
     lead = null; updateForm.reset();
@@ -183,7 +186,7 @@ export async function setupInquiryAdmin(): Promise<void> {
       if (!result.inquiry) throw new Error('Missing inquiry detail response.');
       renderDetail(result.inquiry); detailContent.hidden = false; updateForm.hidden = false; announce('Inquiry loaded.');
       renderInquiryActivity(activityList, activityEmpty, result.activity ?? []);
-      element('[data-admin-detail-heading]').focus();
+      element('[data-admin-detail-heading]').focus(); void inquiryProposal.load();
     } catch (error) { if (version === detailVersion && !detailAbort.signal.aborted) { announce(friendly(error, 'This inquiry could not be loaded. Return to the list and try again.'), true); if (authenticated) { detailUnavailable.hidden = false; element('[data-admin-back]').focus(); } } }
     finally { if (version === detailVersion) detailPanel.removeAttribute('aria-busy'); }
   }
@@ -199,6 +202,8 @@ export async function setupInquiryAdmin(): Promise<void> {
     // Cookies established by Identity enable the CDN role gate on subsequent requests.
     if (location.pathname.startsWith('/admin/login')) {
       const destination = new URL(location.href); const inquiryId = destination.searchParams.get('inquiry');
+      const proposalId = destination.searchParams.get('proposal');
+      if (proposalId && /^[0-9a-f-]{36}$/i.test(proposalId)) { location.replace(proposalAdminUrl(proposalId, destination.searchParams.get('back') ?? undefined)); return; }
       const destinationView = adminViewFromUrl(destination);
       history.replaceState(null, '', inquiryId ? adminInquiryUrl(inquiryId, destinationView, browseFromUrl(destination)) : adminBrowseUrl(destinationView, browseFromUrl(destination)));
     }

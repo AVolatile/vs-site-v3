@@ -25,10 +25,11 @@ beforeAll(async () => {
   await db.exec(readFileSync(new URL('../database/migrations/001_create_inquiries.sql', import.meta.url), 'utf8'));
   await db.exec(readFileSync(new URL('../database/migrations/002_create_inquiry_activity.sql', import.meta.url), 'utf8'));
   await db.exec(readFileSync(new URL('../database/migrations/003_add_follow_up_fields.sql', import.meta.url), 'utf8'));
+  await db.exec(readFileSync(new URL('../database/migrations/004_create_proposals.sql', import.meta.url), 'utf8'));
 }, 30_000);
 afterAll(async () => { await db?.close(); });
 beforeEach(async () => {
-  await db.exec('TRUNCATE inquiry_activity, inquiries');
+  await db.exec('TRUNCATE proposal_items,proposals,inquiry_activity,inquiries');
   vi.resetAllMocks(); vi.stubEnv('DATABASE_URL', 'postgresql://isolated-test-placeholder');
   mocks.user.mockResolvedValue({ roles: ['admin'] });
   mocks.query.mockImplementation(async (statement: string, parameters: unknown[] = []) => (await db.query(statement, parameters)).rows);

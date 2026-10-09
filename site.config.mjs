@@ -14,7 +14,7 @@ export const BUILD_SCOPE = {
   // Allowlist of paths to keep in build. Empty [] = all.
   // Prefix entries also include their child pages.
   // 404 is always kept regardless of this list.
-  pages: ['/', '/portfolio', '/start-a-project', '/admin', '/cookies', '/polityka-prywatnosci'],
+  pages: ['/', '/portfolio', '/start-a-project', '/proposal', '/admin', '/cookies', '/polityka-prywatnosci'],
   // Denylist — always removed from dist/ (dev-only, prototypes, demo).
   // Entry matches by first path segment. Dev and QA stay out of production build.
   forceRemove: ['starwind-demo', 'layout-test', 'roofing', 'dev', 'qa'],

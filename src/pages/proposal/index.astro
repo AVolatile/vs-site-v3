@@ -1,0 +1,31 @@
+---
+import ProposalLayout from '@layouts/ProposalLayout.astro';
+import ProposalDocument from '@components/proposals/ProposalDocument.astro';
+import Text from '@components/ui/atoms/Text.astro';
+import Heading from '@components/ui/atoms/Heading.astro';
+import Button from '@components/ui/atoms/Button.astro';
+---
+<ProposalLayout>
+  <div class="public-proposal" data-public-proposal>
+    <Text variant="body" data-public-message role="status" aria-live="polite">Loading proposal…</Text>
+    <ProposalDocument />
+    <div class="public-actions" data-public-actions hidden><Button type="button" variant="primary" data-proposal-response="accept">Accept proposal</Button><Button type="button" variant="outline" data-proposal-response="decline">Decline proposal</Button></div>
+    <div class="public-print" data-public-print hidden><Button type="button" variant="outline" size="sm" data-proposal-print>Print / Save as PDF</Button></div>
+    <noscript><Text variant="body">JavaScript is required to load this private proposal link. Please contact Volatile Solutions if you cannot review it.</Text></noscript>
+    <dialog data-proposal-confirm aria-labelledby="proposal-confirm-heading">
+      <form method="dialog"><Heading id="proposal-confirm-heading" tag="h2" variant="feature-title" data-confirm-heading></Heading><Text variant="body" data-confirm-copy></Text><div class="confirmation-actions"><Button type="button" variant="primary" data-confirm-response>Confirm</Button><Button type="submit" variant="outline">Cancel</Button></div></form>
+    </dialog>
+  </div>
+</ProposalLayout>
+<script>import {setupPublicProposal} from '@/lib/proposals/public';setupPublicProposal();</script>
+<style>
+  [hidden] { display: none !important; }
+  .public-proposal { display: grid; gap: var(--spacing-lg); width: min(100%,64rem); margin: auto; padding: var(--spacing-xl) var(--spacing-container-px); min-width: 0; }
+  .public-actions,.confirmation-actions { display: flex; flex-wrap: wrap; gap: var(--spacing-md); }
+  .public-actions { padding-top: var(--spacing-lg); border-top: 1px solid var(--color-outline-variant); }
+  :global([data-public-message][role="alert"]) { padding: var(--spacing-md); background: var(--color-error-container); color: var(--color-on-error-container); border-radius: var(--ui-radius-sm); }
+  dialog { width: min(calc(100% - 2rem),32rem); margin: auto; padding: var(--spacing-lg); border: 1px solid var(--color-outline); border-radius: var(--ui-radius-lg); background: var(--color-brand-light); }
+  dialog::backdrop { background: rgb(0 0 0 / .4); }
+  dialog form { display: grid; gap: var(--spacing-md); }
+  @media print { .public-proposal { display: block; padding: 6mm 0 0; width: 100%; } .public-actions,.public-print,dialog,:global([data-public-message]) { display: none !important; } }
+</style>

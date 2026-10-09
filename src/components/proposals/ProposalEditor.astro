@@ -1,0 +1,49 @@
+---
+import Heading from '@components/ui/atoms/Heading.astro';
+import Text from '@components/ui/atoms/Text.astro';
+import Button from '@components/ui/atoms/Button.astro';
+import InquiryField from '@components/inquiry/InquiryField.astro';
+import ProposalDocument from './ProposalDocument.astro';
+---
+<div class="proposal-admin" data-proposal-admin>
+  <div class="editor-heading"><div><Text variant="accent-label">Volatile Solutions / Admin</Text><Heading tag="h1" variant="section-title">Proposal editor</Heading></div><div class="editor-actions"><Button href="/admin/" variant="outline" size="sm" data-proposal-back>Back to inquiry</Button><Button type="button" variant="outline" size="sm" data-proposal-logout>Sign out</Button></div></div>
+  <Text variant="body" role="status" aria-live="polite" data-editor-message>Checking access…</Text>
+  <div class="editor-meta" data-editor-meta hidden><Text variant="body" data-editor-number></Text><Text variant="body" data-editor-status></Text><Button type="button" variant="outline" size="sm" data-editor-reload>Reload proposal</Button></div>
+  <form data-proposal-form novalidate hidden>
+    <fieldset class="editor-section"><legend>Project details</legend><InquiryField compact name="proposalTitle" label="Proposal title" required maxLength={160} /><InquiryField compact name="proposalSummary" label="Project summary" type="textarea" maxLength={4000} /><InquiryField compact name="proposalValidUntil" label="Valid through (UTC)" type="date" /></fieldset>
+    <fieldset class="editor-section"><legend>Line items</legend><Text variant="feature-body-sm">Whole quantities, rates in USD. Use up to 25 items. Move items with Up / Down.</Text><div class="editor-items" data-editor-items></div><Button type="button" variant="outline" size="sm" data-editor-add>Add item</Button><Text variant="feature-body-sm" role="alert" data-editor-items-error hidden></Text></fieldset>
+    <fieldset class="editor-section editor-pricing"><legend>Pricing</legend><InquiryField compact name="proposalDiscount" label="Fixed discount (USD)" inputMode="decimal" /><InquiryField compact name="proposalTax" label="Tax (%)" inputMode="decimal" /><Text variant="feature-body-sm">Tax applies to the subtotal after discount. Default is 0%; no tax is applied automatically.</Text><dl data-editor-totals></dl><Text variant="feature-body-sm">Preview totals. Saved server totals are authoritative.</Text></fieldset>
+    <fieldset class="editor-section"><legend>Notes</legend><InquiryField compact name="proposalInternalNotes" label="Internal notes — admin only" type="textarea" maxLength={4000} /><InquiryField compact name="proposalClientNotes" label="Client notes — shown on proposal" type="textarea" maxLength={4000} /></fieldset>
+    <div class="editor-actions"><Button type="submit" variant="primary" data-editor-save>Save draft</Button><Button type="button" variant="outline" data-editor-send>Send proposal</Button></div>
+    <Text variant="feature-body-sm">Sending publishes a private review link; no email is sent. Save changes before sending. Published proposals are read-only.</Text>
+  </form>
+  <div class="editor-client-link editor-section" data-editor-link hidden><Heading tag="h2" variant="feature-title">Client review link</Heading><InquiryField compact name="proposalClientUrl" label="Public proposal link" /><div class="editor-actions"><Button type="button" variant="outline" size="sm" data-editor-copy>Copy link</Button><Button href="/" variant="outline" size="sm" data-editor-open target="_blank" rel="noopener noreferrer">Open client view</Button></div></div>
+  <div class="editor-section" data-editor-private-notes hidden><Heading tag="h2" variant="feature-title">Internal notes</Heading><Text variant="body" data-editor-private-copy></Text></div>
+  <section class="editor-section" data-editor-preview hidden><Heading tag="h2" variant="feature-title">Client-safe preview</Heading><ProposalDocument adminPreview /></section>
+  <template data-editor-item-template>
+    <div class="editor-item"><Heading tag="h3" variant="feature-title" data-editor-item-heading></Heading><div class="editor-item-fields"><InquiryField compact name="itemDescription" label="Description" maxLength={500} /><InquiryField compact name="itemQuantity" label="Quantity" inputMode="numeric" required /><InquiryField compact name="itemRate" label="Rate (USD)" inputMode="decimal" required /><div class="item-amount"><Text variant="feature-body-sm">Amount</Text><Text variant="body" data-item-amount></Text></div></div><div class="editor-actions"><Button type="button" variant="outline" size="sm" data-item-up>Up</Button><Button type="button" variant="outline" size="sm" data-item-down>Down</Button><Button type="button" variant="outline" size="sm" data-item-remove>Remove</Button></div></div>
+  </template>
+  <noscript><Text variant="body">JavaScript is required to edit proposals.</Text></noscript>
+</div>
+<script>import {setupProposalEditor} from '@/lib/proposals/admin';setupProposalEditor();</script>
+<style>
+  [hidden] { display: none !important; }
+  .proposal-admin { width: min(100%,76rem); margin: auto; padding: var(--spacing-xl) var(--spacing-container-px); display: grid; gap: var(--spacing-lg); min-width: 0; }
+  .editor-heading,.editor-actions,.editor-meta { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+  .editor-actions { justify-content: flex-start; }
+  .editor-heading > div:first-child { display: grid; gap: var(--spacing-sm); }
+  form,.editor-section,.editor-items,.editor-item { display: grid; gap: var(--spacing-md); min-width: 0; }
+  .editor-section { margin: 0; padding: var(--spacing-md); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-md); background: var(--color-brand-cream); }
+  legend { font-weight: 700; padding-inline: var(--spacing-xs); }
+  .editor-item { padding-bottom: var(--spacing-md); border-bottom: 1px solid var(--color-outline-variant); }
+  .editor-item-fields { display: grid; gap: var(--spacing-sm); min-width: 0; }
+  .item-amount { align-self: end; min-width: 0; }
+  .item-amount :global(p) { overflow-wrap: anywhere; }
+  .editor-item :global(h3) { font-size: 1rem; }
+  :global([data-editor-message][role="alert"]) { background: var(--color-error-container); color: var(--color-on-error-container); padding: var(--spacing-md); border-radius: var(--ui-radius-sm); }
+  .editor-pricing :global(dl) { display: grid; gap: var(--spacing-sm); margin: 0; }
+  .editor-pricing :global(dl div) { display: flex; justify-content: space-between; gap: var(--spacing-md); }
+  .editor-pricing :global(dd) { margin: 0; font-weight: 600; }
+  :global([data-editor-private-copy]) { white-space: pre-wrap; overflow-wrap: anywhere; }
+  @media (min-width: 48rem) { .editor-item-fields { grid-template-columns: minmax(0,3fr) repeat(3,minmax(0,1fr)); } }
+</style>

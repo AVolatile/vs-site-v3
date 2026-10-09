@@ -119,6 +119,12 @@ const detailGroups = [
               <div class="admin-save-actions"><Button type="submit" variant="primary" class="min-h-11">Save follow-up</Button><Button type="button" variant="outline" class="min-h-11" data-admin-clear-follow-up>Clear follow-up</Button></div>
               <Text variant="body" role="status" aria-live="polite" data-admin-follow-up-message></Text>
             </form>
+            <section class="admin-proposal-panel" data-inquiry-proposal hidden aria-labelledby="inquiry-proposal-heading">
+              <Heading id="inquiry-proposal-heading" tag="h3" variant="feature-title">Proposal</Heading>
+              <Text variant="body" role="status" aria-live="polite" data-inquiry-proposal-message></Text>
+              <Button type="button" variant="outline" size="sm" data-inquiry-proposal-create hidden>Create proposal</Button>
+              <div data-inquiry-proposal-summary hidden><div class="admin-proposal-facts"><Text tag="span" data-inquiry-proposal-number></Text><Text tag="span" data-inquiry-proposal-status></Text><Text tag="span" data-inquiry-proposal-total></Text><Text tag="span" variant="feature-body-sm" data-inquiry-proposal-valid></Text></div><div class="admin-save-actions"><Button href="/admin/" variant="outline" size="sm" data-inquiry-proposal-open="view">View proposal</Button><Button href="/admin/" variant="outline" size="sm" data-inquiry-proposal-open="edit">Edit proposal</Button></div></div>
+            </section>
             <InquiryActivity />
           </div>
         </div>
@@ -226,6 +232,9 @@ const detailGroups = [
   .admin-filter-actions { grid-column: 1 / -1; }
   .admin-follow-up-summary :global(span) { font-size: .75rem; color: var(--color-on-surface-variant); }
   .admin-follow-up-summary :global(strong) { display: inline; font: inherit; font-weight: 600; color: var(--color-on-surface); }
+  .admin-proposal-panel { grid-column: 1 / -1; display: grid; gap: var(--spacing-sm); padding-top: var(--spacing-md); border-top: 1px solid var(--color-outline-variant); }
+  .admin-proposal-facts { display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-md); margin-bottom: var(--spacing-sm); }
+  [data-proposal-status="accepted"] :global([data-inquiry-proposal-status]) { color: var(--color-on-success-container); background: var(--color-success-container); padding: var(--spacing-xs) var(--spacing-sm); border-radius: var(--ui-radius-sm); }
   .admin-follow-up-panel { grid-column: 1 / -1; min-width: 0; padding-top: var(--spacing-lg); border-top: 1px solid var(--color-outline-variant); }
   .admin-area :global(.admin-follow-up) { font-size: .875rem; line-height: 1.55; overflow-wrap: anywhere; }
   .admin-area :global(.admin-follow-up[data-follow-up-state="today"]) { color: var(--color-on-warning-container); background: var(--color-warning-container); padding: var(--spacing-xs); border-radius: var(--ui-radius-sm); }
