@@ -2,12 +2,12 @@
 import Label from '@components/ui/atoms/Label.astro';
 import Input from '@components/ui/atoms/Input.astro';
 import Text from '@components/ui/atoms/Text.astro';
-interface Props { name: string; label: string; type?: 'text' | 'email' | 'password' | 'textarea' | 'select' | 'search' | 'datetime-local'; required?: boolean; maxLength?: number; autocomplete?: string; options?: { value: string; label: string }[]; hint?: string; }
-const { name, label, type = 'text', required = false, maxLength, autocomplete, options = [], hint } = Astro.props;
+interface Props { name: string; label: string; type?: 'text' | 'email' | 'password' | 'textarea' | 'select' | 'search' | 'datetime-local'; required?: boolean; maxLength?: number; autocomplete?: string; options?: { value: string; label: string }[]; hint?: string; placeholder?: string; compact?: boolean; }
+const { name, label, type = 'text', required = false, maxLength, autocomplete, options = [], hint, placeholder, compact = false } = Astro.props;
 const id = `inquiry-${name}`;
 ---
-<div class="inquiry-field">
-  <Label for={id}>{label}{!required && <Text tag="span" variant="feature-body-sm"> (optional)</Text>}</Label>
+<div class:list={["inquiry-field", compact && "inquiry-field-compact"]}>
+  <Label for={id}>{label}{!required && !compact && <Text tag="span" variant="feature-body-sm"> (optional)</Text>}</Label>
   {type === 'textarea' ? (
     <textarea id={id} name={name} class="ui-form-input" rows="5" required={required} maxlength={maxLength} aria-describedby={`${name}-error${hint ? ` ${name}-hint` : ''}`}></textarea>
   ) : type === 'select' ? (
@@ -21,7 +21,7 @@ const id = `inquiry-${name}`;
   ) : type === 'datetime-local' ? (
     <input id={id} name={name} type="datetime-local" class="ui-form-input" required={required} aria-describedby={`${name}-error${hint ? ` ${name}-hint` : ''}`} />
   ) : (
-    <Input id={id} name={name} type={type} required={required} maxlength={maxLength} autocomplete={autocomplete} aria-describedby={`${name}-error${hint ? ` ${name}-hint` : ''}`} />
+    <Input id={id} name={name} type={type} placeholder={placeholder} required={required} maxlength={maxLength} autocomplete={autocomplete} aria-describedby={`${name}-error${hint ? ` ${name}-hint` : ''}`} />
   )}
   {hint && <Text id={`${name}-hint`} variant="feature-body-sm" class="text-on-surface-variant">{hint}</Text>}
   <Text id={`${name}-error`} variant="feature-body-sm" class="text-[var(--color-error)]" data-field-error={name} hidden></Text>
@@ -32,5 +32,12 @@ const id = `inquiry-${name}`;
   .inquiry-select { position: relative; min-width: 0; }
   select { appearance: none; background-image: none; height: 3rem; padding-inline-end: 3rem; }
   .inquiry-select-chevron { position: absolute; inset-inline-end: 1rem; top: 50%; transform: translateY(-50%); width: 1rem; height: 1rem; color: var(--color-on-surface-variant); pointer-events: none; }
+  .inquiry-field-compact { gap: .25rem; }
+  .inquiry-field-compact :global(.ui-form-label) { margin: 0; font-family: var(--font-sans); font-size: .75rem; font-weight: 500; line-height: 1.25; letter-spacing: normal; text-transform: none; color: var(--color-on-surface-variant); }
+  .inquiry-field-compact :global(.ui-form-input) { height: 2.75rem; min-width: 0; padding-block: .5rem; padding-inline: .75rem; font-size: .875rem; line-height: 1.4; border-color: var(--color-outline); background-color: var(--color-brand-light); }
+  .inquiry-field-compact select { padding-inline-end: 2.25rem; }
+  .inquiry-field-compact .inquiry-select-chevron { inset-inline-end: .75rem; }
+  .inquiry-field-compact :global([id$="-hint"]) { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  @media (min-width: 48rem) { .inquiry-field-compact :global(.ui-form-input) { height: 2.5rem; } }
   [hidden] { display: none !important; }
 </style>

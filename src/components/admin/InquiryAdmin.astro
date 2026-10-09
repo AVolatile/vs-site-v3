@@ -57,24 +57,29 @@ const detailGroups = [
         <div class="admin-metrics" role="group" aria-label="Global inquiry summary">
           {[['new','New inquiries'],['total','Total inquiries'],['active','Active inquiries'],['won','Won']].map(([key,label]) => <div class="admin-metric"><Text variant="feature-body-sm">{label}</Text><Heading tag="p" variant="section-title" data-admin-metric={key}>—</Heading></div>)}
         </div>
-        <div class="admin-follow-up-summary" role="group" aria-label="Global follow-up summary">
-          <Text variant="body">Due today: <Text tag="strong" data-admin-metric="followUpToday">—</Text></Text>
-          <Text variant="body">Overdue: <Text tag="strong" data-admin-metric="followUpOverdue">—</Text></Text>
-        </div>
-        <div class="admin-view-switch" role="group" aria-label="Inquiry view">
-          <Button type="button" variant="outline" size="sm" class="min-h-11" data-admin-view="list" aria-pressed="true" aria-controls="admin-list-panel">List</Button>
-          <Button type="button" variant="outline" size="sm" class="min-h-11" data-admin-view="pipeline" aria-pressed="false" aria-controls="admin-pipeline-panel">Pipeline</Button>
-        </div>
-        <form data-admin-filter-form novalidate class="admin-filter-toolbar" aria-label="Search and filter inquiries">
-          <div class="admin-search-field"><InquiryField name="search" label="Search inquiries" type="search" maxLength={160} hint="Name, email, company or project summary" /></div>
-          <div data-admin-status-filter><InquiryField name="filterStatus" label="Status" type="select" required options={[{ value: 'all', label: 'All statuses' },...statuses]} /></div>
-          <InquiryField name="filterProjectType" label="Project type" type="select" required options={[{ value: 'all', label: 'All project types' },...inquiryContent.projectTypes]} />
-          <InquiryField name="filterBudget" label="Budget" type="select" required options={[{ value: 'all', label: 'All budgets' },...inquiryContent.budgets]} />
-          <InquiryField name="filterTimeline" label="Timeline" type="select" required options={[{ value: 'all', label: 'All timelines' },...inquiryContent.timelines]} />
-          <InquiryField name="filterFollowUp" label="Follow-up" type="select" required options={[...FOLLOW_UP_OPTIONS]} />
-          <InquiryField name="sortOrder" label="Sort" type="select" required options={[{ value: 'newest', label: 'Newest first' },{ value: 'oldest', label: 'Oldest first' },{ value: 'status', label: 'Status' }]} />
-          <div class="admin-filter-actions"><Button type="submit" variant="outline" class="min-h-11">Apply filters</Button><Button type="button" variant="outline" class="min-h-11" data-admin-clear-filters hidden>Clear filters</Button></div>
-        </form>
+        <section class="admin-browse-card" aria-labelledby="admin-browse-heading">
+          <div class="admin-browse-header">
+            <div class="admin-browse-heading"><Heading id="admin-browse-heading" tag="h2" variant="feature-title">Browse inquiries</Heading><Text tag="span" variant="feature-body-sm" data-admin-result-count aria-hidden="true" hidden></Text></div>
+            <div class="admin-follow-up-summary" role="group" aria-label="Global follow-up summary">
+              <Text tag="span" variant="feature-body-sm">Due today <Text tag="strong" data-admin-metric="followUpToday">—</Text></Text>
+              <Text tag="span" variant="feature-body-sm">Overdue <Text tag="strong" data-admin-metric="followUpOverdue">—</Text></Text>
+            </div>
+          </div>
+          <div class="admin-view-switch" role="group" aria-label="Inquiry view">
+            <Button type="button" variant="outline" size="sm" data-admin-view="list" aria-pressed="true" aria-controls="admin-list-panel">List</Button>
+            <Button type="button" variant="outline" size="sm" data-admin-view="pipeline" aria-pressed="false" aria-controls="admin-pipeline-panel">Pipeline</Button>
+          </div>
+          <form data-admin-filter-form novalidate class="admin-filter-toolbar" aria-label="Search and filter inquiries">
+            <div class="admin-search-field"><InquiryField compact name="search" label="Search inquiries" type="search" placeholder="Search name, email, company…" maxLength={160} hint="Name, email, company or project summary" /></div>
+            <div data-admin-status-filter><InquiryField compact name="filterStatus" label="Status" type="select" required options={[{ value: 'all', label: 'All statuses' },...statuses]} /></div>
+            <div class="admin-filter-field"><InquiryField compact name="filterProjectType" label="Project type" type="select" required options={[{ value: 'all', label: 'All project types' },...inquiryContent.projectTypes]} /></div>
+            <div class="admin-filter-field"><InquiryField compact name="sortOrder" label="Sort" type="select" required options={[{ value: 'newest', label: 'Newest first' },{ value: 'oldest', label: 'Oldest first' },{ value: 'status', label: 'Status' }]} /></div>
+            <div class="admin-filter-field"><InquiryField compact name="filterBudget" label="Budget" type="select" required options={[{ value: 'all', label: 'All budgets' },...inquiryContent.budgets]} /></div>
+            <div class="admin-filter-field"><InquiryField compact name="filterTimeline" label="Timeline" type="select" required options={[{ value: 'all', label: 'All timelines' },...inquiryContent.timelines]} /></div>
+            <div class="admin-filter-field"><InquiryField compact name="filterFollowUp" label="Follow-up" type="select" required options={[...FOLLOW_UP_OPTIONS]} /></div>
+            <div class="admin-filter-actions"><Button type="submit" variant="primary" size="sm">Apply filters</Button><Button type="button" variant="outline" size="sm" data-admin-clear-filters hidden>Clear filters</Button></div>
+          </form>
+        </section>
         <div id="admin-list-panel" data-admin-list-panel class="admin-list-panel">
           <div class="admin-list-heading"><Heading tag="h2" variant="feature-title">Project inquiries</Heading><Button type="button" variant="outline" class="min-h-11" data-admin-retry>Refresh inquiries</Button></div>
           <div class="admin-table-wrap" role="region" aria-label="Project inquiry list">
@@ -124,6 +129,26 @@ const detailGroups = [
 <script>
   import { setupInquiryAdmin } from '@/lib/inquiries/admin';
   setupInquiryAdmin();
+  // Mirror the existing result announcement visually; keep its original live region intact.
+  const root = document.querySelector<HTMLElement>('[data-inquiry-admin]');
+  if (root) {
+    const message = root.querySelector<HTMLElement>('[data-admin-message]')!;
+    const dashboard = root.querySelector<HTMLElement>('[data-admin-dashboard]')!;
+    const filters = root.querySelector<HTMLElement>('[data-admin-filter-form]')!;
+    const result = root.querySelector<HTMLElement>('[data-admin-result-count]')!;
+    const renderResult = () => {
+      const count = message.textContent?.match(/^(\d+) inquiries (?:loaded\.|in the pipeline\.)$/)?.[1];
+      const show = Boolean(count && !dashboard.hidden && !filters.hidden && message.getAttribute('role') === 'status');
+      result.hidden = !show; message.toggleAttribute('data-browse-result', show);
+      result.textContent = show ? `${count} ${count === '1' ? 'inquiry' : 'inquiries'}` : '';
+    };
+    const observer = new MutationObserver(renderResult);
+    observer.observe(message, { childList: true, characterData: true, subtree: true });
+    observer.observe(dashboard, { attributes: true, attributeFilter: ['hidden'] });
+    observer.observe(filters, { attributes: true, attributeFilter: ['hidden'] });
+    document.addEventListener('astro:before-swap', () => observer.disconnect(), { once: true });
+    renderResult();
+  }
 </script>
 <style>
   [hidden] { display: none !important; }
@@ -137,17 +162,24 @@ const detailGroups = [
   :global(.admin-area:has([data-admin-dashboard]:not([hidden]))) .admin-heading :global(.admin-dashboard-title) { display: inline; }
   :global(.admin-area:has([data-admin-dashboard]:not([hidden]))) .admin-heading :global(.admin-dashboard-context) { display: block; color: var(--color-on-surface-variant); }
   :global(.admin-area:has([data-admin-dashboard]:not([hidden]))) .admin-heading :global(.ui-type-accent-label),.admin-dashboard :global(.ui-form-label) { color: var(--color-on-surface-variant); }
-  :global(.admin-area:has([data-admin-dashboard]:not([hidden]))) :global([data-admin-message]) { padding: var(--spacing-md); border-radius: var(--ui-radius-sm); background: var(--color-brand-cream); }
-  :global(.admin-area:has([data-admin-dashboard]:not([hidden]))) :global([data-admin-message][role="alert"]) { background: var(--color-error-container); color: var(--color-on-error-container); }
-  .admin-dashboard { gap: var(--spacing-lg); }
+  :global(.admin-area:has([data-admin-dashboard]:not([hidden]))) :global([data-admin-message]) { font-size: .875rem; line-height: 1.4; color: var(--color-on-surface-variant); }
+  :global(.admin-area:has([data-admin-dashboard]:not([hidden]))) :global([data-admin-message][data-browse-result]) { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  :global(.admin-area:has([data-admin-dashboard]:not([hidden]))) :global([data-admin-message][role="alert"]) { padding: var(--spacing-md); border-radius: var(--ui-radius-sm); background: var(--color-error-container); color: var(--color-on-error-container); }
+  .admin-dashboard { gap: var(--spacing-md); }
   .admin-area,.admin-dashboard { min-width: 0; }
-  .admin-view-switch { display: flex; flex-wrap: wrap; gap: var(--spacing-sm); }
+  .admin-browse-card { display: grid; gap: var(--spacing-sm); min-width: 0; padding: var(--spacing-md); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-md); background: var(--color-brand-cream); }
+  .admin-browse-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+  .admin-browse-heading { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--spacing-sm); min-width: 0; }
+  .admin-browse-heading :global(h2) { font-size: 1rem; line-height: 1.4; }
+  .admin-browse-heading :global([data-admin-result-count]) { font-size: .8125rem; color: var(--color-on-surface-variant); font-variant-numeric: tabular-nums; }
+  .admin-view-switch { display: flex; flex-wrap: wrap; gap: .25rem; }
+  .admin-view-switch :global(.ui-button),.admin-filter-actions :global(.ui-button) { min-height: 2.75rem; height: 2.75rem; padding-inline: .75rem; font-size: .75rem; letter-spacing: .02em; }
   .admin-view-switch :global([aria-pressed="true"]) { background: var(--color-brand-dark); color: var(--color-on-primary); border-color: var(--color-brand-dark); }
   .admin-metrics { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--spacing-md); }
   .admin-metric { display: grid; gap: var(--spacing-md); padding: clamp(1rem,2vw,1.5rem); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-lg); background: var(--color-brand-cream); }
   .admin-metric :global([data-admin-metric]) { font-size: clamp(2rem,3vw,3rem); line-height: 1; font-variant-numeric: tabular-nums; }
   .admin-list-panel,.admin-detail-panel { padding: clamp(1rem,2vw,1.5rem); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-lg); min-width: 0; }
-  .admin-filter-toolbar { display: grid; gap: var(--spacing-md); align-items: end; padding-bottom: var(--spacing-md); border-bottom: 1px solid var(--color-outline-variant); }
+  .admin-filter-toolbar { display: grid; gap: var(--spacing-sm); align-items: start; min-width: 0; }
   .admin-filter-toolbar > div { min-width: 0; }
   .admin-table-wrap { min-width: 0; max-width: 100%; }
   table { width: 100%; table-layout: fixed; text-align: left; border-collapse: collapse; }
@@ -186,19 +218,30 @@ const detailGroups = [
   .admin-edit-panel :global([data-admin-save-message]) { min-height: 1.5rem; overflow-wrap: anywhere; }
   @media (min-width: 48rem) {
     .admin-metrics { grid-template-columns: repeat(4,minmax(0,1fr)); }
-    .admin-filter-toolbar { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .admin-view-switch :global(.ui-button),.admin-filter-actions :global(.ui-button) { min-height: 2.5rem; height: 2.5rem; }
     .admin-detail-sections { grid-template-columns: repeat(2,minmax(0,1fr)); }
   }
   .admin-global-context { color: var(--color-on-surface-variant); }
-  .admin-follow-up-summary,.admin-filter-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-md); }
+  .admin-follow-up-summary,.admin-filter-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-sm); }
   .admin-filter-actions { grid-column: 1 / -1; }
-  .admin-follow-up-summary { padding: var(--spacing-md); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-md); }
+  .admin-follow-up-summary :global(span) { font-size: .75rem; color: var(--color-on-surface-variant); }
+  .admin-follow-up-summary :global(strong) { display: inline; font: inherit; font-weight: 600; color: var(--color-on-surface); }
   .admin-follow-up-panel { grid-column: 1 / -1; min-width: 0; padding-top: var(--spacing-lg); border-top: 1px solid var(--color-outline-variant); }
   .admin-area :global(.admin-follow-up) { font-size: .875rem; line-height: 1.55; overflow-wrap: anywhere; }
   .admin-area :global(.admin-follow-up[data-follow-up-state="today"]) { color: var(--color-on-warning-container); background: var(--color-warning-container); padding: var(--spacing-xs); border-radius: var(--ui-radius-sm); }
   .admin-area :global(.admin-follow-up[data-follow-up-state="overdue"]) { color: var(--color-on-error-container); background: var(--color-error-container); padding: var(--spacing-xs); border-radius: var(--ui-radius-sm); }
   .admin-follow-up-panel :global(input[type="datetime-local"]) { min-width: 0; max-width: 100%; }
-  @media (min-width: 64rem) { .admin-filter-toolbar { grid-template-columns: repeat(4,minmax(0,1fr)); } .admin-search-field { grid-column: span 2; } }
+  @media (min-width: 23.4375rem) {
+    .admin-filter-toolbar { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .admin-search-field { grid-column: 1 / -1; }
+  }
+  @media (min-width: 64rem) {
+    .admin-filter-toolbar { grid-template-columns: repeat(14,minmax(0,1fr)); }
+    .admin-search-field { grid-column: span 5; }
+    .admin-filter-field,[data-admin-status-filter] { grid-column: span 3; }
+    .admin-filter-actions { grid-column: span 5; align-self: end; justify-content: flex-end; }
+    .admin-filter-toolbar:has([data-admin-status-filter][hidden]) .admin-filter-actions { grid-column: span 8; }
+  }
   @media (min-width: 80rem) { .admin-detail-content { grid-template-columns: minmax(0,1.7fr) minmax(20rem,1fr); } }
   @media (max-width: 63.999rem) {
     table { display: block; }
