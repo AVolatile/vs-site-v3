@@ -1,5 +1,14 @@
 # Content Migration Map — Nova → Volatile Solutions / Anthony Volatile
 
+## Approved organic SEO and discovery pass — October 10, 2026
+
+The user confirms the production domain is live and production verification has passed, and explicitly authorizes public indexing plus five distinct static service pages: /web-design-rhode-island/, /web-development-rhode-island/, /custom-web-applications/, /branding-visual-design/ and /website-support/. This supersedes earlier public noindex restrictions only for intentional marketing/legal pages. Admin, proposal, invoice and booking pages retain independent noindex and existing access/token boundaries.
+
+Homepage metadata/intro strengthen approved Rhode Island, Providence-area and remote positioning; the Developer, Designer & Digital Product Builder positioning, four service names and 100+ / 8+ / 1,000+ / 120 metrics are preserved. Service content remains centralized in src/data/service-pages.json and uses existing portfolio IDs/classifications and approved technical experience; no new projects, client results, physical address, prices, reviews or response-time promises are asserted. Homepage service-title links and related-service/portfolio/about/intake links make the new content discoverable.
+
+Organization/WebSite schema gains the verified Anthony Volatile founder; service pages add factual Service schema without offers/ratings/address. Sitemap uses the explicit PUBLIC_PAGE_PATHS allowlist in site.config.mjs. The wildcard robots policy allows public search crawling, including OAI-SearchBot, and excludes private/tool/API prefixes; existing noindex headers and authentication remain authoritative. GPTBot policy is not separately changed. llms.txt contains only public factual information/links. Manual Search Console/Bing/IndexNow setup and monthly review are documented in SEO_DISCOVERY_SETUP.md; no account setup, search submission or deployment is performed.
+
+
 ## Approved final pre-launch cleanup — October 10, 2026
 
 The user authorizes removal of false public legal/business facts, accurate Organization/WebSite schema, empty English hero stats, legacy redirects, factual Privacy/Cookie policies and llms.txt, and configuration-aware public Zoom availability. Shared address/postal/city/hours/NIP/KRS/REGON values remain empty until real facts are approved; no office location, coordinates, hours, registration status or performance numbers are invented. Existing assets remain unchanged; schema image is /volatile-solutions-og.png and logo is /assets/images/t001-nova/t001-nova-navbar-logo.png.

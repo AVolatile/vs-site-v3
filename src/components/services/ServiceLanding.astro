@@ -1,0 +1,191 @@
+---
+import Layout from "@layouts/Layout.astro";
+import Section from "@components/ui/layout/Section.astro";
+import Container from "@components/ui/layout/Container.astro";
+import Heading from "@components/ui/atoms/Heading.astro";
+import Text from "@components/ui/atoms/Text.astro";
+import Button from "@components/ui/atoms/Button.astro";
+import SmartImage from "@components/ui/atoms/SmartImage.astro";
+import FaqAccordionBlock from "@components/registry/faq/FaqAccordionBlock.astro";
+import content from "@data/service-pages.json";
+import portfolio from "@data/portfolio.json";
+import type { PortfolioData } from "@/types/portfolio";
+import { getNovaNavigationPath } from "@utils/nova-i18n";
+
+interface Props { page: (typeof content.pages)[number] }
+const { page } = Astro.props;
+const shared = content.shared;
+const href = (path: string) => getNovaNavigationPath(path, "en");
+const works = page.workIds.map((id) => {
+  const item = (portfolio as PortfolioData).items.find((item) => item.id === id);
+  if (!item) throw new Error(`Unknown service portfolio reference: ${id}`);
+  return item;
+});
+const featured = works[0];
+const related = page.related.map((slug) => {
+  const service = content.pages.find((service) => service.slug === slug);
+  if (!service) throw new Error(`Unknown related service: ${slug}`);
+  return service;
+});
+---
+
+<Layout title={page.title} description={page.description} ogTitle={page.title}
+  locale="en" lang="en" navbarVariant="floating" footerVariant="nova" enableLenis={false}
+  service={{ name: page.linkLabel, description: page.description }}>
+  <div class="service-page">
+    <Section tone="page" class="service-hero">
+      <Container>
+        <div class="service-hero-grid">
+          <div class="service-intro" data-motion-sequence="fade">
+            <Text variant="accent-label">{shared.eyebrow}</Text>
+            <Heading tag="h1" variant="hero" class="service-heading">{page.h1}</Heading>
+            <Text variant="lead">{page.intro}</Text>
+            <div class="service-actions">
+              <Button href={href("/start-a-project/")} variant="primary">{shared.ctaLabel}</Button>
+              <a href="#service-work" class="service-text-link">Explore relevant work <span aria-hidden="true">→</span></a>
+            </div>
+          </div>
+          <figure class="service-featured">
+            <div class="service-artwork" style={{ "--service-image-fit": featured.imageFit ?? "cover", "--service-image-position": featured.imagePosition ?? "center" }}>
+              <SmartImage src={featured.image} alt={featured.alt} width={1280} height={960}
+                sizes="(min-width: 768px) 45vw, 90vw" loading="eager" />
+            </div>
+            <figcaption>
+              <Text tag="span" variant="feature-body-sm">{featured.title}</Text>
+              <Text tag="span" variant="feature-body-sm" class="text-on-surface-variant">{featured.classification}</Text>
+            </figcaption>
+          </figure>
+        </div>
+      </Container>
+    </Section>
+
+    <Section tone="page" class="service-scope">
+      <Container>
+        <div class="service-editorial-grid">
+          <div class="service-copy">
+            <Heading tag="h2" variant="section-title">{page.audienceTitle}</Heading>
+            <Text variant="body">{page.audience}</Text>
+            <Heading tag="h3" variant="feature-title">{page.problemTitle}</Heading>
+            <Text variant="body">{page.problem}</Text>
+          </div>
+          <div class="service-capabilities">
+            <Text variant="accent-label">What the work can include</Text>
+            {page.capabilities.map((capability) => (
+              <article>
+                <Heading tag="h3" variant="feature-title">{capability.title}</Heading>
+                <Text variant="body">{capability.description}</Text>
+              </article>
+            ))}
+          </div>
+        </div>
+      </Container>
+    </Section>
+
+    <Section tone="base" class="service-process">
+      <Container>
+        <div class="service-section-heading">
+          <Text variant="accent-label">The process</Text>
+          <Heading tag="h2" variant="section-title">{page.processTitle}</Heading>
+        </div>
+        <ol class="service-steps">
+          {page.process.map((step, index) => (
+            <li>
+              <Text tag="span" variant="accent-label" aria-hidden="true">{String(index + 1).padStart(2, "0")}.</Text>
+              <Heading tag="h3" variant="feature-title">{step.title}</Heading>
+              <Text variant="body">{step.description}</Text>
+            </li>
+          ))}
+        </ol>
+      </Container>
+    </Section>
+
+    <Section id="service-work" tone="page">
+      <Container>
+        <div class="service-section-heading">
+          <Text variant="accent-label">Selected work</Text>
+          <Heading tag="h2" variant="section-title">{page.linkLabel} in the portfolio</Heading>
+          <Text variant="lead">{page.workIntro}</Text>
+        </div>
+        <div class="service-work-grid">
+          {works.map((work) => (
+            <article class="service-work-card">
+              <Text variant="accent-label">{work.classification}</Text>
+              <Heading tag="h3" variant="feature-title">{work.title}</Heading>
+              <Text variant="body">{work.shortDescription}</Text>
+              <a href={href(`/portfolio/#${work.id}`)} class="service-text-link">View {work.title} in the portfolio <span aria-hidden="true">→</span></a>
+            </article>
+          ))}
+        </div>
+        <a href={href("/portfolio/")} class="service-text-link service-all-work">Explore the full portfolio <span aria-hidden="true">→</span></a>
+      </Container>
+    </Section>
+
+    <Section tone="base" class="service-value">
+      <Container>
+        <div class="service-editorial-grid">
+          <div class="service-copy">
+            <Text variant="accent-label">Working with Volatile Solutions</Text>
+            <Heading tag="h2" variant="section-title">{shared.valueTitle}</Heading>
+            <a href={href("/#zespol")} class="service-text-link">Meet Anthony Volatile <span aria-hidden="true">→</span></a>
+          </div>
+          <div class="service-copy">
+            {shared.valueParagraphs.map((paragraph) => <Text variant="body">{paragraph}</Text>)}
+          </div>
+        </div>
+      </Container>
+    </Section>
+
+    <FaqAccordionBlock lang="en" sectionId="service-faq" title={`${page.linkLabel}: common questions`}
+      description={shared.faqDescription} tagline="FAQ" items={page.faq} />
+
+    <Section tone="page" class="service-next">
+      <Container>
+        <div class="service-editorial-grid">
+          <div class="service-copy">
+            <Heading tag="h2" variant="section-title">{shared.ctaTitle}</Heading>
+            <Text variant="lead">{page.cta}</Text>
+            <Button href={href("/start-a-project/")} variant="primary">{shared.ctaLabel}</Button>
+          </div>
+          <nav aria-label="Related services" class="service-related">
+            <Heading tag="h2" variant="feature-title">{shared.relatedTitle}</Heading>
+            {related.map((service) => <a href={href(`/${service.slug}/`)} class="service-text-link">{service.linkLabel} <span aria-hidden="true">→</span></a>)}
+          </nav>
+        </div>
+      </Container>
+    </Section>
+  </div>
+</Layout>
+
+<style>
+  .service-page { min-width: 0; overflow: clip; }
+  .service-hero { padding-top: var(--spacing-xl); }
+  .service-hero-grid, .service-editorial-grid { display: grid; gap: clamp(2rem, 5vw, 5rem); min-width: 0; }
+  .service-hero-grid { align-items: center; }
+  .service-intro, .service-copy, .service-capabilities, .service-section-heading, .service-related { display: grid; gap: var(--spacing-lg); min-width: 0; }
+  .service-heading { font-size: clamp(2.25rem, 5vw, 4.75rem); line-height: 1.05; letter-spacing: -0.055em; }
+  .service-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-lg); }
+  .service-actions .ui-button { max-width: 100%; }
+  .service-featured { min-width: 0; margin: 0; }
+  .service-artwork { aspect-ratio: 4 / 3; overflow: hidden; border-radius: var(--ui-radius-lg); background: var(--color-surface-container-low); }
+  .service-artwork :global(picture), .service-artwork :global(img) { display: block; width: 100%; height: 100%; }
+  .service-artwork :global(img) { object-fit: var(--service-image-fit); object-position: var(--service-image-position); }
+  .service-featured figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--spacing-sm); padding-top: var(--spacing-md); }
+  .service-text-link { display: inline-flex; align-items: baseline; gap: var(--spacing-sm); width: fit-content; max-width: 100%; color: var(--color-on-surface); text-decoration: underline; text-underline-offset: 0.25em; }
+  .service-text-link:hover { color: var(--color-accent); }
+  .service-text-link:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 4px; }
+  .service-text-link span { flex: none; }
+  .service-capabilities article { display: grid; gap: var(--spacing-sm); border-top: 1px solid var(--color-outline-variant); padding-top: var(--spacing-lg); }
+  .service-section-heading { max-width: 52rem; margin-bottom: var(--spacing-xl); }
+  .service-steps { display: grid; gap: var(--spacing-xl); list-style: none; margin: 0; padding: 0; }
+  .service-steps li { display: grid; align-content: start; gap: var(--spacing-md); border-top: 1px solid var(--color-outline-variant); padding-top: var(--spacing-lg); }
+  .service-work-grid { display: grid; gap: var(--spacing-lg); }
+  .service-work-card { display: grid; align-content: start; gap: var(--spacing-md); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-lg); padding: clamp(1.25rem, 3vw, 2.5rem); }
+  .service-all-work { margin-top: var(--spacing-xl); }
+  .service-next .ui-button { justify-self: start; }
+  .service-related { align-content: start; }
+  @media (min-width: 48rem) {
+    .service-hero-grid, .service-editorial-grid, .service-work-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .service-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (min-width: 64rem) { .service-steps { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+</style>

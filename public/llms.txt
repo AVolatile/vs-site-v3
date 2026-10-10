@@ -1,17 +1,25 @@
 # Volatile Solutions
 
-Volatile Solutions is Anthony Volatile’s web development and visual design business.
+Volatile Solutions is Anthony Volatile’s Rhode Island-based web development and visual design business. It serves Providence-area businesses, businesses across Rhode Island and remote clients.
+
 Website: https://volatile-solutions.net
 Contact: volatile-solutions@outlook.com
 Phone: 401-545-6860
 
-Services: web design and development; custom web applications; branding and visual design; website support and optimization.
+Services: Web Design & Development; Custom Web Applications; Branding & Visual Design; Website Support & Optimization. Founder-led work uses practical budgets and a scope agreed around the project; no standard price or timeline is published.
 
-- Home and services: https://volatile-solutions.net/#services
+## Public pages
+
+- Home: https://volatile-solutions.net/
 - About Anthony: https://volatile-solutions.net/#zespol
 - Portfolio: https://volatile-solutions.net/portfolio/
+- Web Design: https://volatile-solutions.net/web-design-rhode-island/
+- Web Development: https://volatile-solutions.net/web-development-rhode-island/
+- Web Applications: https://volatile-solutions.net/custom-web-applications/
+- Branding & Visual Design: https://volatile-solutions.net/branding-visual-design/
+- Website Support: https://volatile-solutions.net/website-support/
 - Project inquiry: https://volatile-solutions.net/start-a-project/
 - Privacy Policy: https://volatile-solutions.net/polityka-prywatnosci/
 - Cookie Policy: https://volatile-solutions.net/cookies/
 
-The portfolio includes client work, personal projects and creative concepts. Entry classifications distinguish their status; inclusion does not imply a paying client relationship. Proposals, invoices and bookings are available through private client links. Administrator access requires authentication.
+The portfolio distinguishes verified client work, portfolio work and creative concepts. Inclusion does not imply a paying client relationship.

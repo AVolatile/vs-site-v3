@@ -1,0 +1,407 @@
+{
+  "shared": {
+    "eyebrow": "Founder-led / Rhode Island + remote",
+    "valueTitle": "Custom work with a practical scope",
+    "valueParagraphs": [
+      "You work directly with Anthony Volatile, the founder of Volatile Solutions, across design, development and the agreed project decisions. The approach combines technical work with attention to the customer experience and the business behind it.",
+      "Founder-led work can avoid unnecessary layers of agency overhead. That does not mean every project has a low fixed price: practical budgets come from a clear scope, useful priorities and honest choices about what can wait.",
+      "Start with the problem you need to solve and the budget you are comfortable discussing. A focused first version or a smaller improvement can be more useful than committing to features the business does not yet need."
+    ],
+    "ctaTitle": "Let’s define the right next step",
+    "ctaLabel": "Start a Project",
+    "faqDescription": "Practical answers before you decide on a scope.",
+    "relatedTitle": "Related services"
+  },
+  "pages": [
+    {
+      "slug": "web-design-rhode-island",
+      "title": "Web Design Rhode Island | Volatile Solutions",
+      "h1": "Web design for Rhode Island businesses",
+      "linkLabel": "Web Design",
+      "description": "Custom, founder-led web design for Rhode Island and Providence-area businesses. Responsive websites shaped around your brand, customers and practical project scope.",
+      "intro": "A custom website should make your business easy to understand and give visitors a clear next step. Anthony Volatile combines visual design and development for small businesses across Rhode Island, the Providence area and remotely.",
+      "audienceTitle": "For businesses ready for a clearer website",
+      "audience": "This service is for small businesses and founders launching their first site, replacing a generic template or bringing an existing website into line with their brand. Bring your current site, the questions customers ask and the actions you want visitors to take.",
+      "problemTitle": "Design around the customer’s next step",
+      "problem": "A confusing menu, uneven branding or a difficult mobile layout can get in the way of a useful visit. The work starts with content and page structure, then brings typography, imagery and interaction together. A distinctive design still needs to be straightforward to use.",
+      "capabilities": [
+        {
+          "title": "Custom page design",
+          "description": "Build the composition around your actual services, content and visual identity, rather than forcing them into a preselected demo."
+        },
+        {
+          "title": "Responsive customer experience",
+          "description": "Plan navigation, readable type, images and calls to action for small phones, tablets and larger screens."
+        },
+        {
+          "title": "Branding alignment",
+          "description": "Carry your existing identity into the site. If visual assets need work, branding and design can be scoped alongside the website."
+        },
+        {
+          "title": "Development and launch",
+          "description": "Turn the approved design into a working site, review its key pages and forms, and agree on the launch and support scope."
+        }
+      ],
+      "processTitle": "From business brief to a working website",
+      "process": [
+        {
+          "title": "Understand the business",
+          "description": "Discuss the audience, goals, existing material and practical scope before deciding which pages are needed."
+        },
+        {
+          "title": "Shape the experience",
+          "description": "Organize the content and develop a visual direction, with space to review and refine it."
+        },
+        {
+          "title": "Build and review",
+          "description": "Develop the responsive website and check the important navigation, content and enquiry paths."
+        },
+        {
+          "title": "Prepare for launch",
+          "description": "Agree on hosting, handoff and any ongoing updates. Support needs are discussed rather than assumed."
+        }
+      ],
+      "workIds": [
+        "the-moody-brewer",
+        "northline-strength"
+      ],
+      "workIntro": "Website work in the portfolio shows different visual directions. The Moody Brewer is verified client work; each other example retains its own classification.",
+      "faq": [
+        {
+          "q": "How much does a small business website cost?",
+          "a": "Cost depends on the pages, content, design work, forms and integrations involved. Share your goals and a practical budget; we can discuss a focused scope without publishing a one-size-fits-all price."
+        },
+        {
+          "q": "Do you work with businesses near Providence?",
+          "a": "Yes. Volatile Solutions is Rhode Island-based and works with Providence-area businesses, businesses across the state and remote clients. No physical office location is advertised."
+        },
+        {
+          "q": "Can you redesign my current website?",
+          "a": "Yes. Start with the current website and what is not working for you. A redesign can focus on content, visual consistency, mobile use or a wider rebuild depending on what the review finds."
+        },
+        {
+          "q": "How long does a website project take?",
+          "a": "The schedule depends on scope, content readiness, feedback and technical requirements. A realistic timeline is discussed after reviewing the project; no universal launch date is promised."
+        }
+      ],
+      "related": [
+        "web-development-rhode-island",
+        "branding-visual-design",
+        "website-support"
+      ],
+      "cta": "Tell Anthony about your business, the website you have now and what you would like to improve."
+    },
+    {
+      "slug": "web-development-rhode-island",
+      "title": "Web Developer Rhode Island | Volatile Solutions",
+      "h1": "Custom web development in Rhode Island",
+      "linkLabel": "Web Development",
+      "description": "Founder-led website development for Rhode Island and remote businesses. Custom interfaces, functionality and integrations built around the work your site needs to do.",
+      "intro": "Web development connects the design people see with the functionality they use. Volatile Solutions builds custom websites and front-end experiences for Rhode Island, Providence-area and remote businesses, with the technical approach chosen around the project.",
+      "audienceTitle": "For websites with specific requirements",
+      "audience": "Choose development help when a design needs implementation, a current site needs more than a content update, or a business needs functionality its template cannot comfortably provide. Existing designs and partially built projects can be discussed before committing to a rebuild.",
+      "problemTitle": "Get the technical decisions right early",
+      "problem": "Forms, content editing, integrations and data requirements affect how a site should be built. Making those choices early helps define a maintainable scope. The aim is useful functionality and a predictable handoff, rather than adding a framework simply because it is fashionable.",
+      "capabilities": [
+        {
+          "title": "Front-end implementation",
+          "description": "HTML, CSS and JavaScript provide the foundation for responsive interfaces. React and Next.js are available when a component-based application is appropriate."
+        },
+        {
+          "title": "Application connections",
+          "description": "Node.js and Express experience supports server-side features and connections between the interface and the systems it needs."
+        },
+        {
+          "title": "Data-backed functionality",
+          "description": "Database experience includes MongoDB, MySQL and SQLite. Storage decisions depend on the information, access patterns and hosting requirements."
+        },
+        {
+          "title": "Practical refinement",
+          "description": "Review navigation, form behavior, loading states and responsive details. Technical improvements are selected for the actual site, without a blanket performance-score promise."
+        }
+      ],
+      "processTitle": "Plan the system before building the interface",
+      "process": [
+        {
+          "title": "Review requirements",
+          "description": "Identify the pages, interactions, data and external services involved, including what already exists."
+        },
+        {
+          "title": "Choose a proportionate approach",
+          "description": "Discuss the build, content-editing and hosting requirements without defaulting to unnecessary complexity."
+        },
+        {
+          "title": "Implement the useful paths",
+          "description": "Build the interface and agreed functionality, including relevant loading, empty and error states."
+        },
+        {
+          "title": "Validate and hand over",
+          "description": "Review the supported browsers and key user flows, then agree on maintenance and handoff needs."
+        }
+      ],
+      "workIds": [
+        "the-moody-brewer",
+        "metricforge"
+      ],
+      "workIntro": "These examples show website and digital-product work. They illustrate the type of interface work available, not a claim that every example shares a particular technology stack.",
+      "faq": [
+        {
+          "q": "Do you build custom sites rather than only templates?",
+          "a": "Yes. Custom web design and development is part of the service. The best approach depends on your needs; an existing site may also be worth extending rather than replacing."
+        },
+        {
+          "q": "Which technologies do you work with?",
+          "a": "Anthony’s experience includes HTML, CSS, JavaScript, React, Next.js, Node.js, Express and databases. The technology choice is discussed around the project, rather than treating this list as a required stack for every site."
+        },
+        {
+          "q": "Can you work from a design I already have?",
+          "a": "Share the design, assets and requirements. We can review what is needed to turn it into a responsive working site and identify any missing interaction or content details."
+        },
+        {
+          "q": "What if I need a dashboard or a business tool?",
+          "a": "That is a custom web application scope rather than just a marketing website. The web applications service covers workflows, data and more involved user interactions."
+        }
+      ],
+      "related": [
+        "web-design-rhode-island",
+        "custom-web-applications",
+        "website-support"
+      ],
+      "cta": "Share the design, current code or functionality you need. We can identify a sensible development scope."
+    },
+    {
+      "slug": "custom-web-applications",
+      "title": "Custom Web Applications | Volatile Solutions",
+      "h1": "Web applications built around your workflow",
+      "linkLabel": "Web Applications",
+      "description": "Custom dashboards, workflow tools and web applications from Rhode Island-based Anthony Volatile. Define a focused business system, prototype or digital product.",
+      "intro": "A custom web application is a browser-based tool built around a particular workflow. Volatile Solutions develops dashboards, operational tools and digital products for Rhode Island and remote businesses when a standard website or off-the-shelf product does not fit.",
+      "audienceTitle": "For teams with a specific workflow problem",
+      "audience": "A useful starting point is a task that currently lives across spreadsheets, email and repeated manual steps. This service is also suitable for founders exploring a focused prototype or MVP, or a customer-facing application with requirements beyond a brochure website.",
+      "problemTitle": "Custom application or off-the-shelf software?",
+      "problem": "An existing product can be the better choice when it already supports the workflow at a practical cost. Custom work makes more sense when the process, data or interaction needs are specific enough to justify building and maintaining a tool. Start by describing the task, not a list of technologies.",
+      "capabilities": [
+        {
+          "title": "Dashboards and operational views",
+          "description": "Bring the relevant information into a clear interface, with the actions and states needed to work with it."
+        },
+        {
+          "title": "Workflow tools",
+          "description": "Translate a repeated business process into forms, records and explicit next steps. Scope permissions and validation where they are actually needed."
+        },
+        {
+          "title": "Prototypes and MVPs",
+          "description": "Define a small, useful first version that can test the core idea before expanding the feature set."
+        },
+        {
+          "title": "Customer-facing applications",
+          "description": "Plan the interface, data and user flows together. Accounts or integrations are included only when the agreed scope requires them."
+        }
+      ],
+      "processTitle": "Start with the workflow, then define the tool",
+      "process": [
+        {
+          "title": "Map the current process",
+          "description": "Identify who uses the information, what they do and where the current process becomes difficult."
+        },
+        {
+          "title": "Define the first useful version",
+          "description": "Separate required functionality from ideas that can wait. Discuss data, access and ongoing maintenance."
+        },
+        {
+          "title": "Build and review real flows",
+          "description": "Develop the interface and supporting logic, then walk through the important tasks and failure states."
+        },
+        {
+          "title": "Refine around use",
+          "description": "Review feedback and agree on the next scope. A prototype is not presented as proof of market demand or a production result."
+        }
+      ],
+      "workIds": [
+        "mula",
+        "metricforge"
+      ],
+      "workIntro": "The portfolio includes dashboard and workflow-interface projects. Their labels distinguish portfolio work from verified client engagements.",
+      "faq": [
+        {
+          "q": "When is a custom app better than SaaS?",
+          "a": "Consider custom work when an important workflow cannot be handled well by an existing product, or when the necessary integrations and interactions are too specific. Compare the build and maintenance effort with the available alternatives first."
+        },
+        {
+          "q": "Can you build a small prototype before a larger system?",
+          "a": "Yes. A focused prototype or MVP can be scoped around the core workflow. The first version should answer a practical question without quietly expanding into a full platform."
+        },
+        {
+          "q": "Do you build internal business tools?",
+          "a": "Yes. Dashboards, workflow tools and custom web-based systems are part of the service. The appropriate functionality is defined around how your business actually works."
+        },
+        {
+          "q": "What should I bring to the first discussion?",
+          "a": "Describe the current process, its users, the information involved and a typical task from start to finish. Examples of spreadsheets or existing tools can help explain the need; avoid sending unnecessary sensitive data."
+        }
+      ],
+      "related": [
+        "web-development-rhode-island",
+        "website-support",
+        "web-design-rhode-island"
+      ],
+      "cta": "Describe the workflow you want to improve or the first useful version of your product."
+    },
+    {
+      "slug": "branding-visual-design",
+      "title": "Branding & Visual Design Rhode Island | Volatile Solutions",
+      "h1": "Branding and visual design with a clear direction",
+      "linkLabel": "Branding & Visual Design",
+      "description": "Brand identities, advertising graphics and social visuals for Rhode Island and remote businesses. Explore real creative work and define a consistent visual direction.",
+      "intro": "Branding and visual design give a business a recognizable way to present itself. Anthony Volatile creates identities, advertisements, social graphics and digital assets for Rhode Island and remote projects, with the intended use guiding the design.",
+      "audienceTitle": "For businesses that need visual consistency",
+      "audience": "This service is for a new business shaping its identity, an existing business with mismatched visuals, or a project that needs a coherent set of digital materials. Work can start from an existing brand or focus on a specific identity or asset set.",
+      "problemTitle": "Design for where the work will be used",
+      "problem": "A logo, an advertisement and a social graphic have different jobs. The design needs to remain recognizable while adapting to the format, content and viewing size. Clear typography and a consistent visual direction matter more than adding decoration to every asset.",
+      "capabilities": [
+        {
+          "title": "Brand identities",
+          "description": "Explore logo, color and typography direction as an agreed identity scope, with practical use across the required materials."
+        },
+        {
+          "title": "Advertising graphics",
+          "description": "Create visual assets for a specific message and placement. Design work is not presented as a guarantee of campaign performance."
+        },
+        {
+          "title": "Social and digital visuals",
+          "description": "Develop graphics for posts, banners and related formats with attention to legibility and consistency."
+        },
+        {
+          "title": "Website and brand alignment",
+          "description": "Coordinate the visual identity with a website when both are part of the project, or adapt approved brand material for digital use."
+        }
+      ],
+      "processTitle": "Build a visual direction that works across formats",
+      "process": [
+        {
+          "title": "Understand the audience and use",
+          "description": "Discuss the business, existing identity, intended message and the formats required."
+        },
+        {
+          "title": "Develop a direction",
+          "description": "Shape the typography, color and composition around the agreed purpose rather than a made-up campaign."
+        },
+        {
+          "title": "Review the actual applications",
+          "description": "Check the work in the formats where it will be seen and refine it through focused feedback."
+        },
+        {
+          "title": "Prepare the agreed assets",
+          "description": "Confirm the required files and uses. The scope is visual design, without an implied ongoing advertising-management service."
+        }
+      ],
+      "workIds": [
+        "ledger-and-loom",
+        "pvd-photography"
+      ],
+      "workIntro": "Ledger & Loom is creative portfolio work. PVD Photography is verified client advertising work. The wider creative collection also includes concepts; inclusion never implies every brand is a client.",
+      "faq": [
+        {
+          "q": "Do you provide branding as well as web design?",
+          "a": "Yes. Branding and visual design can be scoped alongside a website or as separate work, depending on the identity and assets you need."
+        },
+        {
+          "q": "Can you work with an existing logo and brand?",
+          "a": "Yes. Share your approved assets and guidelines. We can discuss the additional materials needed and keep their visual treatment consistent with the existing identity."
+        },
+        {
+          "q": "Do the portfolio brands all represent paying clients?",
+          "a": "No. The portfolio includes verified client work, creative portfolio pieces and concepts. Each entry retains its classification so the work is not mistaken for an unverified client engagement."
+        },
+        {
+          "q": "Does advertising design include campaign management?",
+          "a": "This service covers the creative graphics and visual assets described in the scope. It does not imply ongoing media buying, ad-account management or guaranteed advertising results."
+        }
+      ],
+      "related": [
+        "web-design-rhode-island",
+        "web-development-rhode-island",
+        "website-support"
+      ],
+      "cta": "Tell Anthony what your brand needs to communicate and where the designs will be used."
+    },
+    {
+      "slug": "website-support",
+      "title": "Website Support Rhode Island | Volatile Solutions",
+      "h1": "Keep your existing website useful and reliable",
+      "linkLabel": "Website Support",
+      "description": "Website support, maintenance, updates and troubleshooting for Rhode Island and remote businesses. Review your existing site and scope practical ongoing improvements.",
+      "intro": "Website support helps an existing site stay current as the business changes. Volatile Solutions provides updates, troubleshooting and refinements for Rhode Island and remote clients, starting with a review of the site and the work it needs.",
+      "audienceTitle": "For businesses with a site already in place",
+      "audience": "Bring a website that needs content changes, has a specific technical issue or no longer reflects the business clearly. Support can focus on an agreed set of tasks; a larger redesign or rebuild is discussed separately when that would be more appropriate.",
+      "problemTitle": "Improve what exists before replacing it",
+      "problem": "A problem does not always require a new website. Reviewing the current structure, platform and access helps distinguish a straightforward update from a deeper limitation. Scope, dependencies and ongoing responsibility should be clear before work begins.",
+      "capabilities": [
+        {
+          "title": "Content and layout updates",
+          "description": "Refresh pages, images, links and information, with attention to how changes behave across screen sizes."
+        },
+        {
+          "title": "Troubleshooting",
+          "description": "Investigate the reported issue and identify a practical fix. Third-party platforms and available access affect what can be changed."
+        },
+        {
+          "title": "Performance and usability refinements",
+          "description": "Review loading behavior, image sizing and interaction details, then select useful improvements without promising a fixed score or ranking."
+        },
+        {
+          "title": "Redesign and ongoing improvements",
+          "description": "Plan incremental improvements or discuss a redesign when the current experience no longer supports the business needs."
+        }
+      ],
+      "processTitle": "Review, prioritize and improve",
+      "process": [
+        {
+          "title": "Inspect the current site",
+          "description": "Share the URL, the issue and the changes you want. Discuss the platform and access required without sending passwords through an inquiry form."
+        },
+        {
+          "title": "Agree on priorities",
+          "description": "Separate urgent problems from routine updates and define the tasks, scope and expectations."
+        },
+        {
+          "title": "Make and review changes",
+          "description": "Work through the agreed updates and check the affected pages and flows before release."
+        },
+        {
+          "title": "Plan the next improvements",
+          "description": "Discuss recurring needs or additional work explicitly. No automatic maintenance package or round-the-clock coverage is assumed."
+        }
+      ],
+      "workIds": [
+        "the-moody-brewer",
+        "northline-strength"
+      ],
+      "workIntro": "Website examples provide context for the kind of work available. Their presence here does not claim that each site is under an ongoing maintenance contract.",
+      "faq": [
+        {
+          "q": "Can you support a website you did not build?",
+          "a": "Share the site and its platform. We can review whether the work is a good fit and what access or documentation would be needed before agreeing to support it."
+        },
+        {
+          "q": "Do you offer 24/7 support?",
+          "a": "No round-the-clock response commitment is advertised. Availability and any ongoing support arrangement are discussed as part of the scope."
+        },
+        {
+          "q": "Can you update content without redesigning the whole site?",
+          "a": "Yes, when the existing platform and structure support the requested changes. A review helps identify which updates are straightforward and which need wider work."
+        },
+        {
+          "q": "How do you price ongoing maintenance?",
+          "a": "The cost depends on the tasks, platform and frequency of work. Describe the changes you expect so a practical support scope can be discussed without an invented standard package price."
+        }
+      ],
+      "related": [
+        "web-design-rhode-island",
+        "web-development-rhode-island",
+        "custom-web-applications"
+      ],
+      "cta": "Share your current website and the updates or problems you want help with."
+    }
+  ]
+}

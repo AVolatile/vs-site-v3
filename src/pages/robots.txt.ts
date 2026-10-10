@@ -6,8 +6,14 @@ export const GET: APIRoute = ({ site }) => {
   const robotsTxt = [
     'User-agent: *',
     'Allow: /',
-    // Tool pages: component gallery (dev) and fixture QA.
-    // Sitemap also filters them, but Disallow closes the topic when crawling.
+    // This wildcard policy also permits OAI-SearchBot on public pages.
+    // Crawling rules supplement private-page noindex headers and authentication.
+    'Disallow: /admin',
+    'Disallow: /proposal',
+    'Disallow: /invoice',
+    'Disallow: /book',
+    'Disallow: /api/',
+    'Disallow: /.netlify/',
     'Disallow: /dev/',
     'Disallow: /qa/',
     '',

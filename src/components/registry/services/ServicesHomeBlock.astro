@@ -6,14 +6,14 @@ import Text from "@components/ui/atoms/Text.astro";
 import Icon from "@components/ui/atoms/Icon.astro";
 import jsonData from "@data/sections/nova-services.json";
 
-type Service = { number: string; icon?: string; title: string; description: string };
+type Service = { number: string; icon?: string; title: string; description: string; href?: string };
 interface Props { id?: string; locale?: "en" | "pl"; title?: string; description?: string; linkLabel?: string; linkHref?: string; items?: Service[]; class?: string; }
 const props = Astro.props as Props;
 const title = props.title ?? jsonData.title;
 const description = props.description ?? jsonData.description;
 const linkLabel = props.linkLabel ?? jsonData.linkLabel;
 const linkHref = props.linkHref ?? jsonData.linkHref;
-const items = props.items ?? jsonData.items;
+const items: Service[] = props.items ?? jsonData.items;
 const cardsInteractive = props.locale !== "en";
 ---
 
@@ -42,7 +42,9 @@ const cardsInteractive = props.locale !== "en";
           <div class="nova-service-content">
             <div class="nova-service-title-line">
               <Text tag="span" variant="accent-label" class="nova-service-number transition-colors duration-300 group-hover:text-brand-dark/80 motion-reduce:transition-none">{item.number}</Text>
-              <Heading tag="h3" variant="feature-title" class:list={["nova-service-title", !cardsInteractive && "nova-service-title--informational"]}>{item.title}</Heading>
+              <Heading tag="h3" variant="feature-title" class:list={["nova-service-title", !cardsInteractive && "nova-service-title--informational"]}>
+                {item.href ? <a href={item.href} class="underline underline-offset-4 hover:text-brand-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-accent">{item.title}</a> : item.title}
+              </Heading>
             </div>
             <Text variant="body" class="nova-service-description transition-colors duration-300 group-hover:text-brand-dark/80 motion-reduce:transition-none">{item.description}</Text>
           </div>

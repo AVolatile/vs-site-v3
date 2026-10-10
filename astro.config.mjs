@@ -1,7 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import { fileURLToPath, URL } from 'node:url';
-import { SITE_URL } from './site.config.mjs';
+import { SITE_URL, PUBLIC_PAGE_PATHS } from './site.config.mjs';
 
 import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
@@ -32,7 +32,7 @@ export default defineConfig({
   integrations: [
     react(),
     sitemap({
-      filter: (page) => !page.includes('/dev/') && !page.includes('/qa/') && !page.includes('/admin/') && !page.includes('/proposal/') && !page.includes('/invoice/') && !page.includes('/book/'),
+      filter: (page) => PUBLIC_PAGE_PATHS.includes(new URL(page).pathname),
       serialize(item) {
         return { ...item, lastmod: new Date().toISOString() };
       },

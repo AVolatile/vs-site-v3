@@ -42,6 +42,7 @@ interface Props {
 	sectionPattern?: 'off' | 'repeat' | 'mesh' | 'noise';
 	/** JSON-LD set: `affiliate` = only WebSite (without LocalBusiness from global company). */
 	schemaTemplate?: 'default' | 'affiliate';
+	service?: { name: string; description: string };
 	bodyClass?: string;
 	/** Navbar variant rendered globally (fallback: defaultVariant from registry). */
 	navbarVariant?: string;
@@ -83,6 +84,7 @@ const {
 	theme: themeProp,
 	sectionPattern = 'off',
 	schemaTemplate = 'default',
+	service,
 	bodyClass = '',
 	navbarVariant = SECTION_REGISTRY.navbar.defaultVariant,
 	navbarTheme = 'light',
@@ -291,7 +293,7 @@ const mainPaddingStyle = fullBleedTop
 			}
 		</script>
 		{clientRuntime && <ClientRouter />}
-		<Schema template={schemaTemplate} siteUrl={publicSiteUrl} assetBasePath={normalizedAssetBasePath} />
+		<Schema template={schemaTemplate} siteUrl={publicSiteUrl} assetBasePath={normalizedAssetBasePath} service={service} pageUrl={canonicalURL} />
 		<!-- Content Security Policy -->
 		<meta http-equiv="Content-Security-Policy" content="
 			default-src 'self';

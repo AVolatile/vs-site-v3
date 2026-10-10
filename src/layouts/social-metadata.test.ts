@@ -10,11 +10,21 @@ vi.mock("astro:transitions",()=>({ClientRouter:undefined}));
 vi.mock("astro:assets",()=>({Image:undefined,Picture:undefined}));
 let container: AstroContainer;
 beforeAll(async()=>{container=await AstroContainer.create();});
-beforeEach(()=>{vi.stubEnv('PUBLIC_SITE_URL','');vi.stubEnv('PUBLIC_BASE_PATH','');});
+beforeEach(()=>{vi.stubEnv('PUBLIC_SITE_URL','');vi.stubEnv('PUBLIC_BASE_PATH','');vi.stubEnv('STAGING','false');vi.stubEnv('CONTEXT','production');});
 afterEach(()=>vi.unstubAllEnvs());
 const render=async(props:Record<string,unknown>={})=>cheerio.load(await container.renderToString(Layout,{props:{showShell:false,clientRuntime:false,enableLenis:false,...props},request:new Request('https://request-host.example.test/portfolio/')}));
 const meta=($:cheerio.CheerioAPI,key:string)=>$('head meta[property="'+key+'"],head meta[name="'+key+'"]').attr('content');
 describe('shared social metadata',()=>{
+ it('enables production public indexing while adding only factual Service schema',async()=>{
+  const $=await render({service:{name:'Web Design',description:'Custom website design for Rhode Island and remote businesses.'}});
+  expect(meta($,'robots')).toBe('index, follow');
+  const schemas=$('script[type="application/ld+json"]').map((_,node)=>JSON.parse($(node).text())).get();
+  expect(schemas.map(s=>s['@type'])).toEqual(['Organization','WebSite','Service']);
+  expect(schemas[0].founder).toMatchObject({'@type':'Person',name:'Anthony Volatile'});
+  expect(schemas[2]).toMatchObject({url:'https://volatile-solutions.net/portfolio/',provider:{'@id':'https://volatile-solutions.net'},areaServed:[{'@type':'State',name:'Rhode Island'},'Remote']});
+  for(const field of ['offers','aggregateRating','address','geo'])expect(schemas[2]).not.toHaveProperty(field);
+ });
+
  it('publishes only approved Organization and WebSite facts with current brand assets',async()=>{
   const $=await render();
   const schemas=$('script[type="application/ld+json"]').map((_,node)=>JSON.parse($(node).text())).get();
@@ -49,7 +59,7 @@ describe('shared social metadata',()=>{
   expect($('meta[name="twitter:site"],meta[name="twitter:creator"]').length).toBe(0);
  });
  it('preserves page title/description, noindex, canonical and schema',async()=>{
-  const $=await render({title:'Portfolio | Volatile Solutions',description:'An approved page description.'});
+  const $=await render({title:'Portfolio | Volatile Solutions',description:'An approved page description.',noIndex:true});
   expect($('head title').text()).toBe('Portfolio | Volatile Solutions');expect(meta($,'description')).toBe('An approved page description.');expect(meta($,'og:description')).toBe('An approved page description.');expect(meta($,'robots')).toBe('noindex, follow');
   expect($('head link[rel="canonical"]').length).toBe(1);expect($('head link[rel="canonical"]').attr('href')).toBe('https://volatile-solutions.net/portfolio/');expect(meta($,'og:url')).toBe($('head link[rel="canonical"]').attr('href'));expect($('script[type="application/ld+json"]').length).toBeGreaterThan(0);
   expect($('body img[src="'+seo.defaultOgImage+'"]').length).toBe(0);

@@ -1,0 +1,8 @@
+---
+import ServiceLanding from "@components/services/ServiceLanding.astro";
+import content from "@data/service-pages.json";
+
+const page = content.pages.find((page) => page.slug === "web-design-rhode-island")!;
+---
+
+<ServiceLanding page={page} />

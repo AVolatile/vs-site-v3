@@ -10,9 +10,11 @@ interface Props {
 	template?: 'default' | 'affiliate';
 	siteUrl?: string | URL;
 	assetBasePath?: string;
+	service?: { name: string; description: string };
+	pageUrl?: string;
 }
 
-const { template = 'default', siteUrl = SITE_URL, assetBasePath = '' } = Astro.props;
+const { template = 'default', siteUrl = SITE_URL, assetBasePath = '', service, pageUrl } = Astro.props;
 
 // Why: JSON.stringify does not escape '<', which inside set:html
 // could be interpreted as an HTML tag opening (XSS vector via
@@ -43,6 +45,7 @@ const schema = {
 	telephone: company.phone,
 	email: company.email,
 	sameAs: getSocialUrls(company),
+	founder: { '@type': 'Person', name: 'Anthony Volatile', url: `${siteBase}/#zespol` },
 };
 
 const websiteSchema = {
@@ -50,7 +53,19 @@ const websiteSchema = {
 	'@type': 'WebSite',
 	name: company.name,
 	url: siteBase,
+	publisher: { '@id': siteBase },
 };
+const serviceSchema = service && pageUrl ? {
+	'@context': 'https://schema.org',
+	'@type': 'Service',
+	'@id': `${pageUrl}#service`,
+	name: service.name,
+	serviceType: service.name,
+	description: service.description,
+	url: pageUrl,
+	provider: { '@id': siteBase },
+	areaServed: [{ '@type': 'State', name: 'Rhode Island' }, 'Remote'],
+} : undefined;
 ---
 
 {
@@ -60,6 +75,7 @@ const websiteSchema = {
 		<>
 			<script type="application/ld+json" set:html={jsonLd(schema)} />
 			<script type="application/ld+json" set:html={jsonLd(websiteSchema)} />
+			{serviceSchema && <script type="application/ld+json" set:html={jsonLd(serviceSchema)} />}
 		</>
 	)
 }

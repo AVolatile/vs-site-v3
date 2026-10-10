@@ -1,8 +1,8 @@
 {
   "en": {
     "page": {
-      "title": "Anthony Volatile | Developer, Designer & Digital Product Builder",
-      "description": "Founder-led websites, digital products, branding and visual design from Volatile Solutions, serving Rhode Island and remote clients.",
+      "title": "Web Design & Development in Rhode Island | Volatile Solutions",
+      "description": "Custom websites, web applications and visual design from Rhode Island-based Anthony Volatile. Founder-led work for Providence-area, statewide and remote businesses.",
       "heading": "Developer, Designer & Digital Product Builder"
     },
     "demoBanner": {
@@ -46,7 +46,7 @@
         "eyebrow": "STRATEGY / DESIGN / TECHNOLOGY",
         "heading": "Developer, Designer &",
         "headingAccent": "Digital Product Builder",
-        "description": "I build websites, digital products, and visual experiences that connect thoughtful design with practical development. Explore my work or get in touch about a project or opportunity.",
+        "description": "I’m Anthony Volatile, a Rhode Island-based developer and designer. I build custom websites, web applications and visual identities for Providence-area businesses, across Rhode Island and remotely.",
         "primaryCTA": {
           "label": "View My Work",
           "href": "#realizacje"
@@ -103,32 +103,36 @@
       "nova-services": {
         "title": "Services",
         "description": "Websites, web applications, visual design, and ongoing support built around real business needs.",
-        "linkLabel": "Discuss a Project",
-        "linkHref": "/start-a-project/",
+        "linkLabel": "Explore Services",
+        "linkHref": "/web-design-rhode-island/",
         "items": [
           {
             "number": "01.",
             "icon": "palette",
             "title": "Web Design & Development",
-            "description": "Custom websites built around your brand, goals, and customer experience."
+            "description": "Custom websites built around your brand, goals, and customer experience.",
+            "href": "/web-design-rhode-island/"
           },
           {
             "number": "02.",
             "icon": "browser",
             "title": "Custom Web Applications",
-            "description": "Tailored digital tools, dashboards, and web-based applications built around specific business needs."
+            "description": "Tailored digital tools, dashboards, and web-based applications built around specific business needs.",
+            "href": "/custom-web-applications/"
           },
           {
             "number": "03.",
             "icon": "paint-brush",
             "title": "Branding & Visual Design",
-            "description": "Brand identities, advertisements, social graphics, and visual assets designed for consistency and impact."
+            "description": "Brand identities, advertisements, social graphics, and visual assets designed for consistency and impact.",
+            "href": "/branding-visual-design/"
           },
           {
             "number": "04.",
             "icon": "lifebuoy",
             "title": "Website Support & Optimization",
-            "description": "Ongoing updates, improvements, troubleshooting, and refinements to keep an existing site current, reliable, and effective."
+            "description": "Ongoing updates, improvements, troubleshooting, and refinements to keep an existing site current, reliable, and effective.",
+            "href": "/website-support/"
           }
         ]
       },
