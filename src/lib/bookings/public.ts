@@ -1,7 +1,13 @@
+import { prepareBookingDialog } from "./confirmation";
+import {
+  timezoneLabel,
+  displayBookingDateTime,
+  displayPhone,
+  renderBookingSummary,
+} from "./presentation";
 import {
   bookingTokenSchema,
   bookingInputSchema,
-  bookingDateTime,
   type PublicBooking,
   type PublicBookingPage,
   type BookingSlot,
@@ -14,6 +20,7 @@ export async function setupPublicBooking() {
   const form = el<HTMLFormElement>("[data-public-booking-form]"),
     dialog = el<HTMLDialogElement>("[data-booking-confirm]"),
     feedback = el("[data-booking-feedback]");
+  prepareBookingDialog(dialog);
   let page: PublicBookingPage,
     selected: BookingSlot | null = null,
     busy = false,
@@ -79,6 +86,12 @@ export async function setupPublicBooking() {
       )
       .forEach((span) => (span.textContent = label));
   function confirmLabel() {
+    el('[id="booking-confirm-heading"]').textContent =
+      mode === "cancel"
+        ? "Cancel your booking?"
+        : mode === "reschedule"
+          ? "Confirm your new time"
+          : "Confirm your booking";
     buttonLabel(
       "[data-booking-confirm-save]",
       mode === "cancel"
@@ -102,7 +115,7 @@ export async function setupPublicBooking() {
     field("clientName").value = field("clientName").value || page.name;
     field("clientEmail").value = page.email;
     el("[data-booking-timezone]").textContent =
-      `All times shown in ${page.timezone} · ${page.durationMinutes} minutes`;
+      `Times in ${timezoneLabel(page.timezone)} / ${page.durationMinutes}-minute calls`;
     const date = field<HTMLSelectElement>("bookingDate"),
       value = date.value;
     date.replaceChildren(
@@ -113,14 +126,7 @@ export async function setupPublicBooking() {
     el("[data-existing-booking]").hidden = !page.booking;
     if (page.booking) {
       const b = page.booking;
-      el("[data-existing-summary]").textContent =
-        bookingDateTime(b.startAt, b.timezone) +
-        "\n" +
-        b.meetingType +
-        " · " +
-        b.status +
-        "\n" +
-        b.clientName;
+      renderBookingSummary(el("[data-existing-summary]"), b);
       el("[data-existing-meeting]").textContent =
         b.status === "cancelled"
           ? "This call has been cancelled."
@@ -128,7 +134,7 @@ export async function setupPublicBooking() {
             ? "This call is complete."
             : b.meetingType === "zoom"
               ? "A Zoom link will be provided separately."
-              : "We’ll call " + b.clientPhone + ".";
+              : "We’ll call " + displayPhone(b.clientPhone ?? "") + ".";
       el("[data-existing-actions]").hidden =
         b.status !== "scheduled" || Date.parse(b.startAt) <= Date.now();
     }
@@ -229,7 +235,7 @@ export async function setupPublicBooking() {
       mode = "reschedule";
       el("[data-booking-confirm-copy]").textContent =
         "Move your call to " +
-        bookingDateTime(selected.startAt, page.timezone) +
+        displayBookingDateTime(selected.startAt, page.timezone) +
         "?";
       confirmLabel();
       dialog.showModal();
@@ -261,7 +267,7 @@ export async function setupPublicBooking() {
       "Book a " +
       r.data.meetingType +
       " call for " +
-      bookingDateTime(selected.startAt, page.timezone) +
+      displayBookingDateTime(selected.startAt, page.timezone) +
       "?";
     confirmLabel();
     dialog.showModal();
@@ -335,8 +341,7 @@ export async function setupPublicBooking() {
       announce(
         result.booking.status === "cancelled"
           ? "Your booking was cancelled."
-          : "Your booking is confirmed: " +
-              bookingDateTime(result.booking.startAt, result.booking.timezone),
+          : "Your booking is confirmed.",
       );
       el('[id="existing-booking-heading"]')?.focus();
     } catch (error) {

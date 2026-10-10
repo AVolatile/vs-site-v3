@@ -1,5 +1,6 @@
 ---
 import Section from '@components/ui/layout/Section.astro';
+import BookingSummary from '@components/booking/BookingSummary.astro';
 import Container from '@components/ui/layout/Container.astro';
 import Heading from '@components/ui/atoms/Heading.astro';
 import Text from '@components/ui/atoms/Text.astro';
@@ -8,7 +9,7 @@ import InquiryField from '@components/inquiry/InquiryField.astro';
 ---
 <Section tone="page" class="py-10">
 <Container class="max-w-7xl">
-<div class="calendar-page" data-booking-calendar>
+<div class="calendar-page booking-ui" data-booking-calendar>
  <div class="calendar-heading">
 <div>
 <Text variant="accent-label">Volatile Solutions / Admin</Text>
@@ -17,7 +18,7 @@ import InquiryField from '@components/inquiry/InquiryField.astro';
 <div class="calendar-actions">
 <Button href="/admin/" variant="outline" size="sm">Inquiries</Button>
 <Button href="/admin/calendar/settings/" variant="outline" size="sm">Availability</Button>
-<Button type="button" variant="outline" size="sm" data-calendar-logout>Sign out</Button>
+<Button type="button" variant="ghost" class="booking-tertiary" size="sm" data-calendar-logout>Sign out</Button>
 </div>
 </div>
  <Text variant="body" role="status" aria-live="polite" data-calendar-feedback>Checking access…</Text>
@@ -37,7 +38,7 @@ import InquiryField from '@components/inquiry/InquiryField.astro';
 </div>
   <Text variant="feature-body-sm" class="text-on-surface-variant" data-calendar-timezone>
 </Text>
-  <Text variant="feature-body-sm" class="calendar-mobile-note">Month appointments are shown as an agenda on smaller screens.</Text>
+  <Text variant="feature-body-sm" class="calendar-mobile-note">Appointments by date</Text>
   <div data-calendar-grid class="calendar-grid" role="group" aria-label="Monthly bookings">
 </div>
   <div data-calendar-agenda class="calendar-agenda">
@@ -45,16 +46,16 @@ import InquiryField from '@components/inquiry/InquiryField.astro';
   <Text variant="body" data-calendar-empty hidden>No bookings scheduled in this month.</Text>
   <section data-calendar-detail hidden class="calendar-detail" aria-labelledby="calendar-detail-heading">
 <Heading id="calendar-detail-heading" tag="h2" variant="feature-title" tabindex="-1">Booking details</Heading>
-<Text variant="body" data-calendar-detail-copy>
-</Text>
+<BookingSummary data-calendar-detail-copy/>
+<Text variant="body" data-calendar-detail-contact></Text>
 <Text variant="body" data-calendar-detail-notes>
 </Text>
 <div class="calendar-actions">
 <Button href="/admin/" variant="outline" size="sm" data-calendar-inquiry>Open inquiry</Button>
 <Button href="mailto:" variant="outline" size="sm" data-calendar-email>Email client</Button>
-<Button type="button" variant="outline" size="sm" data-calendar-cancel>Cancel booking</Button>
+<Button type="button" variant="ghost" class="booking-tertiary booking-destructive" size="sm" data-calendar-cancel>Cancel booking</Button>
 <Button type="button" variant="primary" size="sm" data-calendar-complete>Mark completed</Button>
-<Button type="button" variant="outline" size="sm" data-calendar-close>Close details</Button>
+<Button type="button" variant="ghost" class="booking-tertiary" size="sm" data-calendar-close>Close details</Button>
 </div>
 <Text variant="feature-body-sm" data-calendar-complete-hint>Completion is available after the call ends.</Text>
 <form data-calendar-reschedule-form novalidate class="calendar-reschedule">
@@ -74,11 +75,24 @@ import InquiryField from '@components/inquiry/InquiryField.astro';
 </div>
 </template>
  <template data-calendar-event-template>
-<Button type="button" variant="outline" size="sm" data-calendar-event>
-<Text tag="span" variant="feature-body-sm" data-calendar-event-label>
-</Text>
-</Button>
-</template>
+   <Button type="button" variant="outline" size="sm" class="booking-event" data-calendar-event>
+     <span class="booking-event-content">
+       <Text tag="span" variant="feature-body-sm" data-calendar-event-time></Text>
+       <Text tag="span" variant="body" data-calendar-event-client></Text>
+       <Text tag="span" variant="feature-body-sm" data-calendar-event-company></Text>
+       <span class="booking-event-meta">
+         <Text tag="span" variant="feature-body-sm" data-calendar-event-meeting></Text>
+         <Text tag="span" variant="feature-body-sm" data-calendar-event-status></Text>
+       </span>
+     </span>
+   </Button>
+ </template>
+ <template data-calendar-agenda-template>
+   <section class="booking-agenda-section">
+     <Heading tag="h3" variant="feature-title" data-calendar-agenda-date></Heading>
+     <div class="booking-agenda-events" data-calendar-agenda-events></div>
+   </section>
+ </template>
 </div>
 </Container>
 </Section>
@@ -96,7 +110,7 @@ void setupCalendar();
 .calendar-detail,
 .calendar-reschedule {
   display: grid;
-  gap: var(--spacing-md);
+  gap: var(--spacing-lg);
   min-width: 0;
 }
 .calendar-heading,
@@ -105,70 +119,154 @@ void setupCalendar();
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
   gap: var(--spacing-sm);
+}
+.calendar-heading {
+  justify-content: space-between;
 }
 .calendar-heading > div:first-child {
   display: grid;
   gap: var(--spacing-sm);
 }
+.calendar-toolbar {
+  justify-content: space-between;
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--color-outline-variant);
+}
 .calendar-private {
-  padding: var(--spacing-md);
+  padding: clamp(1rem, 2.5vw, 2rem);
   border: 1px solid var(--color-outline-variant);
-  border-radius: var(--ui-radius-lg);
+  border-radius: var(--ui-radius-md);
   background: var(--color-brand-cream);
+  gap: var(--spacing-md);
 }
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: var(--spacing-xs);
+  gap: var(--spacing-sm);
   min-width: 0;
 }
 .calendar-grid :global(.calendar-day) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
   padding: var(--spacing-sm);
   border: 1px solid var(--color-outline-variant);
-  background: var(--color-brand-light);
-  min-height: 7rem;
-  min-width: 0;
-}
-.calendar-grid :global([data-calendar-event]) {
-  display: block;
-  width: 100%;
-  white-space: normal;
-  padding: var(--spacing-xs);
-  margin-block: var(--spacing-xs);
-  text-align: left;
   border-radius: var(--ui-radius-sm);
-  min-height: 2.5rem;
-}
-.calendar-page :global([data-calendar-event-label]) {
-  font-size: 0.75rem;
-  line-height: 1.4;
-  white-space: normal;
-  overflow-wrap: anywhere;
-}
-.calendar-agenda :global(section) {
-  display: grid;
-  gap: var(--spacing-sm);
+  background: var(--color-brand-light);
+  min-height: 8.5rem;
   min-width: 0;
-  padding-bottom: var(--spacing-md);
+}
+.calendar-grid :global([data-calendar-day-label]) {
+  color: var(--color-on-surface-variant);
+  font-size: 0.75rem;
+  padding-bottom: var(--spacing-sm);
   border-bottom: 1px solid var(--color-outline-variant);
 }
-.calendar-agenda :global([data-calendar-event]) {
-  justify-content: flex-start;
-  text-align: left;
+.calendar-grid :global(.calendar-day[data-today='true']) {
+  border-color: var(--color-brand-accent);
+}
+.calendar-grid
+  :global(.calendar-day[data-today='true'] [data-calendar-day-label]) {
+  color: var(--color-on-surface);
+  font-weight: 700;
+}
+.calendar-grid :global([data-calendar-day-bookings]) {
+  display: grid;
+  gap: var(--spacing-sm);
+}
+.calendar-page :global(.booking-event) {
+  display: block;
+  height: auto;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--ui-radius-sm);
   white-space: normal;
+  text-align: left;
+  background: var(--color-brand-light);
+}
+.calendar-grid :global(.booking-event) {
+  padding: var(--spacing-sm);
+}
+.calendar-page :global(.booking-event .ui-button-text-wrap) {
+  display: grid;
+  white-space: normal;
+  justify-items: start;
+  width: 100%;
+}
+.calendar-page :global(.booking-event-content) {
+  display: grid;
+  gap: 0.35rem;
+  width: 100%;
+  min-width: 0;
+}
+.calendar-page :global(.booking-event-content span) {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  letter-spacing: normal;
+  text-transform: none;
+}
+.calendar-page :global([data-calendar-event-time]),
+.calendar-page :global([data-calendar-event-client]) {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  font-weight: 600;
+}
+.calendar-page :global([data-calendar-event-company]) {
+  color: var(--color-on-surface-variant);
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+.calendar-page :global(.booking-event-meta) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  color: var(--color-on-surface-variant);
+  padding-top: 0.25rem;
+}
+.calendar-page :global(.booking-event-meta span) {
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+.calendar-grid :global([data-calendar-event-company]) {
+  display: none;
+}
+.calendar-page :global(.booking-event .ui-button-text-hover) {
+  display: none;
+}
+.calendar-page :global(.booking-event:hover .ui-button-text-default) {
+  transform: none;
+  opacity: 1;
+}
+.calendar-page :global(.booking-event:focus-visible) {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+.calendar-agenda :global(.booking-agenda-section) {
+  display: grid;
+  gap: var(--spacing-md);
+  min-width: 0;
+  padding-block: var(--spacing-md);
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+.calendar-agenda :global(.booking-agenda-events) {
+  display: grid;
+  gap: var(--spacing-sm);
 }
 .calendar-detail {
-  padding: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
   border-top: 1px solid var(--color-outline-variant);
-  background: var(--color-brand-light);
-  border-radius: var(--ui-radius-md);
 }
-.calendar-page :global([data-calendar-detail-copy]),
+.calendar-page :global([data-calendar-detail-contact]),
 .calendar-page :global([data-calendar-detail-notes]) {
   white-space: pre-line;
   overflow-wrap: anywhere;
+}
+.calendar-page :global([data-calendar-feedback]) {
+  font-size: 1rem;
+  color: var(--color-on-surface-variant);
 }
 .calendar-page :global([data-calendar-feedback][role='alert']) {
   color: var(--color-error);
@@ -176,12 +274,33 @@ void setupCalendar();
 .calendar-page :global([data-calendar-view][aria-pressed='true']) {
   background: var(--color-brand-dark);
   color: var(--color-on-primary);
+  border-color: var(--color-brand-dark);
+}
+.calendar-page :global([data-calendar-empty]) {
+  padding-block: var(--spacing-lg);
+  color: var(--color-on-surface-variant);
 }
 .calendar-reschedule {
-  max-width: 32rem;
+  max-width: 40rem;
+  gap: var(--spacing-md);
 }
 .calendar-mobile-note {
   display: none;
+}
+@media (min-width: 48rem) {
+  .calendar-reschedule {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .calendar-reschedule > :global(h3) {
+    grid-column: 1/-1;
+  }
+  .calendar-reschedule > :global(button) {
+    justify-self: start;
+  }
+  .calendar-agenda :global(.booking-agenda-section) {
+    grid-template-columns: 12rem minmax(0, 1fr);
+    align-items: start;
+  }
 }
 @media (max-width: 63.999rem) {
   .calendar-grid {
@@ -189,48 +308,25 @@ void setupCalendar();
   }
   .calendar-mobile-note {
     display: block;
+    color: var(--color-on-surface-variant);
   }
-  .calendar-detail {
-    padding: var(--spacing-md);
+  .calendar-toolbar {
+    align-items: start;
   }
-  .calendar-actions > :global(button),
-  .calendar-actions > :global(a) {
-    flex: 1 1 9rem;
+  .calendar-toolbar > :global(h2) {
+    order: -1;
+    flex-basis: 100%;
+  }
+  .calendar-actions {
+    justify-content: flex-start;
   }
 }
-.calendar-page :global([data-calendar-event]:focus-visible) {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
-.calendar-page :global([data-calendar-event]) {
-  height: auto;
-  min-height: 2.75rem;
-  padding: var(--spacing-sm);
-  border-radius: var(--ui-radius-sm);
-}
-.calendar-page :global([data-calendar-event] .ui-button-text-wrap) {
-  white-space: normal;
-  justify-items: start;
-  width: 100%;
-}
-.calendar-page :global([data-calendar-event-label]) {
-  font-size: 0.75rem;
-  letter-spacing: normal;
-}
-.calendar-agenda :global([data-calendar-event]) {
-  width: 100%;
-}
-.calendar-grid :global([data-calendar-event-label]) {
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.calendar-page :global([data-calendar-event] .ui-button-text-hover) {
-  display: none;
-}
-.calendar-page :global([data-calendar-event]:hover .ui-button-text-default) {
-  transform: none;
-  opacity: 1;
+@media (max-width: 23rem) {
+  .calendar-toolbar .calendar-actions {
+    gap: var(--spacing-xs);
+  }
+  .calendar-toolbar :global(.ui-button) {
+    padding-inline: 0.6rem;
+  }
 }
 </style>

@@ -1,5 +1,6 @@
 ---
 import BookingLayout from '@layouts/BookingLayout.astro';
+import BookingSummary from '@components/booking/BookingSummary.astro';
 import Section from '@components/ui/layout/Section.astro';
 import Container from '@components/ui/layout/Container.astro';
 import Heading from '@components/ui/atoms/Heading.astro';
@@ -8,9 +9,9 @@ import Button from '@components/ui/atoms/Button.astro';
 import InquiryField from '@components/inquiry/InquiryField.astro';
 ---
 <BookingLayout>
-<Section tone="page">
-<Container class="max-w-3xl">
-<div class="booking-page" data-public-booking>
+<Section tone="page" class="booking-section">
+<Container class="max-w-4xl">
+<div class="booking-page booking-ui" data-public-booking>
  <div class="booking-intro">
 <Text variant="accent-label">Volatile Solutions</Text>
 <Heading tag="h1" variant="section-title">Let’s talk about your project.</Heading>
@@ -22,13 +23,12 @@ import InquiryField from '@components/inquiry/InquiryField.astro';
 </noscript>
  <section class="booking-card" data-existing-booking hidden aria-labelledby="existing-booking-heading">
 <Heading id="existing-booking-heading" tag="h2" variant="feature-title" tabindex="-1">Your booking</Heading>
-<Text variant="body" data-existing-summary>
-</Text>
+<BookingSummary data-existing-summary/>
 <Text variant="body" data-existing-meeting>
 </Text>
 <div class="booking-actions" data-existing-actions>
 <Button type="button" variant="outline" data-public-reschedule>Choose another time</Button>
-<Button type="button" variant="outline" data-public-cancel>Cancel booking</Button>
+<Button type="button" variant="ghost" class="booking-tertiary booking-destructive" data-public-cancel>Cancel booking</Button>
 </div>
 </section>
  <form class="booking-card" data-public-booking-form novalidate hidden>
@@ -75,12 +75,12 @@ import InquiryField from '@components/inquiry/InquiryField.astro';
 <Button type="button" variant="outline" size="sm" data-booking-slot>
 </Button>
 </template>
- <dialog data-booking-confirm aria-labelledby="booking-confirm-heading">
+ <dialog class="booking-confirmation booking-ui" data-booking-confirm aria-labelledby="booking-confirm-heading" aria-describedby="booking-confirm-copy">
 <div class="booking-dialog">
 <Heading id="booking-confirm-heading" tag="h2" variant="feature-title">Confirm your booking</Heading>
-<Text variant="body" data-booking-confirm-copy>
+<Text id="booking-confirm-copy" variant="body" data-booking-confirm-copy>
 </Text>
-<div class="booking-actions">
+<div class="booking-dialog-actions">
 <Button type="button" variant="primary" data-booking-confirm-save>Confirm booking</Button>
 <Button type="button" variant="outline" data-booking-confirm-back>Back</Button>
 </div>
@@ -98,37 +98,59 @@ void setupPublicBooking();
 [hidden] {
   display: none !important;
 }
-.booking-page,
-.booking-intro,
-.booking-card,
-.booking-dialog,
-fieldset {
+:global(.booking-section) {
+  padding-block: clamp(2rem, 5vw, 4rem);
+}
+.booking-page {
+  display: grid;
+  gap: var(--spacing-lg);
+  min-width: 0;
+}
+.booking-intro {
+  display: grid;
+  gap: var(--spacing-md);
+  max-width: 44rem;
+}
+.booking-intro :global(.ui-type-section-title) {
+  font-size: clamp(2.25rem, 5vw, 3.5rem);
+  line-height: 1.08;
+}
+.booking-intro :global(.ui-type-body) {
+  color: var(--color-on-surface-variant);
+  max-width: 38rem;
+}
+.booking-page :global([data-booking-feedback]) {
+  font-size: 1rem;
+}
+.booking-card {
   display: grid;
   gap: var(--spacing-md);
   min-width: 0;
 }
-.booking-page {
+[data-existing-booking] {
+  padding: clamp(1.25rem, 4vw, 2rem);
+  background: var(--color-brand-cream);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--ui-radius-md);
+}
+[data-public-booking-form] {
   gap: var(--spacing-lg);
 }
-.booking-intro {
-  max-width: 42rem;
-}
-.booking-card {
-  padding: clamp(1rem, 4vw, 2rem);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: var(--ui-radius-lg);
-  background: var(--color-brand-cream);
-}
 fieldset {
+  display: grid;
+  gap: var(--spacing-md);
+  min-width: 0;
   border: 0;
+  border-top: 1px solid var(--color-outline-variant);
+  padding: var(--spacing-lg) 0 0;
   margin: 0;
-  padding: 0;
 }
-.meeting-options,
-.booking-actions,
-.slot-options {
-  display: flex;
-  flex-wrap: wrap;
+fieldset :global(.ui-type-feature-title) {
+  font-size: 1.25rem;
+}
+.meeting-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--spacing-sm);
 }
 .meeting-options label {
@@ -136,53 +158,77 @@ fieldset {
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-md);
-  border: 1px solid var(--color-outline);
+  min-height: 3rem;
+  border: 1px solid var(--color-outline-variant);
   border-radius: var(--ui-radius-sm);
-  flex: 1 1 10rem;
+  cursor: pointer;
+}
+.meeting-options label:has(input:checked) {
+  border-color: var(--color-brand-dark);
+  background: var(--color-brand-cream);
 }
 .meeting-options input {
   accent-color: var(--color-primary);
 }
+.booking-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding-top: var(--spacing-sm);
+}
+.slot-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: var(--spacing-sm);
+}
 .slot-options :global(button) {
-  min-height: 2.75rem;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border: 1px solid var(--color-outline);
-  border-radius: var(--ui-radius-sm);
-  font: inherit;
+  width: 100%;
+  min-height: 3rem;
   background: var(--color-brand-light);
   color: var(--color-on-surface);
-  cursor: pointer;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--ui-radius-sm);
 }
-.slot-options :global(button[aria-pressed='true']) {
+.slot-options :global(button:hover:not(:disabled)) {
+  background: var(--color-brand-cream);
+  border-color: var(--color-outline);
+}
+.slot-options :global(button[aria-pressed='true']),
+.slot-options :global(button[aria-pressed='true']:hover) {
   background: var(--color-brand-dark);
   color: var(--color-on-primary);
+  border-color: var(--color-brand-dark);
+}
+.slot-options :global(button:active:not(:disabled)) {
+  border-color: var(--color-brand-accent);
 }
 .slot-options :global(button:focus-visible) {
   outline: 2px solid var(--color-primary);
   outline-offset: 3px;
 }
-dialog {
-  padding: 0;
-  width: min(calc(100% - 2rem), 32rem);
-  max-height: calc(100svh - 2rem);
-  border: 1px solid var(--color-outline);
-  border-radius: var(--ui-radius-lg);
-  background: var(--color-brand-light);
-}
-dialog::backdrop {
-  background: color-mix(in srgb, var(--color-brand-dark) 50%, transparent);
-}
-.booking-dialog {
-  padding: var(--spacing-lg);
-}
-.booking-actions > :global(button) {
-  flex: 1 1 10rem;
+[data-public-booking-form] :global([data-booking-review]) {
+  justify-self: start;
 }
 .booking-page :global([data-booking-feedback][role='alert']) {
   color: var(--color-error);
 }
-.booking-page :global([data-existing-summary]) {
-  white-space: pre-line;
-  overflow-wrap: anywhere;
+@media (min-width: 48rem) {
+  fieldset:last-of-type {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  fieldset:last-of-type > :global(h2),
+  fieldset:last-of-type > :global(.inquiry-field:last-child) {
+    grid-column: 1/-1;
+  }
+}
+@media (max-width: 23rem) {
+  .slot-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .slot-options :global(button) {
+    padding-inline: 0.4rem;
+    font-size: 0.8125rem;
+  }
 }
 </style>

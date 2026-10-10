@@ -1,0 +1,15 @@
+---
+import Heading from '@components/ui/atoms/Heading.astro';
+import Text from '@components/ui/atoms/Text.astro';
+import Button from '@components/ui/atoms/Button.astro';
+---
+<dialog class="booking-confirmation booking-ui" data-booking-action-dialog aria-labelledby="booking-action-heading" aria-describedby="booking-action-copy">
+  <div class="booking-dialog">
+    <Heading id="booking-action-heading" tag="h2" variant="feature-title" data-booking-action-heading></Heading>
+    <Text id="booking-action-copy" variant="body" data-booking-action-copy></Text>
+    <div class="booking-dialog-actions">
+      <Button type="button" variant="primary" data-booking-action-accept>Confirm</Button>
+      <Button type="button" variant="outline" data-booking-action-back autofocus>Back</Button>
+    </div>
+  </div>
+</dialog>

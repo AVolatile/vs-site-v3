@@ -1,4 +1,6 @@
-import { bookingDateTime, calendarDate, type InquiryBooking } from "./contract";
+import { calendarDate, type InquiryBooking } from "./contract";
+import { renderBookingSummary, clearBookingSummary } from "./presentation";
+import { confirmBookingAction } from "./confirmation";
 interface Options {
   panel: HTMLElement;
   current: () => { id: string } | null;
@@ -29,14 +31,7 @@ export function setupInquiryBooking(options: Options) {
     el("[data-booking-view]").hidden = !data.booking;
     if (data.booking) {
       const b = data.booking;
-      el("[data-booking-summary]").textContent =
-        bookingDateTime(b.startAt, b.timezone) +
-        " · " +
-        b.meetingType +
-        " · " +
-        b.status +
-        " · " +
-        b.clientName;
+      renderBookingSummary(el("[data-booking-summary]"), b);
       el<HTMLAnchorElement>("[data-booking-view]").href =
         "/admin/calendar/?booking=" +
         encodeURIComponent(b.id) +
@@ -68,13 +63,18 @@ export function setupInquiryBooking(options: Options) {
   }
   async function create(regenerate: boolean) {
     if (busy || !options.current() || !options.active()) return;
+    const confirmationVersion = version;
     if (
       regenerate &&
-      !confirm(
-        "Regenerate this booking link? The previous link will stop working. Existing bookings remain.",
-      )
+      !(await confirmBookingAction({
+        title: "Regenerate booking link?",
+        message:
+          "The previous link will stop working. Existing bookings remain.",
+        action: "Regenerate link",
+      }))
     )
       return;
+    if (confirmationVersion !== version || !options.active() || busy) return;
     busy = true;
     const v = version;
     panel
@@ -136,7 +136,7 @@ export function setupInquiryBooking(options: Options) {
     url = null;
     panel.hidden = true;
     announce("");
-    el("[data-booking-summary]").textContent = "";
+    clearBookingSummary(el("[data-booking-summary]"));
     el<HTMLAnchorElement>("[data-booking-open]").href = "/";
     el<HTMLAnchorElement>("[data-booking-view]").href = "/admin/calendar/";
     for (const key of [

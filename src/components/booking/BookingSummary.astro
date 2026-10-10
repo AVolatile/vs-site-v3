@@ -1,0 +1,17 @@
+---
+import Text from '@components/ui/atoms/Text.astro';
+import Heading from '@components/ui/atoms/Heading.astro';
+const { class: className, ...attributes } = Astro.props;
+---
+<div class:list={['booking-summary', className]} {...attributes}>
+  <div class="booking-summary-when">
+    <Heading tag="span" variant="feature-title" data-summary-date></Heading>
+    <Text tag="span" variant="body" data-summary-time></Text>
+    <Text tag="span" variant="feature-body-sm" data-summary-zone></Text>
+  </div>
+  <div class="booking-summary-meta">
+    <Text tag="span" variant="feature-body-sm" data-summary-meeting></Text>
+    <Text tag="span" variant="feature-body-sm" data-summary-status></Text>
+  </div>
+  <Text variant="body" data-summary-client></Text>
+</div>

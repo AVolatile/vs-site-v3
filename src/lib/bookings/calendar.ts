@@ -1,9 +1,13 @@
 import {
-  calendarDate,
-  bookingDateTime,
-  bookingTime,
-  type AdminBooking,
-} from "./contract";
+  timezoneLabel,
+  displayPhone,
+  meetingLabel,
+  statusLabel,
+  renderBookingSummary,
+  clearBookingSummary,
+} from "./presentation";
+import { confirmBookingAction } from "./confirmation";
+import { calendarDate, bookingTime, type AdminBooking } from "./contract";
 import { setupBookingAdmin } from "./admin-session";
 export async function setupCalendar() {
   const root = document.querySelector<HTMLElement>("[data-booking-calendar]");
@@ -31,7 +35,8 @@ export async function setupCalendar() {
     agenda.replaceChildren();
     el("[data-calendar-private]").hidden = true;
     el("[data-calendar-detail]").hidden = true;
-    el("[data-calendar-detail-copy]").textContent = "";
+    clearBookingSummary(el("[data-calendar-detail-copy]"));
+    el("[data-calendar-detail-contact]").textContent = "";
     el("[data-calendar-detail-notes]").textContent = "";
     el<HTMLAnchorElement>("[data-calendar-email]").href = "mailto:";
     el<HTMLAnchorElement>("[data-calendar-inquiry]").href = "/admin/";
@@ -75,20 +80,26 @@ export async function setupCalendar() {
       booking.meetingType +
       " · " +
       booking.status;
-    button
-      .querySelectorAll<HTMLElement>("[data-calendar-event-label]")
-      .forEach(
-        (span) =>
-          (span.textContent = compact
-            ? bookingTime(booking.startAt, timezone) +
-              " · " +
-              booking.clientName +
-              " · " +
-              booking.meetingType +
-              " · " +
-              booking.status
-            : text),
-      );
+    const values = {
+      time: bookingTime(booking.startAt, timezone),
+      client: booking.clientName,
+      company: booking.company,
+      meeting: compact
+        ? booking.meetingType === "phone"
+          ? "Phone"
+          : "Zoom"
+        : meetingLabel(booking.meetingType),
+      status: statusLabel(booking.status),
+    };
+    for (const [name, value] of Object.entries(values))
+      button
+        .querySelectorAll<HTMLElement>("[data-calendar-event-" + name + "]")
+        .forEach((node) => {
+          node.textContent = value;
+          if (name === "company") node.hidden = !value;
+        });
+    button.dataset.compact = String(compact);
+    button.dataset.status = booking.status;
     button.setAttribute("aria-label", text);
     button.dataset.bookingId = booking.id;
     button.addEventListener("click", () =>
@@ -105,7 +116,7 @@ export async function setupCalendar() {
       year: "numeric",
     }).format(new Date(month + "-01T12:00:00Z"));
     el("[data-calendar-timezone]").textContent =
-      "Calendar timezone: " + timezone;
+      "Calendar times: " + timezoneLabel(timezone);
     el("[data-calendar-private]").hidden = false;
     el("[data-calendar-empty]").hidden = items.length > 0;
     root!
@@ -143,6 +154,16 @@ export async function setupCalendar() {
         weekday: "short",
         day: "numeric",
       }).format(new Date(date + "T12:00:00Z"));
+      const dayElement = fragment.querySelector<HTMLElement>(".calendar-day")!;
+      const isToday = date === calendarDate(new Date().toISOString(), timezone);
+      dayElement.dataset.today = String(isToday);
+      if (isToday) {
+        const label = fragment.querySelector<HTMLElement>(
+          "[data-calendar-day-label]",
+        )!;
+        label.setAttribute("aria-current", "date");
+        label.textContent += " / Today";
+      }
       const rows = items.filter(
         (b) => calendarDate(b.startAt, timezone) === date,
       );
@@ -152,18 +173,22 @@ export async function setupCalendar() {
           .append(eventButton(b, true));
       grid.append(fragment);
       if (rows.length) {
-        const section = document.createElement("section"),
-          heading = document.createElement("h3");
-        heading.className = "ui-type-feature-title";
-        heading.textContent = new Intl.DateTimeFormat("en-US", {
+        const agendaFragment = el<HTMLTemplateElement>(
+          "[data-calendar-agenda-template]",
+        ).content.cloneNode(true) as DocumentFragment;
+        agendaFragment.querySelector<HTMLElement>(
+          "[data-calendar-agenda-date]",
+        )!.textContent = new Intl.DateTimeFormat("en-US", {
           timeZone: "UTC",
           weekday: "long",
           month: "short",
           day: "numeric",
         }).format(new Date(date + "T12:00:00Z"));
-        section.append(heading);
-        for (const b of rows) section.append(eventButton(b));
-        agenda.append(section);
+        for (const booking of rows)
+          agendaFragment
+            .querySelector("[data-calendar-agenda-events]")!
+            .append(eventButton(booking));
+        agenda.append(agendaFragment);
       }
     }
   }
@@ -180,20 +205,11 @@ export async function setupCalendar() {
       new Option("Choose an available time", ""),
     );
     el("[data-calendar-detail]").hidden = false;
-    el("[data-calendar-detail-copy]").textContent =
-      b.clientName +
-      (b.company ? " / " + b.company : "") +
-      "\n" +
-      bookingDateTime(b.startAt, timezone) +
-      " – " +
-      bookingTime(b.endAt, timezone) +
-      "\n" +
-      b.meetingType +
-      " · " +
-      b.status +
-      "\n" +
+    renderBookingSummary(el("[data-calendar-detail-copy]"), b, timezone);
+    el("[data-calendar-detail-contact]").textContent =
+      (b.company ? b.company + "\n" : "") +
       b.clientEmail +
-      (b.clientPhone ? "\n" + b.clientPhone : "");
+      (b.clientPhone ? "\n" + displayPhone(b.clientPhone) : "");
     el("[data-calendar-detail-notes]").textContent = b.clientNotes;
     el<HTMLAnchorElement>("[data-calendar-inquiry]").href =
       "/admin/?inquiry=" + b.inquiryId;
@@ -271,16 +287,31 @@ export async function setupCalendar() {
     startAt?: string,
   ) {
     if (busy || !selected) return;
+    const confirmationBooking = selected;
     if (
-      !confirm(
-        action === "cancel"
-          ? "Cancel this booking and release its time?"
-          : action === "complete"
-            ? "Mark this call completed?"
-            : "Confirm the new time for this call?",
-      )
+      !(await confirmBookingAction({
+        title:
+          action === "cancel"
+            ? "Cancel booking?"
+            : action === "complete"
+              ? "Mark call completed?"
+              : "Confirm new time",
+        message:
+          action === "cancel"
+            ? "This time will become available again."
+            : action === "complete"
+              ? "Mark this call completed?"
+              : "Move this call to the selected available time?",
+        action:
+          action === "cancel"
+            ? "Cancel booking"
+            : action === "complete"
+              ? "Mark completed"
+              : "Confirm new time",
+      }))
     )
       return;
+    if (busy || selected !== confirmationBooking || !session!.active()) return;
     busy = true;
     const v = epoch;
     const b = selected;

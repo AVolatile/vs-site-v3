@@ -1,20 +1,20 @@
 ---
 import Heading from '@components/ui/atoms/Heading.astro';
+import BookingSummary from '@components/booking/BookingSummary.astro';
 import Text from '@components/ui/atoms/Text.astro';
 import Button from '@components/ui/atoms/Button.astro';
 ---
-<section data-inquiry-booking hidden class="inquiry-booking" aria-labelledby="inquiry-booking-heading">
+<section data-inquiry-booking hidden class="inquiry-booking booking-ui" aria-labelledby="inquiry-booking-heading">
  <Heading id="inquiry-booking-heading" tag="h3" variant="feature-title">Booking</Heading>
  <Text variant="body" role="status" aria-live="polite" data-booking-message>
 </Text>
  <div class="booking-actions">
-<Button type="button" variant="outline" size="sm" data-booking-create hidden>Create booking link</Button>
-<Button type="button" variant="outline" size="sm" data-booking-copy hidden>Copy booking link</Button>
+<Button type="button" variant="primary" size="sm" data-booking-create hidden>Create booking link</Button>
+<Button type="button" variant="primary" size="sm" data-booking-copy hidden>Copy booking link</Button>
 <Button href="/" variant="outline" size="sm" data-booking-open hidden target="_blank" rel="noopener noreferrer">Open booking page</Button>
-<Button type="button" variant="outline" size="sm" data-booking-regenerate hidden>Regenerate link</Button>
+<Button type="button" variant="ghost" class="booking-tertiary booking-destructive" size="sm" data-booking-regenerate hidden>Regenerate link</Button>
 </div>
- <Text variant="body" data-booking-summary hidden>
-</Text>
+ <BookingSummary data-booking-summary hidden/>
  <Button href="/admin/calendar/" variant="outline" size="sm" data-booking-view hidden>Manage booking</Button>
 </section>
 <style>
@@ -25,6 +25,15 @@ import Button from '@components/ui/atoms/Button.astro';
   padding-top: var(--spacing-md);
   border-top: 1px solid var(--color-outline-variant);
   min-width: 0;
+}
+.inquiry-booking :global([data-booking-view]) {
+  justify-self: start;
+}
+.inquiry-booking :global(.booking-summary) {
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--ui-radius-sm);
+  background: var(--color-brand-cream);
 }
 .booking-actions {
   display: flex;

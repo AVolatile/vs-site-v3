@@ -1,3 +1,4 @@
+import { confirmBookingAction } from "./confirmation";
 import { settingsSchema, type AvailabilitySettings } from "./contract";
 import { setupBookingAdmin } from "./admin-session";
 export async function setupAvailabilityAdmin() {
@@ -130,12 +131,16 @@ export async function setupAvailabilityAdmin() {
   });
   root
     .querySelector("[data-availability-reload]")!
-    .addEventListener("click", () => {
+    .addEventListener("click", async () => {
       if (
         !busy &&
-        confirm(
-          "Reload saved settings? Unsaved availability edits will be replaced.",
-        )
+        (await confirmBookingAction({
+          title: "Reload saved settings?",
+          message: "Unsaved availability edits will be replaced.",
+          action: "Reload settings",
+        })) &&
+        !busy &&
+        session!.active()
       )
         void load().catch((error) => announce(error.message, true));
     });

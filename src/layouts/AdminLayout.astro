@@ -1,5 +1,7 @@
 ---
 import '@styles/global.css';
+import '@styles/booking.css';
+import BookingActionDialog from '@components/booking/BookingActionDialog.astro';
 import '@styles/.generated/phosphor.css';
 import company from '@data/global/company.json';
 import Text from '@components/ui/atoms/Text.astro';
@@ -33,6 +35,7 @@ const { loginPresentation = false, title = "Inquiry Admin | Volatile Solutions" 
         </>
       ) : <slot />}
     </main>
+    <BookingActionDialog />
   </body>
 </html>
 <style>

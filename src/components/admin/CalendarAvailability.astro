@@ -17,7 +17,7 @@ const weekdays = [
 ---
 <Section tone="page" class="py-10">
 <Container class="max-w-5xl">
-<div class="availability-page" data-availability-admin>
+<div class="availability-page booking-ui" data-availability-admin>
  <div class="availability-header">
 <div>
 <Text variant="accent-label">Volatile Solutions / Admin</Text>
@@ -26,7 +26,7 @@ const weekdays = [
 <div class="availability-actions">
 <Button href="/admin/calendar/" variant="outline" size="sm">Calendar</Button>
 <Button href="/admin/" variant="outline" size="sm">Inquiries</Button>
-<Button type="button" variant="outline" size="sm" data-calendar-logout>Sign out</Button>
+<Button type="button" variant="ghost" class="booking-tertiary" size="sm" data-calendar-logout>Sign out</Button>
 </div>
 </div>
  <Text variant="body" role="status" aria-live="polite" data-calendar-feedback>Checking access…</Text>
@@ -58,13 +58,14 @@ const weekdays = [
   <section class="availability-card">
 <Heading tag="h2" variant="feature-title">Date exceptions</Heading>
 <Text variant="body">Block a whole date or replace its weekly hours with custom availability.</Text>
+<Text variant="feature-body-sm" class="availability-empty" data-exceptions-empty>No date exceptions. Your weekly hours apply.</Text>
 <div data-availability-exceptions class="exceptions-list">
 </div>
 <Button type="button" variant="outline" size="sm" data-exception-add>Add date exception</Button>
 </section>
   <div class="availability-actions">
 <Button type="submit" variant="primary">Save availability</Button>
-<Button type="button" variant="outline" data-availability-reload>Reload settings</Button>
+<Button type="button" variant="ghost" class="booking-tertiary" data-availability-reload>Reload settings</Button>
 </div>
  </form>
  <template data-exception-template>
@@ -75,10 +76,13 @@ const weekdays = [
 </div>
 <div>
 <label class="ui-form-label" data-exception-label="type">Availability</label>
+<div class="booking-exception-select">
 <select class="ui-form-input" data-exception-type>
 <option value="unavailable">Unavailable all day</option>
 <option value="custom_hours">Custom hours</option>
 </select>
+<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><path d="m6 8 4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</div>
 </div>
 <div>
 <label class="ui-form-label" data-exception-label="start">Start</label>
@@ -88,7 +92,7 @@ const weekdays = [
 <label class="ui-form-label" data-exception-label="end">End</label>
 <input type="time" class="ui-form-input" data-exception-end/>
 </div>
-<Button type="button" variant="outline" size="sm" data-exception-remove>Remove</Button>
+<Button type="button" variant="ghost" class="booking-tertiary booking-destructive" size="sm" data-exception-remove>Remove</Button>
 <Text variant="feature-body-sm" data-exception-error class="text-[var(--color-error)]" hidden>
 </Text>
 </div>
@@ -110,7 +114,7 @@ void setupAvailabilityAdmin();
 .weekday-list,
 .exceptions-list {
   display: grid;
-  gap: var(--spacing-md);
+  gap: var(--spacing-lg);
   min-width: 0;
 }
 .availability-header,
@@ -118,18 +122,23 @@ void setupAvailabilityAdmin();
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
   gap: var(--spacing-sm);
+}
+.availability-header {
+  justify-content: space-between;
 }
 .availability-header > div:first-child {
   display: grid;
   gap: var(--spacing-sm);
 }
 .availability-card {
-  padding: var(--spacing-lg);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: var(--ui-radius-lg);
-  background: var(--color-brand-cream);
+  padding: var(--spacing-lg) 0 0;
+  border-top: 1px solid var(--color-outline-variant);
+  gap: var(--spacing-md);
+}
+.availability-card :global(.ui-type-body) {
+  color: var(--color-on-surface-variant);
+  font-size: 1rem;
 }
 .availability-rules,
 .weekday-row,
@@ -138,30 +147,65 @@ void setupAvailabilityAdmin();
   gap: var(--spacing-md);
   min-width: 0;
 }
+.weekday-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: end;
+  border-bottom: 1px solid var(--color-outline-variant);
+  padding-block: var(--spacing-md);
+}
+.weekday-row:has(input[type='checkbox']:checked) {
+  background: var(--color-brand-cream);
+  padding-inline: var(--spacing-md);
+  border-radius: var(--ui-radius-sm);
+}
 .weekday-toggle {
+  grid-column: 1/-1;
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
+  min-height: 2.75rem;
+  cursor: pointer;
 }
-.weekday-row {
-  border-bottom: 1px solid var(--color-outline-variant);
-  padding-bottom: var(--spacing-md);
+.weekday-toggle input {
+  accent-color: var(--color-primary);
+  width: 1rem;
+  height: 1rem;
+}
+.exceptions-list :global(.exception-row) {
+  padding: var(--spacing-md);
+  background: var(--color-brand-cream);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--ui-radius-sm);
+  align-items: end;
+}
+.exceptions-list :global(.exception-row > div) {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
 }
 .exceptions-list :global(.ui-form-input) {
   width: 100%;
   min-width: 0;
-  height: 2.75rem;
-  font: inherit;
-  padding: var(--spacing-sm) var(--spacing-md);
 }
-.exceptions-list :global(.ui-form-label) {
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  letter-spacing: normal;
-  text-transform: none;
+.exceptions-list :global([data-exception-error]) {
+  grid-column: 1/-1;
+}
+.availability-form:has([data-availability-exceptions] .exception-row)
+  .availability-empty {
+  display: none;
+}
+.availability-empty {
+  color: var(--color-on-surface-variant);
+}
+.availability-page :global([data-calendar-feedback]) {
+  font-size: 1rem;
+  color: var(--color-on-surface-variant);
 }
 .availability-page :global([data-calendar-feedback][role='alert']) {
   color: var(--color-error);
+}
+.availability-card > :global(button) {
+  justify-self: start;
 }
 @media (min-width: 48rem) {
   .availability-rules {
@@ -171,17 +215,35 @@ void setupAvailabilityAdmin();
     grid-template-columns: minmax(0, 1fr) repeat(2, minmax(0, 1fr));
     align-items: center;
   }
+  .weekday-toggle {
+    grid-column: auto;
+  }
   .exceptions-list :global(.exception-row) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
-@media (max-width: 47.999rem) {
-  .availability-card {
-    padding: var(--spacing-md);
+@media (min-width: 64rem) {
+  .exceptions-list :global(.exception-row) {
+    grid-template-columns: 1.1fr 1.5fr 1fr 1fr auto;
   }
-  .availability-actions > :global(button),
-  .availability-actions > :global(a) {
-    flex: 1 1 10rem;
-  }
+}
+.exceptions-list :global(.booking-exception-select) {
+  position: relative;
+  min-width: 0;
+}
+.exceptions-list :global(.booking-exception-select select) {
+  appearance: none;
+  background-image: none;
+  padding-inline-end: 2.5rem;
+}
+.exceptions-list :global(.booking-exception-select svg) {
+  position: absolute;
+  inset-inline-end: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1rem;
+  height: 1rem;
+  pointer-events: none;
+  color: var(--color-on-surface-variant);
 }
 </style>

@@ -1,0 +1,161 @@
+/* Booking-only surfaces. Core Nova controls and other admin screens keep their styling. */
+.booking-ui {
+  --ui-button-radius: var(--ui-radius-sm);
+}
+.booking-ui .ui-button {
+  height: auto;
+  min-height: 2.75rem;
+  padding: 0.7rem 1rem;
+  font-size: 0.875rem;
+  letter-spacing: normal;
+  text-transform: none;
+  box-shadow: none;
+}
+.booking-ui .ui-button-outline {
+  border-width: 1px;
+}
+.booking-ui .booking-tertiary {
+  border-color: transparent;
+  background: transparent;
+  color: var(--color-on-surface-variant);
+  padding-inline: 0.25rem;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.booking-ui .booking-destructive {
+  color: var(--color-error);
+}
+.booking-ui .inquiry-field .ui-form-input,
+.booking-ui .exception-row .ui-form-input {
+  border-radius: var(--ui-radius-sm);
+  min-height: 2.75rem;
+  height: 2.75rem;
+  background: var(--color-brand-light);
+  padding: 0.65rem 0.85rem;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.4;
+}
+.booking-ui .inquiry-field textarea.ui-form-input {
+  height: auto;
+  min-height: 7rem;
+}
+.booking-ui .inquiry-field select.ui-form-input {
+  padding-inline-end: 2.75rem;
+}
+.booking-ui .inquiry-field .ui-form-label,
+.booking-ui .exception-row .ui-form-label {
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: normal;
+  text-transform: none;
+  margin: 0;
+}
+.booking-ui :is(input, select, textarea):focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+.booking-ui :is(button, input, select):disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.booking-summary {
+  display: grid;
+  gap: var(--spacing-md);
+  min-width: 0;
+}
+.booking-summary-when {
+  display: grid;
+  gap: var(--spacing-sm);
+}
+.booking-summary-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+.booking-summary [data-summary-zone],
+.booking-summary [data-summary-meeting] {
+  color: var(--color-on-surface-variant);
+}
+.booking-summary [data-summary-status] {
+  font-weight: 600;
+}
+.booking-summary [data-summary-status][data-status="cancelled"] {
+  color: var(--color-on-surface-variant);
+}
+.booking-summary [data-summary-client] {
+  color: var(--color-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+
+/* The top-layer dialog is the viewport overlay; its single panel is always centered. */
+dialog.booking-confirmation {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: var(--spacing-md);
+  border: 0;
+  background: transparent;
+  color: var(--color-on-surface);
+}
+dialog.booking-confirmation[open] {
+  display: grid;
+  place-items: center;
+}
+dialog.booking-confirmation::backdrop {
+  background: color-mix(in srgb, var(--color-brand-dark) 48%, transparent);
+  backdrop-filter: none;
+}
+dialog.booking-confirmation .booking-dialog {
+  display: grid;
+  width: min(100%, 32rem);
+  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  min-width: 0;
+  gap: var(--spacing-lg);
+  padding: clamp(1.25rem, 4vw, 2rem);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--ui-radius-md);
+  background: var(--color-brand-light);
+  box-shadow: var(--ui-elevation-soft);
+}
+.booking-dialog [data-booking-confirm-copy],
+.booking-dialog [data-booking-action-copy] {
+  color: var(--color-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+.booking-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+.booking-dialog-actions .ui-button-primary {
+  flex: 1 1 10rem;
+}
+.booking-dialog-actions .ui-button-outline {
+  flex: 0 0 auto;
+}
+body:has(dialog.booking-confirmation[open]) {
+  overflow: hidden;
+}
+@media (prefers-reduced-motion: reduce) {
+  .booking-ui .ui-button,
+  .booking-ui .ui-button-text-default,
+  .booking-ui .ui-button-text-hover {
+    transition: none;
+  }
+}
+
+.booking-ui [tabindex="-1"]:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 4px;
+  border-radius: var(--ui-radius-sm);
+}
