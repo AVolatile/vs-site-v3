@@ -2,6 +2,7 @@ import { proposalAdminUrl, type AdminProposal } from './contract';
 import { money } from './contract';
 interface Options {
   panel: HTMLElement;
+  invoice?: {load:(proposal:AdminProposal|null)=>Promise<void>;clear:()=>void};
   current: () => { id: string; name: string; company: string } | null;
   active: () => boolean;
   version: () => number;
@@ -55,7 +56,7 @@ export function setupInquiryProposal(options: Options) {
     create.hidden = true;
     try {
       const proposal = await request('/api/admin/proposals?inquiry=' + encodeURIComponent(inquiry.id));
-      if (version === loadVersion && options.active()) render(proposal);
+      if (version === loadVersion && options.active()) {render(proposal);void options.invoice?.load(proposal);}
     } catch (error) {
       if (
         typeof error === 'object' &&
@@ -101,6 +102,7 @@ export function setupInquiryProposal(options: Options) {
     }
   });
   function clear() {
+    options.invoice?.clear();
     loadVersion++;
     abort?.abort();
     panel.hidden = true;

@@ -1,0 +1,21 @@
+---
+import ProposalLayout from '@layouts/ProposalLayout.astro';
+import InvoiceDocument from '@components/invoices/InvoiceDocument.astro';
+import Text from '@components/ui/atoms/Text.astro';
+import Button from '@components/ui/atoms/Button.astro';
+---
+<ProposalLayout title="Invoice | Volatile Solutions">
+ <div class="public-invoice" data-public-invoice>
+  <Text variant="body" data-public-message role="status" aria-live="polite">Loading invoice…</Text>
+  <InvoiceDocument />
+  <div data-public-print hidden><Button type="button" variant="outline" size="sm" data-invoice-print>Print / Save as PDF</Button></div>
+  <noscript><Text variant="body">JavaScript is required to load this private invoice. Please contact Volatile Solutions if you cannot review it.</Text></noscript>
+ </div>
+</ProposalLayout>
+<script>import {setupPublicInvoice} from '@/lib/invoices/public';void setupPublicInvoice();</script>
+<style>
+ [hidden]{display:none!important;}
+ .public-invoice {display:grid;gap:var(--spacing-lg);width:min(100%,64rem);margin:auto;padding:var(--spacing-xl) var(--spacing-container-px);min-width:0;}
+ :global([data-public-message][role="alert"]){padding:var(--spacing-md);background:var(--color-error-container);color:var(--color-on-error-container);border-radius:var(--ui-radius-sm);}
+ @media print {.public-invoice{display:block;padding:6mm 0 0;width:100%;}:global([data-public-print]),:global([data-public-message]){display:none!important;}}
+</style>

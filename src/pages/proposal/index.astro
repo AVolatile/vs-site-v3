@@ -10,6 +10,7 @@ import Button from '@components/ui/atoms/Button.astro';
     <Text variant="body" data-public-message role="status" aria-live="polite">Loading proposal…</Text>
     <ProposalDocument />
     <div class="public-actions" data-public-actions hidden><Button type="button" variant="primary" data-proposal-response="accept">Accept proposal</Button><Button type="button" variant="outline" data-proposal-response="decline">Decline proposal</Button></div>
+    <div class="public-actions" data-public-invoice-link hidden><Text variant="body" data-public-invoice-number></Text><Button href="/" variant="outline" data-public-invoice-open>View invoice</Button></div>
     <div class="public-print" data-public-print hidden><Button type="button" variant="outline" size="sm" data-proposal-print>Print / Save as PDF</Button></div>
     <noscript><Text variant="body">JavaScript is required to load this private proposal link. Please contact Volatile Solutions if you cannot review it.</Text></noscript>
     <dialog data-proposal-confirm aria-labelledby="proposal-confirm-heading">

@@ -7,8 +7,12 @@ export default function inquiryApiAliases() {
     configureServer(server) {
       server.middlewares.use((request, _response, next) => {
         const url = new URL(request.url || '/', 'http://localhost');
-        if (url.pathname === '/api/inquiries') url.pathname = '/.netlify/functions/inquiries';
+        if (url.pathname === '/api/admin/invoices') url.pathname = '/.netlify/functions/admin-invoices';
+        else if (url.pathname === '/api/invoice') url.pathname = '/.netlify/functions/invoice';
+        else if (/^\/invoice\/[A-Za-z0-9_-]{43}\/?$/.test(url.pathname)) url.pathname = '/invoice/';
+        else if (url.pathname === '/api/inquiries') url.pathname = '/.netlify/functions/inquiries';
         else if (url.pathname === '/api/admin/inquiries') url.pathname = '/.netlify/functions/admin-inquiries';
+        else if (url.pathname === '/api/admin/integrations') url.pathname = '/.netlify/functions/admin-integrations';
         else if (url.pathname === '/api/admin/bookings') url.pathname = '/.netlify/functions/admin-bookings';
         else if (url.pathname === '/api/booking') url.pathname = '/.netlify/functions/booking';
         else if (/^\/book\/[A-Za-z0-9_-]{43}\/?$/.test(url.pathname)) url.pathname = '/book/';

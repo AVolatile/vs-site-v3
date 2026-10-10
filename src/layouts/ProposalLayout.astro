@@ -1,9 +1,11 @@
 ---
 import '@styles/global.css';
 import company from '@data/global/company.json';
+interface Props { title?: string; }
+const {title='Proposal | Volatile Solutions'}=Astro.props;
 ---
 <!doctype html>
-<html lang="en" data-theme="nova"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><meta name="robots" content="noindex,nofollow" /><meta name="referrer" content="no-referrer" /><title>Proposal | Volatile Solutions</title><link rel="icon" href="/vs-favicon.ico" /></head>
+<html lang="en" data-theme="nova"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><meta name="robots" content="noindex,nofollow" /><meta name="referrer" content="no-referrer" /><title>{title}</title><link rel="icon" href="/vs-favicon.ico" /></head>
 <body><header class="proposal-brand"><a href="/" aria-label="Volatile Solutions home"><img src={company.branding.logoImage} width={company.branding.logoWidth} height={company.branding.logoHeight} alt="Volatile Solutions" /></a></header><main id="main-content"><slot /></main></body></html>
 <style>
   .proposal-brand { width: min(100%,64rem); margin: auto; padding: var(--spacing-lg) var(--spacing-container-px); border-bottom: 1px solid var(--color-outline-variant); }

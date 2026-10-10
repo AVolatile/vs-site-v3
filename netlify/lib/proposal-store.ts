@@ -1,3 +1,4 @@
+import {invoiceUrl} from './invoice-store';
 import { randomBytes } from 'node:crypto';
 import { publicUrl } from './public-url';
 import { query } from './database';
@@ -197,7 +198,12 @@ export async function getPublicProposal(token: string): Promise<PublicProposal> 
   const rows = await query(selection + " WHERE p.client_token=$1 AND p.status <> 'draft'", [token]);
   if (!rows[0]) throw new HttpError(404, 'This proposal is unavailable.');
   // Explicit allowlist: never spread the database/admin representation into public output.
-  return publicData(rows[0]);
+  const data=publicData(rows[0]);
+  if(data.status==='accepted') {
+    const invoice=(await query("SELECT * FROM invoices WHERE proposal_id=$1 AND status<>'draft'",[rows[0].id]))[0];
+    if(invoice){try{data.invoice={number:String(invoice.invoice_number),url:invoiceUrl(invoice)};}catch{/* Invoice viewing still works with its previously issued token if the sharing key is unavailable. */}}
+  }
+  return data;
 }
 export async function respondToProposal(
   token: string,

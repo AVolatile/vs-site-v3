@@ -1,0 +1,16 @@
+---
+import Text from '@components/ui/atoms/Text.astro';
+import Button from '@components/ui/atoms/Button.astro';
+---
+<div data-booking-sync hidden class="booking-sync">
+ <Text variant="feature-body-sm" data-calendar-sync></Text>
+ <Text variant="feature-body-sm" data-zoom-sync></Text>
+ <Text variant="feature-body-sm" data-sync-error></Text>
+ <Button type="button" variant="outline" size="sm" data-sync-retry hidden>Retry sync</Button>
+</div>
+<style>
+.booking-sync { display:grid; gap:var(--spacing-sm); min-width:0; }
+.booking-sync :global([data-sync-error]) { color:var(--color-error); overflow-wrap:anywhere; }
+.booking-sync :global(button) { justify-self:start; }
+[hidden] { display:none !important; }
+</style>

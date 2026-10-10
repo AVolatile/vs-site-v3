@@ -14,7 +14,7 @@ import { EMAIL_TEMPLATES } from '@/lib/communications/templates';
     <InquiryField compact name="emailTo" label="To" type="email" required maxLength={254} hint="Only this inquiry’s contact can receive the message." />
     <InquiryField compact name="emailSubject" label="Subject" required maxLength={200} />
     <InquiryField compact name="emailMessage" label="Message" type="textarea" required maxLength={20000} hint="Greeting and signature are added automatically. Supported variables: {{firstName}}, {{company}}, {{projectType}}, {{proposalNumber}}, {{proposalUrl}}, {{bookingUrl}}." />
-    <div data-email-cta-field hidden><InquiryField compact name="emailCta" label="Email button" type="select" required options={[{value:'none',label:'No button'},{value:'proposal',label:'View Proposal'},{value:'booking',label:'Schedule a Call'}]} /></div>
+    <div data-email-cta-field hidden><InquiryField compact name="emailCta" label="Email button" type="select" required options={[{value:'none',label:'No button'},{value:'proposal',label:'View Proposal'},{value:'booking',label:'Schedule a Call'},{value:'invoice',label:'View Invoice'}]} /></div>
     <Text variant="feature-body-sm" class="text-on-surface-variant">Preview includes the greeting, signature and any proposal button. Sending does not change inquiry status or schedule a follow-up.</Text>
     <div class="communication-actions"><Button type="button" variant="outline" data-email-preview>Preview</Button><Button type="submit" variant="primary" data-email-send>Send email</Button><Button type="button" variant="outline" data-email-close>Close composer</Button></div>
   </form>

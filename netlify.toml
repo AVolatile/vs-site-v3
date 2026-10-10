@@ -9,7 +9,84 @@
   directory = "netlify/functions"
   node_bundler = "esbuild"
 
+# Phase 7 invoice routes, before general admin/static rewrites.
+[[redirects]]
+  from = "/api/admin/invoices"
+  to = "/.netlify/functions/admin-invoices"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/invoice"
+  to = "/.netlify/functions/invoice"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/invoice/*"
+  to = "/invoice/index.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/admin/invoices"
+  to = "/admin/invoices/index.html"
+  status = 200
+  force = true
+  conditions = { Role = ["admin"] }
+
+[[redirects]]
+  from = "/admin/invoices"
+  to = "/admin/login/?returnTo=%2Fadmin%2Finvoices%2F"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/admin/invoices/*"
+  to = "/admin/invoices/index.html"
+  status = 200
+  force = true
+  conditions = { Role = ["admin"] }
+
+[[redirects]]
+  from = "/admin/invoices/*"
+  to = "/admin/login/?returnTo=%2Fadmin%2Finvoices%2F"
+  status = 302
+  force = true
+
 # Explicit API aliases must precede the existing general page rewrite.
+[[redirects]]
+  from = "/api/admin/integrations"
+  to = "/.netlify/functions/admin-integrations"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/admin/settings/integrations"
+  to = "/admin/settings/integrations/index.html"
+  status = 200
+  force = true
+  conditions = { Role = ["admin"] }
+
+[[redirects]]
+  from = "/admin/settings/integrations"
+  to = "/admin/login/?returnTo=%2Fadmin%2Fsettings%2Fintegrations%2F"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/admin/settings/integrations/*"
+  to = "/admin/settings/integrations/index.html"
+  status = 200
+  force = true
+  conditions = { Role = ["admin"] }
+
+[[redirects]]
+  from = "/admin/settings/integrations/*"
+  to = "/admin/login/?returnTo=%2Fadmin%2Fsettings%2Fintegrations%2F"
+  status = 302
+  force = true
+
 [[redirects]]
   from = "/api/inquiries"
   to = "/.netlify/functions/inquiries"
@@ -263,3 +340,10 @@
     Cache-Control = "no-store"
     X-Robots-Tag = "noindex, nofollow"
     Referrer-Policy = "no-referrer"
+
+[[headers]]
+  for = "/invoice/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Referrer-Policy = "no-referrer"
+    Cache-Control = "no-store"

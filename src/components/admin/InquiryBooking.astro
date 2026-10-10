@@ -1,4 +1,5 @@
 ---
+import BookingSyncStatus from '@components/booking/BookingSyncStatus.astro';
 import Heading from '@components/ui/atoms/Heading.astro';
 import BookingSummary from '@components/booking/BookingSummary.astro';
 import Text from '@components/ui/atoms/Text.astro';
@@ -15,6 +16,7 @@ import Button from '@components/ui/atoms/Button.astro';
 <Button type="button" variant="ghost" class="booking-tertiary booking-destructive" size="sm" data-booking-regenerate hidden>Regenerate link</Button>
 </div>
  <BookingSummary data-booking-summary hidden/>
+<BookingSyncStatus />
  <Button href="/admin/calendar/" variant="outline" size="sm" data-booking-view hidden>Manage booking</Button>
 </section>
 <style>

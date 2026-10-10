@@ -10,6 +10,7 @@ import {
   type AdminProposal,
   type DraftInput,
 } from './contract';
+import {setupInvoicePanel} from '@/lib/invoices/proposal-panel';
 import { renderProposalDocument } from './document';
 import { fieldErrors } from '../inquiries/contract';
 export async function setupProposalEditor(): Promise<void> {
@@ -30,6 +31,7 @@ export async function setupProposalEditor(): Promise<void> {
   };
   const value = (name: string) => element<HTMLInputElement | HTMLTextAreaElement>(`[name="${name}"]`);
   function clear() {
+    invoicePanel.clear();
     proposal = undefined;
     form.reset();
     items.replaceChildren();
@@ -85,6 +87,15 @@ export async function setupProposalEditor(): Promise<void> {
       throw new RequestError(body.fields ?? {}, body.error ?? 'The proposal request could not be completed.');
     return body.proposal;
   }
+  const invoicePanel=setupInvoicePanel(element('[data-invoice-context]'),{
+    active:()=>!!proposal,
+    back:()=>safeInquiryBack(new URL(location.href).searchParams.get('back'),proposal!.inquiryId),
+    request:async<T>(url:string,options:RequestInit={}):Promise<T>=>{
+      const response=await fetch(url,{...options,credentials:'same-origin',cache:'no-store',signal:AbortSignal.timeout(20000)}),body=await response.json();
+      if(response.status===401 || response.status===403)clear();
+      if(!response.ok)throw Error(body.error||'The invoice request could not be completed.');return body as T;
+    },
+  });
   function validation(errors: Record<string, string>) {
     form.querySelectorAll<HTMLElement>('[data-field-error]').forEach((node) => {
       const key = node.dataset.fieldError!;
@@ -210,6 +221,7 @@ export async function setupProposalEditor(): Promise<void> {
   }
   function render(saved: AdminProposal) {
     proposal = saved;
+    void invoicePanel.load(saved);
     element('[data-editor-meta]').hidden = false;
     element('[data-editor-number]').textContent = saved.number;
     element('[data-editor-status]').textContent = saved.status[0].toUpperCase() + saved.status.slice(1);

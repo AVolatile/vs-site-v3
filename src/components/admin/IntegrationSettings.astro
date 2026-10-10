@@ -1,0 +1,58 @@
+---
+import Section from '@components/ui/layout/Section.astro';
+import Container from '@components/ui/layout/Container.astro';
+import Heading from '@components/ui/atoms/Heading.astro';
+import Text from '@components/ui/atoms/Text.astro';
+import Button from '@components/ui/atoms/Button.astro';
+import InquiryField from '@components/inquiry/InquiryField.astro';
+---
+<Section tone="page" class="py-10"><Container class="max-w-4xl">
+<div data-integration-settings class="integrations booking-ui">
+ <div class="integration-heading">
+  <div><Text variant="accent-label">Volatile Solutions / Admin</Text><Heading tag="h1" variant="section-title">Integrations</Heading></div>
+  <div class="integration-actions"><Button href="/admin/calendar/" variant="outline" size="sm">Calendar</Button><Button href="/admin/" variant="outline" size="sm">Inquiries</Button><Button type="button" variant="ghost" class="booking-tertiary" size="sm" data-calendar-logout>Sign out</Button></div>
+ </div>
+ <Text variant="body" data-integration-feedback role="status" aria-live="polite">Checking access…</Text>
+ <div data-integration-private hidden class="integration-sections">
+  <section aria-labelledby="outlook-integration-heading" class="integration-section">
+   <Heading tag="h2" id="outlook-integration-heading" variant="feature-title">Outlook Calendar</Heading>
+   <Text variant="body" data-outlook-health></Text>
+   <Text variant="feature-body-sm" data-outlook-account></Text>
+   <Text variant="feature-body-sm" data-outlook-calendar></Text>
+   <Text variant="feature-body-sm" data-outlook-success></Text>
+   <Text variant="feature-body-sm" data-outlook-error></Text>
+   <div class="integration-actions"><Button type="button" variant="primary" size="sm" data-integration-action="connect">Connect Outlook Calendar</Button><Button type="button" variant="outline" size="sm" data-integration-action="test-outlook" hidden>Test connection</Button><Button type="button" variant="ghost" class="booking-tertiary booking-destructive" size="sm" data-integration-action="disconnect" hidden>Disconnect</Button></div>
+   <form data-calendar-select hidden class="integration-select" novalidate>
+    <InquiryField compact name="calendarId" label="Booking calendar" type="select" options={[]} required />
+    <Button type="submit" variant="outline" size="sm">Save calendar</Button>
+    <Text variant="feature-body-sm">This calendar receives new bookings and blocks busy times. Existing synced bookings keep their original calendar.</Text>
+   </form>
+  </section>
+  <section aria-labelledby="zoom-integration-heading" class="integration-section">
+   <Heading tag="h2" id="zoom-integration-heading" variant="feature-title">Zoom</Heading>
+   <Text variant="body" data-zoom-health></Text>
+   <Text variant="feature-body-sm" data-zoom-account></Text>
+   <Text variant="feature-body-sm" data-zoom-success></Text>
+   <Text variant="feature-body-sm" data-zoom-error></Text>
+   <Text variant="feature-body-sm">Zoom uses server credentials configured in Netlify. Meeting links are created after bookings save. No client email is sent automatically.</Text>
+   <Button type="button" variant="outline" size="sm" data-integration-action="test-zoom" hidden>Test connection</Button>
+  </section>
+ </div>
+</div>
+</Container></Section>
+<script>
+import { setupIntegrations } from '@/lib/integrations/admin';
+void setupIntegrations();
+</script>
+<style>
+.integrations,.integration-sections,.integration-section,.integration-select {display:grid;gap:var(--spacing-md);min-width:0;}
+.integration-heading,.integration-actions {display:flex;align-items:center;flex-wrap:wrap;gap:var(--spacing-sm);}
+.integration-heading {justify-content:space-between;gap:var(--spacing-lg);}
+.integration-heading>div:first-child {display:grid;gap:var(--spacing-sm);}
+.integration-section {padding-block:var(--spacing-lg);border-top:1px solid var(--color-outline-variant);}
+.integration-section :global(.ui-text) {overflow-wrap:anywhere;}
+.integration-section :global(button) {justify-self:start;}
+.integration-select {max-width:32rem;padding-top:var(--spacing-md);}
+.integrations :global([role='alert']),.integrations :global([data-outlook-error]),.integrations :global([data-zoom-error]) {color:var(--color-error);}
+[hidden] {display:none !important;}
+</style>

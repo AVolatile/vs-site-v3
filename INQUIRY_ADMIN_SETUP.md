@@ -1,5 +1,296 @@
 # Client inquiry and admin foundation
 
+## Phase 7: Invoice system — October 9, 2026
+
+The user authorizes the first invoice module after the audit confirmed that only proposals existed. **No Stripe/payment processing is included.** Existing CRM/proposal/communication/booking/calendar/integration behavior remains independent. The user confirms migrations 001–008 are applied; they remain byte-identical. **Migration 009 requires manual Neon execution before deployment.** `database/migrations/009_create_invoices.sql` is created and tested locally only; it is not applied live and nothing is deployed.
+
+### Model, conversion and pricing
+
+- `invoices` and `invoice_items` use UUID IDs, restricted inquiry/proposal relationships, one invoice per accepted proposal, independent item rows, authoritative integer-cent pricing and immutable published content through guarded APIs. Migration 009 adds a composite proposal/inquiry relationship constraint without changing proposal fields/data. Invoice numbering uses a PostgreSQL sequence: **VS-INV-YYYY-NNNN** with the UTC year, a continuous counter, deliberate gaps and no truncation beyond 9999; it does not reset annually or use row counts.
+- Creation is an explicit admin **Create invoice** action, never an acceptance side effect. It locks an accepted proposal and atomically snapshots its client identity, title, copied items/rates/quantities, discount/tax/totals/currency and client-facing notes. Private proposal/inquiry notes are excluded. Retries return the same invoice without duplicate creation activity. Later invoice edits do not alter accepted proposal prices/items, and later inquiry/proposal changes cannot alter the invoice snapshot.
+- Drafts edit title, issue/due dates, client identity, optional client billing fields, up to 25 item rows, whole-number quantities/rates, fixed discount, tax, notes and terms. Existing proposal BigInt integer-cent calculations and half-up tax on the discounted subtotal are reused. USD is the sole currency; totals/status/payment metadata submitted by the browser are rejected. Stale versions preserve local edits and require explicit reload. Unchanged saves produce no update event.
+- Issue date defaults to the current business date. **No due date or 14-day policy is assumed**; choose an explicit due date before Send. Due date cannot precede issue date. Each invoice snapshots the account's configured IANA timezone from booking settings (fallback America/New_York) solely for date interpretation; invoice actions do not change booking configuration. Published status derivation uses that saved business date, not the execution host/browser timezone.
+
+### Billing authority
+
+Sender snapshots use only approved company **name, email, phone and website**. Neither the Warsaw placeholder address/postal fields nor NIP/KRS/other registration values are copied or rendered. No business street address is invented. Client billing address line 1/2, city, region, postal code and country are **optional** and supplied deliberately in the editor. Notes/terms are client-visible; terms default empty. This phase makes no legal/tax-policy assumptions.
+
+### Lifecycle and admin/public routes
+
+- Persisted statuses: **draft, sent, paid, void**. Sent with a first-view timestamp displays **Viewed**; unpaid Sent with due date before the saved business date displays **Overdue**, which takes precedence over Viewed. Paid/Void take precedence over derived states. Reads do not persist Overdue or require a job.
+- `/admin/invoices/?invoice=<uuid>&back=<inquiry-context>` reuses AdminLayout, Nova atoms, labeled InquiryField controls, proposal-style editor/preview and the existing confirmation dialog. Identity admin role and server authorization apply; login preserves the invoice return path. Compact inquiry and accepted-proposal summaries show number/status/total/issue/due dates, with Create only when no invoice exists, View when it does, and Edit for Draft only. Inquiry activity provides invoice history.
+- **Send invoice** validates the saved draft, requires explicit confirmation, creates its token metadata, publishes the private client URL, marks Sent and freezes content. It does not deliver an email. **Mark as paid** requires confirmation, records `paid_at` and Admin activity, and explicitly describes a manual record rather than processor verification. Only Sent invoices can become Paid/Void, with stale/version protection. Paid cannot be voided; Void cannot become Paid in this phase. Neither action alters inquiry/proposal status.
+- `/invoice/<token>/` and `/api/invoice?token=<token>` require no login. Client output is an explicit allowlist: invoice number/title/dates/status, sender and snapshotted client/billing information, items/totals, notes/terms and manual payment status. No UUIDs, token hashes, private CRM data, provider references or admin timestamps are exposed. Accepted public proposal pages link to their own invoice only after it is published; Draft invoices remain private.
+- Public GET, admin editor and document/email previews are read-only. After rendering a visible public invoice, the browser submits a same-origin **view acknowledgment**; the server atomically sets first/last viewed times and records **one invoice_viewed event**. Repeat legitimate acknowledgments update last-viewed time without another event or changing the admin stale-edit version. Paid/Void views add no new view event. This identifies a token-authorized document view, not a verified individual or read receipt; hidden pages/link-prefetch GETs do not count.
+- Browser **Print / Save as PDF** uses A4 print CSS, brand logo, two-column sender/client details, repeated table headings, protected item rows and grouped totals. Screen controls are hidden in print. No server PDF dependency/service is added.
+
+### Hash-only tokens and communications
+
+Set an additional Functions-scoped secret **INVOICE_TOKEN_SECRET**, generated with `openssl rand -hex 32` (64 hex characters), separately from BOOKING_TOKEN_SECRET/INTEGRATION_ENCRYPTION_KEY. Keep it stable and securely backed up; `.env.example` has an empty placeholder only. Tokens are 256-bit purpose-bound HMAC-SHA-256 over the invoice UUID plus publication timestamp. Only **public_token_hash** and **public_token_created_at** are stored, never a raw bearer token or encrypted token. Hash validation allows already-issued public links to remain usable if the sharing key is temporarily unavailable; reconstruction/copy/email requires restoring the original key. No token-regeneration action is added.
+
+Generated links use existing trusted HTTPS **SITE_URL** handling, never hardcoded staging/production origins. Admin sharing fails safely if the key cannot validate the saved hash; invoice reading still works. The communication dropdown hides unavailable invoice buttons rather than blocking unrelated compositions.
+
+The existing composer supports optional **View Invoice** for a published Sent/Paid invoice belonging to that inquiry. Draft/Void cannot become new invoice email CTAs. Choose one button (Invoice/Proposal/Booking); preview sends nothing, and there is no automatic message on conversion/publication/view/payment/void. Existing recipient restrictions, Resend idempotency keys and retry window remain unchanged.
+
+Migration 009 adds private `invoice_id`, `invoice_token_hash`, `invoice_token_created_at` email snapshots. Stored subject/message/HTML/text replace a used bearer token with **{{INVOICE_TOKEN}}** and rehydrate only at runtime after hash/key validation. Pasted foreign invoice links are rejected; failed message retry validates that its invoice link remains usable. Voiding an invoice prevents sending/retrying its old invoice invitation; existing sent message history remains readable and the public document shows Void. Payment placeholder fields `payment_provider` / `payment_reference` remain NULL; manual Paid only sets status/time. No cards, ACH, processor calls, payment links, webhooks, receipts, partial payments, refunds, recurring invoices, accounting exports, reminders or portal are implemented.
+
+### Activity, security and transaction boundary
+
+New events: **invoice_created, invoice_updated, invoice_sent, invoice_viewed, invoice_paid, invoice_voided**. All except Viewed are Admin; Viewed is Client/token-authorized. Activity contains the invoice relationship/number, not full billing/content/private notes/tokens. Opening editor, typing and previewing create no events. Existing proposal/booking/email activity checks remain.
+
+All private reads authenticate before SQL. Mutations require same origin, strict bounded payloads and parameterized queries. Invoice/items/activity operations use one PostgreSQL data-modifying CTE statement under Neon HTTP, with row locking, uniqueness and advancing millisecond stale versions. Failure rolls back the whole operation. Public token shape/hash lookups, same-origin view acknowledgments, no-store/no-referrer/noindex controls and native Function rate protection (120 requests/minute per IP/domain) apply. Identity/CDN/rate enforcement remains a manual deployed check; no live accounts or secrets are altered locally.
+
+
+
+### Phase 7 validation and exact file scope
+
+- **378 focused tests pass across fourteen files**, including 46 invoice tests and all 332 existing CRM/proposal/email/follow-up/booking/provider/URL/social-metadata cases. Tests use mocked Identity/Resend/providers and isolated PGlite, never live Neon, outbound email or provider APIs. Coverage includes full lifecycle, accepted-only/duplicate-safe creation, independent snapshots, integer pricing, explicit dates, stale edits, confirmed transitions, public privacy, hash-only tokens, first-view concurrency, manual Paid, Void, transaction rollback and invoice email snapshots/retry eligibility.
+- Astro/TypeScript checks **515 files with zero errors**. Direct Astro static build produces **16 pages** in a temporary output directory, bypassing image generation. All **eleven Netlify Functions** bundle for Node 22/API v2. All **76 data JSON files** parse; data contracts (52 section files / 2 page contracts), registrations and motion checks pass.
+- Isolated Chrome checks at **320, 375, 430, 768, 1024 and 1440px** cover draft/published invoice editor, public document, inquiry summary and accepted-proposal editor. Creation, saved edits, stale conflict preservation, explicit Send/Paid/Void confirmation, first/repeat view behavior, proposal invoice link and optional invoice email preview pass. Field-specific quantity, rate and discount errors associate with and focus the correct input, including a second-row rate error, without submitting invalid requests. No horizontal overflow, duplicate IDs, hidden focused elements or runtime exceptions were observed; labels/focus/confirmation dismissal and reduced-motion behavior remain usable.
+- Browser Print/Save as PDF produces a **one-page short invoice and a three-page 25-item invoice**. Every PDF page was rendered and visually inspected after print-specific spacing fixes. Logo, billing blocks, repeated table headings, item rows, totals and notes remain readable without overlap; screen controls are excluded.
+- Import-path audit retains only **three preexisting relative imports** in inquiry/proposal code; no new import audit finding remains. The previously reported broad template/QA suite failures are outside this pass. This is focused validation, not a claim that the complete template test suite is green. Deployed Identity/CDN roles, native rate enforcement and live account behavior remain manual deployment checks.
+- SHA-256 comparison verifies **2,721 original files remain byte-identical**. This includes migrations 001–008, all original public/legacy assets, public/localized data, global styles, dependencies/lockfile, Identity/admin authorization, database access helper, public wizard and booking/integration backend/adapters. Invoice-related proposal/email/activity extensions are listed below. Temporary repository browser fixtures were removed and their isolated servers/browser stopped. No production assets were generated.
+
+Reproduction uses the installed supported Node version, `npm run check:types`, a direct `npm run astro -- build --outDir /private/tmp/vs-invoice-build-final` and the focused Vitest files below (rather than the QA chain that can regenerate assets):
+
+```text
+netlify/invoices.test.ts
+netlify/proposals.test.ts
+netlify/messages.test.ts
+netlify/email-adapter.test.ts
+netlify/bookings.test.ts
+netlify/integrations.test.ts
+netlify/inquiries.test.ts
+netlify/inquiry-store.test.ts
+netlify/admin-detail-route.test.ts
+netlify/crm-workflow.test.ts
+src/lib/inquiries/admin-routes.test.ts
+src/lib/inquiries/follow-up.test.ts
+src/utils/url.test.ts
+src/layouts/social-metadata.test.ts
+```
+
+Only **31 existing files / 16 additions / no removals** are within this pass.
+
+Modified:
+
+```text
+.env.example
+CONTENT_MIGRATION_MAP.md
+INQUIRY_ADMIN_SETUP.md
+VOLATILE_CONTENT_SOURCE.md
+astro.config.mjs
+netlify.toml
+netlify/bookings.test.ts
+netlify/dev-api-aliases.mjs
+netlify/integrations.test.ts
+netlify/lib/email-render.ts
+netlify/lib/inquiry-store.ts
+netlify/lib/message-store.ts
+netlify/lib/proposal-store.ts
+netlify/messages.test.ts
+netlify/proposals.test.ts
+site.config.mjs
+src/components/admin/InquiryAdmin.astro
+src/components/admin/InquiryCommunication.astro
+src/components/proposals/ProposalEditor.astro
+src/layouts/ProposalLayout.astro
+src/lib/bookings/admin-session.ts
+src/lib/communications/admin.ts
+src/lib/communications/contract.ts
+src/lib/inquiries/admin-activity.ts
+src/lib/inquiries/admin.ts
+src/lib/inquiries/contract.ts
+src/lib/proposals/admin.ts
+src/lib/proposals/contract.ts
+src/lib/proposals/inquiry-panel.ts
+src/lib/proposals/public.ts
+src/pages/proposal/index.astro
+```
+
+Added:
+
+```text
+database/migrations/009_create_invoices.sql
+netlify/functions/admin-invoices.mts
+netlify/functions/invoice.mts
+netlify/invoices.test.ts
+netlify/lib/invoice-store.ts
+netlify/lib/invoice-token.ts
+src/components/invoices/InvoiceDocument.astro
+src/components/invoices/InvoiceEditor.astro
+src/components/invoices/InvoiceSummary.astro
+src/lib/invoices/admin.ts
+src/lib/invoices/contract.ts
+src/lib/invoices/document.ts
+src/lib/invoices/proposal-panel.ts
+src/lib/invoices/public.ts
+src/pages/admin/invoices/index.astro
+src/pages/invoice/index.astro
+```
+
+
+## Phase 6B.1: Outlook Calendar and Zoom integrations — October 9, 2026
+
+Outlook Calendar through Microsoft Graph replaces the active Google Calendar integration. **Neon remains authoritative.** Zoom Server-to-Server OAuth is preserved. No live migration, provider connection, deployment, real environment change or automatic client notification is performed.
+
+### Migration 008 and existing data
+
+The user confirms **007 is already applied**. Apply `database/migrations/008_outlook_calendar_integration.sql` manually once to the intended branch before deploying Phase 6B.1. Migrations **001–007 remain byte-identical**; 008 is tested only in isolated PostgreSQL locally.
+
+008 renames `google_sync_status/error/last_synced_at` to `calendar_sync_status/error/last_synced_at`, and `google_calendar_id/account_email/event_generation` to `calendar_id/account_email/event_generation`. It updates the pending trigger, retains the existing indexes/constraints with neutral names, adds a stable Microsoft account ID and durable calendar creation intent, and changes the active provider constraint to `outlook_calendar` / `zoom`.
+
+Retired Google connection rows are moved intact into private `retired_calendar_connections.snapshot` records, including their already-encrypted credentials. Existing booking calendar IDs/statuses/targets are preserved in private `legacy_calendar_reference` JSON, then cleared from the active Outlook fields. Scheduled calls become calendar Pending; other calls become Not required. **Google IDs are never sent to Graph.** Booking dates, Zoom identifiers/statuses, CRM `updated_at`, sync revisions and activity remain unchanged. Expiring Google OAuth state is invalidated. Neither archive is returned by any API. No old Google event is deleted remotely and no historical booking is automatically synced by this migration: deliberate **Check sync** mirrors a scheduled call to Outlook after connection. Remove old Google app consent manually and review old calendar copies separately if necessary; this implementation no longer accesses Google.
+
+### Manual Microsoft setup
+
+1. In Microsoft Entra / Azure, create an app registration with supported accounts **Accounts in any organizational directory and personal Microsoft accounts**. This supports Microsoft 365 work/school and Outlook.com accounts. The default runtime authority is `common`. Organizational policies may require an administrator to approve delegated consent.
+2. Add a **Web** redirect URI on the intended deployed origin: staging example `https://vs-site-v3.netlify.app/.netlify/functions/microsoft-calendar-oauth-callback`. Production uses the same path on its configured SITE_URL. Register each exact trusted origin; arbitrary deploy previews are not automatically allowed.
+3. Configure Microsoft Graph **delegated** permissions `User.Read` and `Calendars.ReadWrite`; the OAuth request also asks for `offline_access`. No application permissions, Mail, Files, Contacts, user-session revocation or unrelated permissions are needed. The selected calendar must be writable with these permissions; sharing scenarios requiring additional scopes are not supported in this pass.
+4. Create a client secret, record its **value** securely, and set Functions-scoped `MICROSOFT_CLIENT_ID` and `MICROSOFT_CLIENT_SECRET` in Netlify. Keep existing trusted HTTPS `SITE_URL`. Optional `MICROSOFT_REDIRECT_URI` derives the callback from SITE_URL when blank; an explicit URI must match its origin/path exactly. Optional `MICROSOFT_TENANT_ID` defaults to `common`; setting a tenant GUID/domain or `organizations` intentionally restricts the audience. `consumers` restricts to personal accounts. Do not expose any of these server credentials with a PUBLIC_ prefix.
+5. Preserve the existing `INTEGRATION_ENCRYPTION_KEY` (a separate stable 64-hex key, generated with `openssl rand -hex 32` when first setting up). Back it up; changing it makes stored encrypted tokens unreadable. Preserve BOOKING_TOKEN_SECRET, Neon and email configuration. `.env.example` has empty placeholders only. Remove retired Google variables from active deployment configuration manually when ready.
+6. After manual schema/configuration/deployment, sign in as admin and open **Calendar → Integrations** at `/admin/settings/integrations/`. Choose **Connect Outlook Calendar**, sign in and consent, select the intended writable **Booking calendar**, then save. The default calendar is preferred initially; same-account reconnection preserves a still-writable selection. Changing selection affects future bookings; existing mirrors retain their original target.
+7. Use **Test connection** (read-only, creates no event). Add a busy event to that selected calendar and verify it blocks availability. Deliberately test an owned call's creation, reschedule, cancellation and retry, including a Zoom call. Live account policies, delegated consent, deployed callback cookies and provider behavior require these manual account checks.
+
+OAuth starts behind the unchanged admin role guard and same-origin POST protection. It uses PKCE S256, 256-bit random state/browser binding, a hashed ten-minute one-use database state and Secure/HttpOnly/SameSite=Lax host cookie. The encrypted state also binds the tenant authority; changing configuration invalidates the old attempt. The callback consumes state before exchanging a code and returns a fixed success/failure marker, never query values or raw provider errors. Access/refresh tokens and verifier use existing purpose-bound **AES-256-GCM**. Refresh persists rotated refresh tokens with compare-and-swap protection, tolerates omitted replacement token/scope, and marks missing/revoked credentials or reduced scopes Reconnect required. An early Graph 401 triggers one refresh; transient failures remain retryable.
+
+Only display name and email / user principal name are surfaced as account metadata. Stable account IDs and calendar targets remain server/admin-only. Graph pagination URLs must stay on the fixed `https://graph.microsoft.com/v1.0/` origin/path; bearer credentials cannot follow external nextLink URLs or redirects.
+
+Microsoft references: [authorization code flow and PKCE](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow), [calendarView](https://learn.microsoft.com/en-us/graph/api/calendar-list-calendarview?view=graph-rest-1.0), [calendar permissions/properties](https://learn.microsoft.com/en-us/graph/api/resources/calendar?view=graph-rest-1.0), [event transactionId](https://learn.microsoft.com/en-us/graph/api/resources/event?view=graph-rest-1.0), [extended-property reconciliation](https://learn.microsoft.com/en-us/graph/api/singlevaluelegacyextendedproperty-get?view=graph-rest-1.0), [immutable IDs](https://learn.microsoft.com/en-us/graph/outlook-immutable-id).
+
+### Manual Zoom setup
+
+1. In Zoom App Marketplace, create an internal **Server-to-Server OAuth** app in the intended account. An account administrator must grant the relevant developer/app-management permissions. Activate the app after configuring credentials and scopes.
+2. Add only the meeting capabilities used here. Current granular account scopes: `meeting:write:meeting:admin` (create), `meeting:read:meeting:admin` (get), `meeting:read:list_meetings:admin` (reconcile/list), `meeting:update:meeting:admin` (reschedule), `meeting:delete:meeting:admin` (cancel). If the account still uses classic scope selection, the equivalent meeting read/write admin capabilities apply; choose the endpoint-specific granular scopes when available.
+3. Set Functions-scoped secrets **ZOOM_ACCOUNT_ID**, **ZOOM_CLIENT_ID**, **ZOOM_CLIENT_SECRET**, plus **ZOOM_USER_ID** (the configured host's email or user ID in that account). Verify the host can create meetings and its plan supports the configured call duration. Do not configure a host `start_url`, host token or credentials in public content.
+4. Redeploy after environment changes, then use **Test connection** on the integrations page. Zoom shows **Configured / Not configured** and the configured host, not a misleading interactive Connect flow. Test a deliberate Zoom booking, reschedule and cancellation using an owned test inquiry. Phone bookings never call Zoom.
+
+Zoom uses short-lived account-credentials access tokens acquired on the server for an operation, never persisted as a permanent credential. Meetings use the existing call topic, saved UTC start, duration, business timezone, waiting room, no join-before-host, no automatic recording and no registration. Only meeting ID and validated HTTPS Zoom **join_url** are persisted/exposed to the client; **start_url** is discarded.
+
+Zoom setup reference: [create an internal app](https://developers.zoom.us/docs/internal-apps/create/), [OAuth account credentials](https://developers.zoom.us/docs/integrations/oauth/), [meeting API and scopes](https://developers.zoom.us/docs/api/meetings/).
+
+### Booking, availability and failure behavior
+
+- `calendarProvider` is the provider-neutral boundary used by booking and sync orchestration; Graph requests stay in the Outlook adapter. Availability is configured weekly hours minus date exceptions, CRM reservations and selected-calendar external occupied ranges.
+- Use **calendarView**, not getSchedule: [Microsoft documents getSchedule as unsupported for personal accounts](https://learn.microsoft.com/en-us/graph/api/calendar-getschedule?view=graph-rest-1.0). calendarView supports personal/work accounts and selected non-default calendars, expanding recurring occurrences/exceptions and all-day events. Responses explicitly request UTC; unknown/custom timezones or malformed time ranges fail conservatively. Event payloads use UTC instants to preserve DST/repeated-hour accuracy, and include the saved business timezone in their body; Neon retains its original IANA zone unchanged.
+- `busy`, `tentative`, `oof`, `unknown`, missing and future/unrecognized showAs states **block**. Explicit `free` and `workingElsewhere` do not block (working elsewhere declares location rather than occupied time). Cancelled events are skipped. Paged results must complete within a bounded 20-page loop or availability fails; no truncated result is interpreted as free.
+- Batched ranges use a bounded process-local **60-second cache**, invalidated after sync, selection and disconnect. Final booking/reschedule bypasses it. Own-event exclusion verifies saved account/calendar/immutable event ID and the booking/inquiry marker; it excludes only that event and preserves overlapping personal appointments.
+- An unavailable/reconnect-required connected provider causes a generic temporary-availability error for new scheduling/rescheduling. Existing booking summaries/cancellation and CRM remain usable. No connected Outlook means CRM-only availability; disconnect deliberately stops external busy blocking. Provider lookup and Neon cannot share a transaction: an external event added between lookup and reservation remains a cross-system race. Existing settings-row locks and GiST exclusion remain the concurrent CRM guarantee.
+- Neon commits booking/activity first and stores Pending. Netlify `context.waitUntil` runs bounded synchronization afterwards. **Zoom runs first**, then Outlook receives a validated ready Zoom join URL; a failed Zoom update omits the stale join URL until a later retry succeeds. Neither external failure rolls back a saved booking or changes CRM stale-edit versions/activity.
+- Independent calendar/Zoom statuses remain `not_required`, `pending`, `synced`, `failed`. Admin detail/inquiry panels show **Outlook Calendar**, sanitized errors and Retry sync/Check sync. A 90-second per-booking lease and revision checks serialize attempts and leave concurrent edits Pending for the newest revision. The shared provider deadline is 14 seconds; safe reads/updates/deletes have at most one immediate retry and bounded Retry-After.
+- Outlook owner-only events include safe contact/company/phone context and an admin inquiry link, never private notes/budget/proposal data. No attendees, automatic invites or Graph online meeting are created. Stored immutable `calendar_event_id` is reused for updates/cancel deletion. Completion retains history. If attendees were manually added, mutation is refused to avoid triggering client invitations.
+- Outlook create persists intent before POST and supplies a stable booking/generation `transactionId` plus a single-value extended booking/inquiry marker. Graph creation responses omit the newly written ownership property, so an expanded GET verifies it before claiming Synced. An ambiguous result is **not blindly POSTed again**: Retry queries the marker in the original calendar and verifies ownership before adopting/updating the event. If none can be verified, sync stays Failed/unconfirmed for manual review; if more than one exists, it fails as a conflict. A definite missing saved event or definite creation rejection permits safe replacement/retry. Microsoft does not document an unlimited transactionId retention period, so it is defense in depth rather than justification for blind late replay.
+- Zoom retains its existing account-credentials OAuth, adapter, durable intent, verified meeting-marker lookup, host/account binding, creation/update/delete, missing-item replacement and no blind ambiguous POST behavior. Completed calls retain provider history. Changing Microsoft account or Zoom host/account flags the prior target instead of modifying another account's items.
+- Disconnect clears local Microsoft credentials/selection and marks disconnected, retaining Neon bookings and Outlook event IDs/history. There is no suitable per-app revocation endpoint for this delegated grant. It does **not** revoke all Microsoft user sessions or request broader permissions; remove app consent in the Microsoft account / My Apps portal when remote revocation is desired. Reconnect the original account to manage its existing items.
+- Public APIs contain no tokens, provider IDs, calendar metadata, archived Google data or sync internals. Public confirmation and explicitly composed booking email show Join Zoom only when ready. Existing message snapshots/retry logic and manual email delivery remain unchanged; no notification is sent automatically.
+
+Required Microsoft runtime variables: `MICROSOFT_CLIENT_ID`, `MICROSOFT_CLIENT_SECRET`, existing `INTEGRATION_ENCRYPTION_KEY` and `SITE_URL`. Optional `MICROSOFT_REDIRECT_URI`, `MICROSOFT_TENANT_ID`. Preserve `ZOOM_ACCOUNT_ID`, `ZOOM_CLIENT_ID`, `ZOOM_CLIENT_SECRET`, `ZOOM_USER_ID`, `BOOKING_TOKEN_SECRET`, Neon and email variables. Google variables/callback/adapters are no longer supported in the active product.
+
+### Phase 6B.1 validation
+
+Local tests use mocked Microsoft/Zoom responses and isolated PGlite, never live accounts, provider APIs, Neon or outbound email. The populated forward-migration test verifies preserved Google archives, unchanged Zoom data/CRM versions/activity and the renamed pending trigger. Validation passes: **332 focused tests across thirteen files** (75 integration/provider/security/migration cases, 55 booking cases, 195 CRM/follow-up/proposal/email/URL cases and 7 social-metadata regression cases); Astro/TypeScript checks 500 files with zero errors; 76 data JSON files parse; 52 section files / 2 page contracts pass. The direct Astro static build produces 14 pages without running image generation. Nine Netlify Functions bundle for Node 22/API v2, including the new Microsoft callback and excluding the removed Google callback.
+
+Isolated Chrome checks at 320/375/430/768/1024/1440px cover connected/reconnect/disconnect states, calendar selection/tests, confirmation dismissal/focus restoration, calendar/inquiry Retry sync, public ready Zoom CTA and reduced motion. No horizontal overflow, duplicate IDs, hidden focused elements, runtime errors or provider duplicates were observed. Identity/provider transports are mocked and browser fixture data uses isolated PostgreSQL; temporary fixture/processes are removed/stopped. Deployed Identity gates and real Microsoft/Zoom account behavior remain manual checks. The four known preexisting template/QA suites are untouched; this is focused validation, not a claim that the entire template suite is green.
+
+SHA-256 comparison verifies 2,092 protected files are unchanged, including all original public/legacy assets, localized/public data, styles, migrations 001–007, Zoom adapter, encryption helper, Identity/admin guard, database module, CRM/follow-up/proposal/email stores and dependencies. Only the following 17 existing files / 5 additions / 3 removals are within this pass.
+
+Modified:
+
+```text
+.env.example
+CONTENT_MIGRATION_MAP.md
+INQUIRY_ADMIN_SETUP.md
+VOLATILE_CONTENT_SOURCE.md
+netlify/bookings.test.ts
+netlify/functions/admin-integrations.mts
+netlify/integrations.test.ts
+netlify/lib/booking-store.ts
+netlify/lib/integrations/provider.ts
+netlify/lib/integrations/settings.ts
+netlify/lib/integrations/sync.ts
+src/components/admin/IntegrationSettings.astro
+src/components/booking/BookingSyncStatus.astro
+src/lib/bookings/contract.ts
+src/lib/bookings/sync-presentation.ts
+src/lib/integrations/admin.ts
+src/lib/integrations/contract.ts
+```
+
+Added:
+
+```text
+database/migrations/008_outlook_calendar_integration.sql
+netlify/functions/microsoft-calendar-oauth-callback.mts
+netlify/lib/integrations/calendar.ts
+netlify/lib/integrations/microsoft-auth.ts
+netlify/lib/integrations/outlook-calendar.ts
+```
+
+Removed:
+
+```text
+netlify/functions/google-calendar-oauth-callback.mts
+netlify/lib/integrations/google-auth.ts
+netlify/lib/integrations/google-calendar.ts
+```
+
+### Historical Phase 6B validation and exact file scope (superseded calendar provider)
+
+- **302 focused tests pass across twelve files**: 52 integration/provider/security/continuation cases, all 55 existing booking/DST/conflict cases and 195 existing CRM/follow-up/proposal/email/URL cases. Provider adapters use mocked responses and an isolated PGlite database with migrations 001–007; no real Google/Zoom requests, Neon connection or email send is made.
+- Astro/TypeScript checks **498 files with zero errors**. The static build produces **14 pages**, including integrations. All **nine Netlify Functions** bundle for Node 22/API v2. The final validation uses the direct Astro build into a temporary directory rather than the asset-generation build chain.
+- Chrome browser checks pass at **320, 375, 430, 768, 1024 and 1440px**: connected/reconnect states, calendar selection/tests, disconnect confirmation/Escape/focus/no write on dismissal, calendar/inquiry sync/retry, public ready Zoom CTA, reduced motion, no horizontal overflow, duplicate IDs or runtime exceptions. Identity and providers are mocked; deployed OAuth consent/account activation and CDN role enforcement remain manual checks.
+- All **76 data JSON files** parse. Data contracts, registrations and motion checks pass. Import audit retains only the three preexisting relative imports; atomic audit retains the existing ChecklistItem margin finding and HeroSplit advisory, with no new finding.
+- The broad template suite reports **eight failures in four existing suites**: retired Polish route/link expectations, AboutExpert LinkedIn expectations, missing dev thumbnail route, and the QA-client placeholder check timing out. Their test/source contracts are outside Phase 6B. The QA test invoked asset generation; its changed files were restored from byte-matching local preview copies, its ten new derivatives removed, and final hashes verify every original public/legacy asset is unchanged.
+- Final SHA-256 comparison records **21 existing files modified, 17 additions, no removals**. Migrations 001–006, public/legacy assets, public/localized JSON, existing global/booking CSS, packages/lockfile, Astro/site configuration, auth guard, inquiry/follow-up/proposal stores and public wizard remain byte-identical. Temporary fixture/browser/server files and processes are removed/stopped.
+
+Modified files:
+
+```text
+.env.example
+CONTENT_MIGRATION_MAP.md
+INQUIRY_ADMIN_SETUP.md
+VOLATILE_CONTENT_SOURCE.md
+netlify.toml
+netlify/bookings.test.ts
+netlify/dev-api-aliases.mjs
+netlify/functions/admin-bookings.mts
+netlify/functions/booking.mts
+netlify/lib/booking-links.ts
+netlify/lib/booking-store.ts
+netlify/lib/email-render.ts
+src/components/admin/BookingCalendar.astro
+src/components/admin/InquiryBooking.astro
+src/components/booking/BookingSummary.astro
+src/lib/bookings/admin-session.ts
+src/lib/bookings/calendar.ts
+src/lib/bookings/contract.ts
+src/lib/bookings/inquiry-panel.ts
+src/lib/bookings/presentation.ts
+src/lib/bookings/public.ts
+```
+
+Added files:
+
+```text
+database/migrations/007_create_integrations.sql
+netlify/functions/admin-integrations.mts
+netlify/functions/google-calendar-oauth-callback.mts
+netlify/integrations.test.ts
+netlify/lib/integrations/crypto.ts
+netlify/lib/integrations/google-auth.ts
+netlify/lib/integrations/google-calendar.ts
+netlify/lib/integrations/provider.ts
+netlify/lib/integrations/settings.ts
+netlify/lib/integrations/sync.ts
+netlify/lib/integrations/zoom.ts
+src/components/admin/IntegrationSettings.astro
+src/components/booking/BookingSyncStatus.astro
+src/lib/bookings/sync-presentation.ts
+src/lib/integrations/admin.ts
+src/lib/integrations/contract.ts
+src/pages/admin/settings/integrations/index.astro
+```
+
 ## Phase 6A: Custom booking engine and admin calendar — October 9, 2026
 
 Phase 6A adds deliberate inquiry booking links, client scheduling, account availability and a private Month/Agenda calendar. It supersedes older booking/calendar deferrals only for this authorized scope. Existing CRM, proposals, follow-ups, outbound email and intake remain independent. No external calendar/Zoom integration, automatic email/reminder, SMS, invoice/payment or portal is included.

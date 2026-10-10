@@ -1,3 +1,4 @@
+import { renderBookingSync, clearBookingSync } from "./sync-presentation";
 import {
   timezoneLabel,
   displayPhone,
@@ -36,6 +37,7 @@ export async function setupCalendar() {
     el("[data-calendar-private]").hidden = true;
     el("[data-calendar-detail]").hidden = true;
     clearBookingSummary(el("[data-calendar-detail-copy]"));
+    clearBookingSync(el("[data-booking-sync]"));
     el("[data-calendar-detail-contact]").textContent = "";
     el("[data-calendar-detail-notes]").textContent = "";
     el<HTMLAnchorElement>("[data-calendar-email]").href = "mailto:";
@@ -206,6 +208,7 @@ export async function setupCalendar() {
     );
     el("[data-calendar-detail]").hidden = false;
     renderBookingSummary(el("[data-calendar-detail-copy]"), b, timezone);
+    renderBookingSync(el("[data-booking-sync]"), b);
     el("[data-calendar-detail-contact]").textContent =
       (b.company ? b.company + "\n" : "") +
       b.clientEmail +
@@ -356,6 +359,35 @@ export async function setupCalendar() {
       message.focus();
     }
   }
+  el("[data-sync-retry]").addEventListener("click", async () => {
+    if (busy || !selected || !session!.active()) return;
+    busy = true;
+    const id = selected.id,
+      v = epoch;
+    const button = el<HTMLButtonElement>("[data-sync-retry]");
+    button.disabled = true;
+    announce("Reconciling external sync…");
+    try {
+      await session!.request("/api/admin/integrations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "retry-sync", bookingId: id }),
+      });
+      if (v === epoch && session!.active()) {
+        await detail(id);
+        announce("Sync status refreshed. Check the booking details.");
+      }
+    } catch (e) {
+      if (v === epoch && session!.active())
+        announce(
+          e instanceof Error ? e.message : "Sync could not be refreshed.",
+          true,
+        );
+    } finally {
+      busy = false;
+      button.disabled = false;
+    }
+  });
   el("[data-calendar-cancel]").addEventListener("click", () => {
     void change("cancel");
   });

@@ -122,6 +122,9 @@ beforeAll(async () => {
     "004_create_proposals",
     "005_create_inquiry_messages",
     "006_create_bookings",
+    "007_create_integrations",
+    "008_outlook_calendar_integration",
+    "009_create_invoices",
   ])
     await db.exec(readFileSync("database/migrations/" + name + ".sql", "utf8"));
 }, 30000);
@@ -129,7 +132,7 @@ afterAll(() => db.close());
 afterEach(() => vi.unstubAllEnvs());
 beforeEach(async () => {
   await db.exec(
-    "TRUNCATE bookings,booking_links,inquiry_messages,proposal_items,proposals,inquiry_activity,inquiries; DELETE FROM booking_exceptions; UPDATE booking_availability SET enabled=false,start_time='09:00',end_time='17:00'; UPDATE booking_settings SET timezone='America/New_York',slot_duration_minutes=30,buffer_minutes=0,minimum_notice_hours=12,horizon_days=60,updated_at=clock_timestamp();",
+    "TRUNCATE invoice_items,invoices,bookings,booking_links,inquiry_messages,proposal_items,proposals,inquiry_activity,inquiries; DELETE FROM booking_exceptions; UPDATE booking_availability SET enabled=false,start_time='09:00',end_time='17:00'; UPDATE booking_settings SET timezone='America/New_York',slot_duration_minutes=30,buffer_minutes=0,minimum_notice_hours=12,horizon_days=60,updated_at=clock_timestamp();",
   );
   vi.resetAllMocks();
   for (const [key, value] of Object.entries({

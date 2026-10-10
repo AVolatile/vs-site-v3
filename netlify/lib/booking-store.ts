@@ -1,3 +1,7 @@
+import { Temporal } from "@js-temporal/polyfill";
+import { calendarProvider } from "./integrations/calendar";
+import { attemptBookingSync } from "./integrations/sync";
+import { safeMessage } from "./integrations/provider";
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import { query } from "./database";
@@ -30,6 +34,12 @@ function publicData(row: Record<string, unknown>): PublicBooking {
     clientEmail: String(row.client_email),
     clientPhone: row.client_phone == null ? null : String(row.client_phone),
     clientNotes: String(row.client_notes),
+    ...(row.meeting_type === "zoom" &&
+    row.status === "scheduled" &&
+    row.zoom_sync_status === "synced" &&
+    row.zoom_join_url
+      ? { zoomJoinUrl: String(row.zoom_join_url) }
+      : {}),
   };
 }
 function adminData(row: Record<string, unknown>): AdminBooking {
@@ -42,6 +52,28 @@ function adminData(row: Record<string, unknown>): AdminBooking {
     updatedAt: iso(row.updated_at),
     cancelledAt: row.cancelled_at ? iso(row.cancelled_at) : null,
     completedAt: row.completed_at ? iso(row.completed_at) : null,
+    calendarSync: {
+      status: String(
+        row.calendar_sync_status ?? "not_required",
+      ) as AdminBooking["calendarSync"]["status"],
+      error: safeMessage(
+        row.calendar_sync_error ? String(row.calendar_sync_error) : null,
+      ),
+      lastSyncedAt: row.calendar_last_synced_at
+        ? iso(row.calendar_last_synced_at)
+        : null,
+    },
+    zoomSync: {
+      status: String(
+        row.zoom_sync_status ?? "not_required",
+      ) as AdminBooking["zoomSync"]["status"],
+      error: safeMessage(
+        row.zoom_sync_error ? String(row.zoom_sync_error) : null,
+      ),
+      lastSyncedAt: row.zoom_last_synced_at
+        ? iso(row.zoom_last_synced_at)
+        : null,
+    },
   };
 }
 const select =
@@ -88,24 +120,85 @@ export async function occupiedBookings(excludeId?: string) {
     busyUntil: iso(r.busy_until),
   }));
 }
+async function occupiedWithCalendar(
+  settings: Awaited<ReturnType<typeof getBookingSettings>>,
+  excludeId?: string,
+  fresh = false,
+  date?: string,
+) {
+  const first = Temporal.Instant.from(new Date().toISOString())
+    .toZonedDateTimeISO(settings.timezone)
+    .toPlainDate();
+  const day = date ? Temporal.PlainDate.from(date) : first;
+  const start = day
+    .toZonedDateTime({ timeZone: settings.timezone, plainTime: "00:00" })
+    .toInstant()
+    .toString();
+  const end = day
+    .add({ days: date ? 1 : settings.horizonDays + 1 })
+    .toZonedDateTime({ timeZone: settings.timezone, plainTime: "00:00" })
+    .toInstant()
+    .toString();
+  const internal = await occupiedBookings(excludeId);
+  try {
+    return [
+      ...internal,
+      ...(await calendarProvider.getAvailability(start, end, fresh, excludeId)),
+    ];
+  } catch {
+    throw new HttpError(
+      503,
+      "Availability is temporarily unavailable. Please try again shortly or contact Volatile Solutions.",
+    );
+  }
+}
+async function syncedRow(
+  row: Record<string, unknown>,
+  defer?: (id: string) => void,
+) {
+  if (defer) {
+    defer(String(row.id));
+    return row;
+  }
+  await attemptBookingSync(String(row.id));
+  try {
+    return (
+      (await query("SELECT * FROM bookings WHERE id=$1", [row.id]))[0] ?? row
+    );
+  } catch {
+    return row;
+  }
+}
 export async function publicBookingPage(
   token: string,
 ): Promise<PublicBookingPage> {
   const link = await publicBookingLink(token),
     settings = await getBookingSettings(),
     row = await latest(String(link.inquiry_id));
+  let dates: PublicBookingPage["dates"] = [],
+    availabilityMessage: string | undefined;
+  try {
+    dates = availableDates(
+      settings,
+      await occupiedWithCalendar(
+        settings,
+        row?.status === "scheduled" ? String(row.id) : undefined,
+      ),
+    );
+  } catch (e) {
+    availabilityMessage =
+      e instanceof HttpError
+        ? e.message
+        : "Availability is temporarily unavailable. Please try again shortly.";
+  }
   return {
     name: String(link.name),
     email: String(link.email),
     timezone: settings.timezone,
     durationMinutes: settings.slotDurationMinutes,
-    dates: availableDates(
-      settings,
-      await occupiedBookings(
-        row?.status === "scheduled" ? String(row.id) : undefined,
-      ),
-    ),
+    dates,
     booking: row ? publicData(row) : null,
+    ...(availabilityMessage ? { availabilityMessage } : {}),
   };
 }
 export async function publicSlots(token: string, date: string) {
@@ -117,8 +210,11 @@ export async function publicSlots(token: string, date: string) {
     slots: slotsForDate(
       date,
       settings,
-      await occupiedBookings(
+      await occupiedWithCalendar(
+        settings,
         row?.status === "scheduled" ? String(row.id) : undefined,
+        false,
+        date,
       ),
     ),
   };
@@ -127,7 +223,11 @@ export async function adminSlots(date: string, excludeId?: string) {
   const settings = await getBookingSettings();
   return {
     timezone: settings.timezone,
-    slots: slotsForDate(date, settings, await occupiedBookings(excludeId)),
+    slots: slotsForDate(
+      date,
+      settings,
+      await occupiedWithCalendar(settings, excludeId, false, date),
+    ),
   };
 }
 function dbFailure(error: unknown): never {
@@ -152,6 +252,7 @@ function dbFailure(error: unknown): never {
 export async function book(
   token: string,
   input: z.infer<typeof bookingInputSchema>,
+  defer?: (id: string) => void,
 ) {
   const link = await publicBookingLink(token);
   if (input.clientEmail.toLowerCase() !== String(link.email).toLowerCase())
@@ -190,9 +291,11 @@ export async function book(
   if (existing) return existing;
   const settings = await getBookingSettings(),
     date = calendarDate(input.startAt, settings.timezone),
-    slot = slotsForDate(date, settings, await occupiedBookings()).find(
-      (s) => s.startAt === new Date(input.startAt).toISOString(),
-    );
+    slot = slotsForDate(
+      date,
+      settings,
+      await occupiedWithCalendar(settings, undefined, true, date),
+    ).find((s) => s.startAt === new Date(input.startAt).toISOString());
   if (!slot) {
     // An identical concurrent submission may have reserved this slot during generation.
     const retry = await existingRequest();
@@ -220,7 +323,7 @@ export async function book(
         settings.updatedAt,
       ],
     );
-    return publicData(rows[0]);
+    return publicData(await syncedRow(rows[0], defer));
   } catch (error) {
     const retry = await existingRequest();
     if (retry) return retry;
@@ -229,6 +332,7 @@ export async function book(
 }
 export async function changeAdminBooking(
   input: z.infer<typeof adminBookingActionSchema>,
+  defer?: (id: string) => void,
 ) {
   const old = await getAdminBooking(input.id),
     settings = await getBookingSettings();
@@ -238,7 +342,12 @@ export async function changeAdminBooking(
     const slot = slotsForDate(
       calendarDate(input.startAt!, settings.timezone),
       settings,
-      await occupiedBookings(input.id),
+      await occupiedWithCalendar(
+        settings,
+        input.id,
+        true,
+        calendarDate(input.startAt!, settings.timezone),
+      ),
     ).find((s) => s.startAt === new Date(input.startAt!).toISOString());
     if (!slot) throw new HttpError(409, "Choose an available listed slot.");
     start = slot.startAt;
@@ -249,7 +358,10 @@ export async function changeAdminBooking(
       "SELECT * FROM change_booking($1,$2,$3,NULL,$4,$5,$6,'admin',NULL)",
       [old.id, input.action, input.updatedAt, start, end, settings.updatedAt],
     );
-    return adminData({ ...rows[0], company: old.company });
+    return adminData({
+      ...(await syncedRow(rows[0], defer)),
+      company: old.company,
+    });
   } catch (error) {
     return dbFailure(error);
   }
@@ -257,6 +369,7 @@ export async function changeAdminBooking(
 export async function changePublicBooking(
   token: string,
   input: z.infer<typeof publicBookingActionSchema>,
+  defer?: (id: string) => void,
 ) {
   const link = await publicBookingLink(token),
     row = await latest(String(link.inquiry_id));
@@ -273,7 +386,12 @@ export async function changePublicBooking(
     const slot = slotsForDate(
       calendarDate(input.startAt!, settings.timezone),
       settings,
-      await occupiedBookings(String(row.id)),
+      await occupiedWithCalendar(
+        settings,
+        String(row.id),
+        true,
+        calendarDate(input.startAt!, settings.timezone),
+      ),
     ).find((s) => s.startAt === new Date(input.startAt!).toISOString());
     if (!slot) throw new HttpError(409, "Choose an available listed slot.");
     start = slot.startAt;
@@ -292,7 +410,7 @@ export async function changePublicBooking(
         bookingTokenHash(token),
       ],
     );
-    return publicData(rows[0]);
+    return publicData(await syncedRow(rows[0], defer));
   } catch (error) {
     return dbFailure(error);
   }

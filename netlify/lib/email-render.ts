@@ -32,7 +32,8 @@ export function renderEmail(
   from: string,
   replyTo: string,
   proposal: { number: string; url: string } | null,
-  booking: { url: string } | null = null,
+  booking: { url: string; zoomJoinUrl?: string } | null = null,
+  invoice: { number: string; url: string } | null = null,
 ): EmailPreview {
   if (input.to.toLowerCase() !== inquiry.email.toLowerCase())
     throw new HttpError(
@@ -50,7 +51,16 @@ export function renderEmail(
       422,
       "Create a booking link before including Schedule a Call.",
     );
-  if (input.includeBooking && input.includeProposal)
+  if (input.includeInvoice && !invoice)
+    throw new HttpError(
+      422,
+      "A published invoice is required for View Invoice.",
+    );
+  if (
+    [input.includeBooking, input.includeProposal, input.includeInvoice].filter(
+      Boolean,
+    ).length > 1
+  )
     throw new HttpError(422, "Choose one email button.");
   const firstName = inquiry.name.trim().split(/\s+/)[0] || "there";
   const variables = {
@@ -80,6 +90,7 @@ export function renderEmail(
     templateKey: input.templateKey,
     includeProposal: input.includeProposal,
     ...(input.includeBooking ? { includeBooking: true } : {}),
+    ...(input.includeInvoice ? { includeInvoice: true } : {}),
   });
   if (!expanded.success)
     throw new HttpError(
@@ -87,11 +98,15 @@ export function renderEmail(
       "Expanded subject or message is too long. Shorten the composition.",
     );
   const cta: EmailCta | null =
-    input.includeBooking && booking
-      ? { label: "Schedule a Call", url: booking.url }
-      : input.includeProposal && proposal
-        ? { label: "View Proposal", url: proposal.url }
-        : null;
+    input.includeInvoice && invoice
+      ? { label: "View Invoice", url: invoice.url }
+      : input.includeBooking && booking
+        ? booking.zoomJoinUrl
+          ? { label: "Join Zoom", url: booking.zoomJoinUrl }
+          : { label: "Schedule a Call", url: booking.url }
+        : input.includeProposal && proposal
+          ? { label: "View Proposal", url: proposal.url }
+          : null;
   const website = publicEmailUrl("/"),
     logo = publicUrl(company.branding.logoImage, true);
   const content = message

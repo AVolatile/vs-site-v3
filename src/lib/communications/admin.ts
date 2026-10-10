@@ -42,6 +42,7 @@ export function setupInquiryCommunication(options: Options) {
     total = 0,
     proposal: MessageList["proposal"] = null,
     booking: MessageList["booking"] = null,
+    invoice:MessageList["invoice"]=null,
     requestKey = crypto.randomUUID(),
     attempted = false,
     recordId: string | null = null,
@@ -100,6 +101,7 @@ export function setupInquiryCommunication(options: Options) {
       templateKey: field("emailTemplate").value,
       includeProposal: field("emailCta").value === "proposal",
       includeBooking: field("emailCta").value === "booking",
+      includeInvoice:field("emailCta").value === "invoice",
     });
     const names = {
       to: "emailTo",
@@ -193,7 +195,8 @@ export function setupInquiryCommunication(options: Options) {
     total = result.total;
     proposal = result.proposal;
     booking = result.booking;
-    el("[data-email-cta-field]").hidden = !proposal && !booking;
+    invoice=result.invoice;
+    el("[data-email-cta-field]").hidden = !proposal && !booking && !invoice;
     field<HTMLSelectElement>("emailCta").querySelector<HTMLOptionElement>(
       'option[value="proposal"]',
     )!.disabled = !proposal;
@@ -203,6 +206,8 @@ export function setupInquiryCommunication(options: Options) {
     field("emailCta").querySelector<HTMLOptionElement>(
       'option[value="booking"]',
     )!.hidden = !booking;
+    const invoiceOption=field<HTMLSelectElement>('emailCta').querySelector<HTMLOptionElement>('option[value="invoice"]')!;
+    invoiceOption.hidden=!invoice;invoiceOption.disabled=!invoice;
     const proposalOption = field<HTMLSelectElement>(
       "emailTemplate",
     ).querySelector<HTMLOptionElement>('option[value="proposal"]')!;
@@ -210,7 +215,7 @@ export function setupInquiryCommunication(options: Options) {
     if (
       !attempted &&
       ((field("emailCta").value === "proposal" && !proposal) ||
-        (field("emailCta").value === "booking" && !booking))
+        (field("emailCta").value === "booking" && !booking) || (field("emailCta").value === "invoice" && !invoice))
     )
       field("emailCta").value = "none";
     history.replaceChildren();
@@ -510,6 +515,7 @@ export function setupInquiryCommunication(options: Options) {
     total = 0;
     proposal = null;
     booking = null;
+    invoice = null;
     panel.hidden = true;
     form.hidden = true;
     controls(false);

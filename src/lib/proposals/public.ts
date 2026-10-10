@@ -20,6 +20,8 @@ export async function setupPublicProposal(): Promise<void> {
   const url = '/api/proposal?token=' + encodeURIComponent(token.data);
   function render(saved: PublicProposal) {
     proposal = saved;
+    element('[data-public-invoice-link]').hidden=!saved.invoice;
+    if(saved.invoice){element('[data-public-invoice-number]').textContent='Invoice '+saved.invoice.number;element<HTMLAnchorElement>('[data-public-invoice-open]').href=saved.invoice.url;}
     renderProposalDocument(documentView, saved);
     actions.hidden = saved.status !== 'sent';
     element('[data-public-print]').hidden = false;

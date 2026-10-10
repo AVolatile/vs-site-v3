@@ -1,3 +1,4 @@
+import { attemptBookingSync } from "../lib/integrations/sync";
 import type { Config, Context } from "@netlify/functions";
 import {
   bookingTokenSchema,
@@ -17,6 +18,10 @@ export default async (
   request: Request,
   _context: Context,
 ): Promise<Response> => {
+  const defer =
+    typeof _context.waitUntil === "function"
+      ? (id: string) => _context.waitUntil(attemptBookingSync(id))
+      : undefined;
   try {
     const url = new URL(request.url),
       token = bookingTokenSchema.safeParse(url.searchParams.get("token"));
@@ -46,12 +51,14 @@ export default async (
             "Check the booking details and confirm.",
             fieldErrors(r.error),
           );
-        return json({ booking: await book(token.data, r.data) });
+        return json({ booking: await book(token.data, r.data, defer) });
       }
       const r = publicBookingActionSchema.safeParse(body);
       if (!r.success)
         throw new HttpError(422, "Confirm a valid booking change.");
-      return json({ booking: await changePublicBooking(token.data, r.data) });
+      return json({
+        booking: await changePublicBooking(token.data, r.data, defer),
+      });
     }
     return new Response(null, {
       status: 405,

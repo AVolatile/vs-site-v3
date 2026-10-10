@@ -1,3 +1,4 @@
+import { attemptBookingSync } from "../lib/integrations/sync";
 import type { Context } from "@netlify/functions";
 import { z } from "zod";
 import { requireAdmin } from "../lib/authorize";
@@ -25,6 +26,10 @@ export default async (
   request: Request,
   _context: Context,
 ): Promise<Response> => {
+  const defer =
+    typeof _context.waitUntil === "function"
+      ? (id: string) => _context.waitUntil(attemptBookingSync(id))
+      : undefined;
   try {
     await requireAdmin();
     const url = new URL(request.url);
@@ -85,7 +90,7 @@ export default async (
       const r = adminBookingActionSchema.safeParse(body);
       if (!r.success)
         throw new HttpError(422, "Confirm a valid booking action.");
-      return json({ booking: await changeAdminBooking(r.data) });
+      return json({ booking: await changeAdminBooking(r.data, defer) });
     }
     return new Response(null, {
       status: 405,

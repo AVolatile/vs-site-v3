@@ -4,7 +4,7 @@ export function calendarReturnUrl(value: string | null): string | null {
     const u = new URL(value ?? "", "https://internal.invalid");
     if (
       u.origin !== "https://internal.invalid" ||
-      !["/admin/calendar/", "/admin/calendar/settings/"].includes(u.pathname)
+      !["/admin/calendar/", "/admin/calendar/settings/", "/admin/settings/integrations/", "/admin/invoices/"].includes(u.pathname)
     )
       return null;
     return u.pathname + u.search;

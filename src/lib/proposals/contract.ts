@@ -60,6 +60,7 @@ export interface ProposalTotals {
   totalCents: number;
 }
 export interface PublicProposal extends ProposalTotals {
+  invoice?:{number:string;url:string};
   number: string;
   status: ProposalStatus;
   title: string;

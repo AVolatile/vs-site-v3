@@ -27,6 +27,7 @@ export const compositionSchema = z
     templateKey: z.enum(TEMPLATE_KEYS),
     includeProposal: z.boolean(),
     includeBooking: z.boolean().optional(),
+    includeInvoice: z.boolean().optional(),
   })
   .strict();
 export const sendEmailSchema = compositionSchema
@@ -69,6 +70,7 @@ export interface MessageList {
   page: number;
   proposal: { number: string; url: string } | null;
   booking?: { url: string } | null;
+  invoice?: {number:string;url:string}|null;
 }
 export const messageStatusText = (message: MessageSummary): string => {
   if (message.status === "sent") return "Sent — accepted by email provider";

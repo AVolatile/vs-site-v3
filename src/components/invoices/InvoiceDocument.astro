@@ -1,0 +1,90 @@
+---
+import Heading from '@components/ui/atoms/Heading.astro';
+import Text from '@components/ui/atoms/Text.astro';
+interface Props { adminPreview?: boolean; }
+const {adminPreview=false}=Astro.props;
+const titleTag=adminPreview?'h3':'h1';
+const sectionTag=adminPreview?'h4':'h2';
+---
+<article class="invoice-document" data-invoice-document hidden aria-labelledby="invoice-title">
+  <header class="document-heading">
+    <div><Text variant="accent-label">Invoice</Text><Heading id="invoice-title" tag={titleTag} variant="section-title" data-invoice-value="title"></Heading></div>
+    <Text tag="span" variant="feature-body-sm" class="invoice-status" data-invoice-value="status"></Text>
+  </header>
+  <dl class="document-meta">
+    <div><Text tag="dt" variant="feature-body-sm">Invoice number</Text><Text tag="dd" variant="body" data-invoice-value="number"></Text></div>
+    <div><Text tag="dt" variant="feature-body-sm">Issue date</Text><Text tag="dd" variant="body" data-invoice-value="issueDate"></Text></div>
+    <div><Text tag="dt" variant="feature-body-sm">Due date</Text><Text tag="dd" variant="body" data-invoice-value="dueDate"></Text></div>
+  </dl>
+  <div class="billing-parties"><section class="sender"><Heading tag={sectionTag} variant="feature-title">From</Heading>{["name","email","phone","website"].map(key=><Text variant="body" data-invoice-sender={key}></Text>)}</section><section class="prepared-for"><Heading tag={sectionTag} variant="feature-title">Bill to</Heading><Text variant="body" data-invoice-value="clientName"></Text><Text variant="body" data-invoice-value="clientCompany"></Text><Text variant="body" data-invoice-value="clientEmail"></Text>{["line1","line2","city","region","postalCode","country"].map(key=><Text variant="body" data-invoice-billing={key} hidden></Text>)}</section></div>
+  <div class="document-table-wrap"><table><caption class="sr-only">Invoice line items in USD</caption><thead><tr><th scope="col">Description</th><th scope="col">Quantity</th><th scope="col">Rate</th><th scope="col">Amount</th></tr></thead><tbody data-invoice-items></tbody></table></div>
+  <dl class="document-totals">
+    {[['subtotalCents','Subtotal'],['discountCents','Discount'],['taxCents','Tax'],['totalCents','Total (USD)']].map(([key,label]) => <div><Text tag="dt" variant="body">{label}<Text tag="span" variant="feature-body-sm" data-invoice-tax-rate hidden></Text></Text><Text tag="dd" variant="body" data-invoice-value={key}></Text></div>)}
+  </dl>
+  <section class="document-client-notes" data-invoice-notes hidden><Heading tag={sectionTag} variant="feature-title">Notes</Heading><Text variant="body" data-invoice-value="notes"></Text></section>
+  <section class="document-client-notes" data-invoice-terms hidden><Heading tag={sectionTag} variant="feature-title">Terms</Heading><Text variant="body" data-invoice-value="terms"></Text></section>
+  <Text variant="feature-body-sm" data-invoice-value="paymentStatus"></Text>
+</article>
+<style>
+  [hidden] { display: none !important; }
+  .invoice-document { display: grid; gap: var(--spacing-lg); min-width: 0; }
+  .document-heading { display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: var(--spacing-md); }
+  .document-heading > div { display: grid; gap: var(--spacing-sm); min-width: 0; }
+  .document-heading :global(h1) { overflow-wrap: anywhere; }
+  .invoice-status { padding: var(--spacing-xs) var(--spacing-sm); border-radius: var(--ui-radius-sm); background: var(--color-brand-cream); }
+  .invoice-status[data-status="paid"] { color: var(--color-on-success-container); background: var(--color-success-container); }
+  .invoice-status[data-status="void"],.invoice-status[data-status="overdue"] { color: var(--color-on-error-container); background: var(--color-error-container); }
+  .document-meta { display: grid; gap: var(--spacing-md); margin: 0; padding-block: var(--spacing-md); border-block: 1px solid var(--color-outline-variant); }
+  .document-meta > div { min-width: 0; }
+  .document-meta :global(dt) { color: var(--color-on-surface-variant); }
+  .invoice-document :global(dd) { margin: 0; overflow-wrap: anywhere; }
+  .billing-parties { display:grid;gap:var(--spacing-lg);min-width:0; }
+  .sender { display:grid;gap:var(--spacing-sm);min-width:0; }
+  .sender :global(p),.prepared-for :global(p) {overflow-wrap:anywhere;}
+  @media(min-width:48rem) {.billing-parties {grid-template-columns:repeat(2,minmax(0,1fr));}}
+  .prepared-for,.document-summary,.document-client-notes { display: grid; gap: var(--spacing-sm); }
+  .document-summary :global(p),.document-client-notes :global(p) { white-space: pre-wrap; overflow-wrap: anywhere; }
+  .document-table-wrap { min-width: 0; }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  th,:global([data-invoice-items] td) { text-align: right; padding: var(--spacing-sm); border-bottom: 1px solid var(--color-outline-variant); overflow-wrap: anywhere; font-size: .875rem; }
+  th { color: var(--color-on-surface-variant); background: var(--color-brand-cream); }
+  th:first-child,:global([data-invoice-items] td:first-child) { text-align: left; width: 48%; }
+  .document-totals { display: grid; gap: var(--spacing-sm); margin: 0; width: min(100%,24rem); justify-self: end; }
+  .document-totals > div { display: flex; justify-content: space-between; gap: var(--spacing-md); }
+  .document-totals > div:last-child { padding-top: var(--spacing-md); border-top: 2px solid var(--color-on-surface); font-weight: 700; }
+  .document-totals > div:last-child :global(dt),.document-totals > div:last-child :global(dd) { font-weight: 700; font-size: 1.375rem; }
+  @media (min-width: 48rem) { .document-meta { grid-template-columns: repeat(3,minmax(0,1fr)); } }
+  @media (max-width: 29.999rem) {
+    thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    table,:global([data-invoice-items]) { display: block; }
+    :global([data-invoice-items] tr) { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: var(--spacing-sm); padding-block: var(--spacing-md); border-bottom: 1px solid var(--color-outline-variant); }
+    :global([data-invoice-items] td) { border: 0; padding: 0; text-align: left; }
+    :global([data-invoice-items] td:first-child) { grid-column: 1 / -1; width: auto; white-space: pre-wrap; }
+    :global([data-invoice-items] td:not(:first-child)::before) { content: attr(data-label); display: block; color: var(--color-on-surface-variant); font-size: .75rem; }
+  }
+  @media print {
+    .invoice-document :global(p),.invoice-document :global(dt),.invoice-document :global(dd) {font-size:10pt;line-height:1.4;}
+    .invoice-document :global(h2) {font-size:14pt;line-height:1.3;}
+    .billing-parties {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8mm;break-inside:avoid;}
+    .sender,.prepared-for {gap:2mm;}
+    .document-meta {padding-block:3mm;gap:3mm;}
+    .document-totals {gap:2mm;}
+    .document-totals>div:last-child :global(dt),.document-totals>div:last-child :global(dd) {font-size:14pt;}
+    .invoice-document { display: block; color: #000; }
+    .invoice-document > * { margin-bottom: 5mm; }
+    .document-summary,.document-client-notes { display: block; }
+    .document-summary :global(h2),.document-client-notes :global(h2) { margin-bottom: 3mm; }
+    .document-totals { margin-top: 6mm; margin-left: auto; }
+    .document-heading,.document-meta,.prepared-for,.document-totals { break-inside: avoid; }
+    .document-meta { grid-template-columns: repeat(3,minmax(0,1fr)); }
+    table { display: table; table-layout: fixed; }
+    thead { display: table-header-group; position: static; width: auto; height: auto; clip-path: none; }
+    :global([data-invoice-items]) { display: table-row-group; }
+    :global([data-invoice-items] tr) { display: table-row; break-inside: avoid; }
+    :global([data-invoice-items] td) { display: table-cell; padding: 2.5mm; font-size:9pt;line-height:1.4;border-bottom: 1px solid #ccc; text-align: right; }
+    :global([data-invoice-items] td:first-child) { width: 48%; text-align: left; }
+    :global([data-invoice-items] td::before) { display: none; }
+    .invoice-document :global(h1) { font-size: 24pt; }
+    .invoice-status { background: transparent; border: 1px solid #ccc; }
+  }
+</style>

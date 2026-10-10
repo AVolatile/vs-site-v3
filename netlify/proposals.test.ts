@@ -58,6 +58,11 @@ beforeAll(async () => {
     '002_create_inquiry_activity',
     '003_add_follow_up_fields',
     '004_create_proposals',
+    '005_create_inquiry_messages',
+    '006_create_bookings',
+    '007_create_integrations',
+    '008_outlook_calendar_integration',
+    '009_create_invoices',
   ])
     await db.exec(readFileSync('database/migrations/' + name + '.sql', 'utf8'));
 }, 30000);
@@ -65,7 +70,7 @@ afterAll(async () => {
   await db?.close();
 });
 beforeEach(async () => {
-  await db.exec('TRUNCATE proposal_items,proposals,inquiry_activity,inquiries');
+  await db.exec('TRUNCATE invoice_items,invoices,bookings,booking_links,inquiry_messages,proposal_items,proposals,inquiry_activity,inquiries');
   vi.resetAllMocks();
   vi.stubEnv('DATABASE_URL', 'postgresql://isolated-test-placeholder');
   mocks.user.mockResolvedValue({ roles: ['admin'] });

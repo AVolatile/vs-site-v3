@@ -105,8 +105,16 @@ export interface PublicBooking {
   clientEmail: string;
   clientPhone: string | null;
   clientNotes: string;
+  zoomJoinUrl?: string;
+}
+export interface BookingSync {
+  status: "not_required" | "pending" | "synced" | "failed";
+  error: string | null;
+  lastSyncedAt: string | null;
 }
 export interface AdminBooking extends PublicBooking {
+  calendarSync: BookingSync;
+  zoomSync: BookingSync;
   id: string;
   inquiryId: string;
   company: string;
@@ -122,6 +130,7 @@ export interface PublicBookingPage {
   durationMinutes: number;
   dates: { date: string; label: string; count: number }[];
   booking: PublicBooking | null;
+  availabilityMessage?: string;
 }
 export interface InquiryBooking {
   url: string | null;

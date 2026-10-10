@@ -49,6 +49,8 @@ export function renderBookingSummary(
   booking: PublicBooking,
   timezone = booking.timezone,
 ) {
+  const zoom = element.querySelector<HTMLAnchorElement>("[data-summary-zoom]");
+  if (zoom) {zoom.hidden = !booking.zoomJoinUrl || booking.status !== "scheduled";zoom.href = booking.zoomJoinUrl || "/";}
   const values: Record<string, string> = {
     date: new Intl.DateTimeFormat("en-US", {
       timeZone: timezone,
@@ -75,6 +77,7 @@ export function renderBookingSummary(
 }
 
 export function clearBookingSummary(element: HTMLElement) {
+  const zoom=element.querySelector<HTMLAnchorElement>("[data-summary-zoom]");if(zoom){zoom.hidden=true;zoom.href="/";}
   element
     .querySelectorAll<HTMLElement>(
       "[data-summary-date],[data-summary-time],[data-summary-zone],[data-summary-meeting],[data-summary-status],[data-summary-client]",

@@ -1,5 +1,6 @@
 ---
 import Text from '@components/ui/atoms/Text.astro';
+import Button from '@components/ui/atoms/Button.astro';
 import Heading from '@components/ui/atoms/Heading.astro';
 const { class: className, ...attributes } = Astro.props;
 ---
@@ -14,4 +15,5 @@ const { class: className, ...attributes } = Astro.props;
     <Text tag="span" variant="feature-body-sm" data-summary-status></Text>
   </div>
   <Text variant="body" data-summary-client></Text>
+  <Button href="/" variant="outline" size="sm" data-summary-zoom hidden target="_blank" rel="noopener noreferrer">Join Zoom</Button>
 </div>

@@ -22,11 +22,13 @@ export function linkUrl(row: Record<string, unknown>) {
 }
 export async function bookingForEmail(inquiryId: string) {
   const row = await getBookingLink(inquiryId);
+  const call=(await query("SELECT zoom_join_url FROM bookings b WHERE inquiry_id=$1 AND status='scheduled' AND meeting_type='zoom' AND to_jsonb(b)->>'zoom_sync_status'='synced' ORDER BY created_at DESC LIMIT 1",[inquiryId]))[0];
   return row
     ? {
         url: linkUrl(row),
         nonce: String(row.token_nonce),
         hash: String(row.token_hash),
+        ...(call?.zoom_join_url ? {zoomJoinUrl:String(call.zoom_join_url)} : {}),
       }
     : null;
 }

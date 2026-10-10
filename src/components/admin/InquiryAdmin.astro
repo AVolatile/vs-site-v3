@@ -18,6 +18,7 @@ const detailGroups = [
   { title: 'Scope', fields: [['budgetRange','Budget'],['timeline','Timeline'],['createdAt','Submitted']] },
   { title: 'Record details', fields: [['updatedAt','Last updated'],['consentAt','Consent recorded'],['source','Source']] },
 ];
+import InvoiceSummary from '@components/invoices/InvoiceSummary.astro';
 ---
 <Section tone="page" class="py-10 sm:py-14">
   <Container class="max-w-7xl">
@@ -132,6 +133,7 @@ const detailGroups = [
               <Button type="button" variant="outline" size="sm" data-inquiry-proposal-create hidden>Create proposal</Button>
               <div data-inquiry-proposal-summary hidden><div class="admin-proposal-facts"><Text tag="span" data-inquiry-proposal-number></Text><Text tag="span" data-inquiry-proposal-status></Text><Text tag="span" data-inquiry-proposal-total></Text><Text tag="span" variant="feature-body-sm" data-inquiry-proposal-valid></Text></div><div class="admin-save-actions"><Button href="/admin/" variant="outline" size="sm" data-inquiry-proposal-open="view">View proposal</Button><Button href="/admin/" variant="outline" size="sm" data-inquiry-proposal-open="edit">Edit proposal</Button></div></div>
             </section>
+            <InvoiceSummary headingTag="h3" />
             <InquiryBooking />
             <InquiryCommunication />
             <InquiryActivity />

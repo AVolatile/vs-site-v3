@@ -5,6 +5,7 @@ import { inquiryDetailApiUrl, adminBrowseUrl, adminInquiryUrl, adminViewFromUrl,
 import { browseSchema, browseApiQuery, browseDefaults, browseFromUrl, hasBrowseFilters, type AdminBrowse } from './admin-browse';
 import { setupAdminFollowUp } from './admin-follow-up';
 import { presentFollowUp } from './follow-up';
+import { setupInvoicePanel } from '@/lib/invoices/proposal-panel';
 import { setupInquiryProposal } from '../proposals/inquiry-panel';
 import { setupInquiryCommunication } from '@/lib/communications/admin';
 import { setupInquiryBooking } from '@/lib/bookings/inquiry-panel';
@@ -88,7 +89,8 @@ export async function setupInquiryAdmin(): Promise<void> {
     form: followUpForm, current: () => lead, active: () => authenticated, version: () => detailVersion, saving: () => saving,
     busy: setSaving, request: api, saved: inquiry => renderDetail(inquiry, 'notes'), refreshActivity, validate: validation, error: friendly,
   });
-  const inquiryProposal = setupInquiryProposal({panel: element('[data-inquiry-proposal]'), current: () => lead, active: () => authenticated, version: () => detailVersion, announce, request: api});
+  const invoicePanel = setupInvoicePanel(element('[data-invoice-context]'),{active:()=>authenticated,back:()=>location.pathname+location.search,request:api});
+  const inquiryProposal = setupInquiryProposal({invoice:invoicePanel,panel: element('[data-inquiry-proposal]'), current: () => lead, active: () => authenticated, version: () => detailVersion, announce, request: api});
   const communication = setupInquiryCommunication({panel: element('[data-inquiry-communication]'), current: () => lead, active: () => authenticated, version: () => detailVersion, request: api, validate: validation, refreshActivity, error: friendly});
   const inquiryBooking = setupInquiryBooking({panel: element('[data-inquiry-booking]'), current: () => lead, active: () => authenticated, request: api, changed: async () => {await communication.refreshLinks();if(lead)await refreshActivity(lead.id,detailVersion);}});
   function setSaving(value: boolean): void {

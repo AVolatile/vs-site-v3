@@ -1,3 +1,4 @@
+import { renderBookingSync, clearBookingSync } from "./sync-presentation";
 import { calendarDate, type InquiryBooking } from "./contract";
 import { renderBookingSummary, clearBookingSummary } from "./presentation";
 import { confirmBookingAction } from "./confirmation";
@@ -30,6 +31,7 @@ export function setupInquiryBooking(options: Options) {
     el("[data-booking-summary]").hidden = !data.booking;
     el("[data-booking-view]").hidden = !data.booking;
     if (data.booking) {
+      renderBookingSync(el("[data-booking-sync]"), data.booking);
       const b = data.booking;
       renderBookingSummary(el("[data-booking-summary]"), b);
       el<HTMLAnchorElement>("[data-booking-view]").href =
@@ -112,6 +114,42 @@ export function setupInquiryBooking(options: Options) {
         .forEach((b) => (b.disabled = false));
     }
   }
+  el("[data-sync-retry]").addEventListener("click", async () => {
+    if (busy || !options.current() || !options.active()) return;
+    busy = true;
+    const v = version,
+      id = options.current()!.id;
+    const button = el<HTMLButtonElement>("[data-sync-retry]");
+    button.disabled = true;
+    announce("Reconciling external sync…");
+    try {
+      const current = await options.request<InquiryBooking>(
+        "/api/admin/bookings?inquiry=" + id,
+      );
+      if (v !== version || !options.active() || !current.booking) return;
+      await options.request("/api/admin/integrations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "retry-sync",
+          bookingId: current.booking.id,
+        }),
+      });
+      if (v === version && options.active()) {
+        await load();
+        announce("Sync status refreshed. Check the booking details.");
+      }
+    } catch (e) {
+      if (v === version && options.active())
+        announce(
+          e instanceof Error ? e.message : "Sync could not be refreshed.",
+          true,
+        );
+    } finally {
+      busy = false;
+      button.disabled = false;
+    }
+  });
   el("[data-booking-create]").addEventListener("click", () => {
     void create(false);
   });
@@ -137,6 +175,7 @@ export function setupInquiryBooking(options: Options) {
     panel.hidden = true;
     announce("");
     clearBookingSummary(el("[data-booking-summary]"));
+    clearBookingSync(el("[data-booking-sync]"));
     el<HTMLAnchorElement>("[data-booking-open]").href = "/";
     el<HTMLAnchorElement>("[data-booking-view]").href = "/admin/calendar/";
     for (const key of [

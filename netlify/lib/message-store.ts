@@ -1,3 +1,5 @@
+import { invoiceForEmail } from "./invoice-store";
+import { checkedInvoiceToken, INVOICE_TOKEN_MARKER } from "./invoice-token";
 import { bookingForEmail } from "./booking-links";
 import { checkedToken, BOOKING_TOKEN_MARKER } from "./booking-token";
 import { createHash } from "node:crypto";
@@ -34,9 +36,28 @@ function tokenValue(row: Record<string, unknown>, strict = false) {
 }
 function hydrate(value: unknown, row: Record<string, unknown>, strict = false) {
   const token = tokenValue(row, strict);
-  return token
+  let output = token
     ? String(value).split(BOOKING_TOKEN_MARKER).join(token)
     : String(value);
+  if (row.invoice_id) {
+    try {
+      output = output
+        .split(INVOICE_TOKEN_MARKER)
+        .join(
+          checkedInvoiceToken(
+            String(row.invoice_id),
+            iso(row.invoice_token_created_at),
+            String(row.invoice_token_hash),
+          ),
+        );
+    } catch (error) {
+      if (strict) throw error;
+      output = output
+        .split(INVOICE_TOKEN_MARKER)
+        .join("[invoice link unavailable]");
+    }
+  }
+  return output;
 }
 
 function summary(row: Record<string, unknown>): MessageSummary {
@@ -89,9 +110,9 @@ export async function listMessages(
   page = 1,
 ): Promise<MessageList> {
   await getInquiry(inquiryId);
-  const [rows, total, proposal, booking] = await Promise.all([
+  const [rows, total, proposal, booking, invoice] = await Promise.all([
     query(
-      "SELECT id,created_at,sent_at,to_email,from_email,subject,status,template_key,error_code,first_attempt_at,last_attempt_at,booking_nonce,booking_token_hash FROM inquiry_messages WHERE inquiry_id=$1 ORDER BY created_at DESC,id DESC LIMIT 10 OFFSET $2",
+      "SELECT id,created_at,sent_at,to_email,from_email,subject,status,template_key,error_code,first_attempt_at,last_attempt_at,booking_nonce,booking_token_hash,invoice_id,invoice_token_hash,invoice_token_created_at FROM inquiry_messages WHERE inquiry_id=$1 ORDER BY created_at DESC,id DESC LIMIT 10 OFFSET $2",
       [inquiryId, (page - 1) * 10],
     ),
     query(
@@ -100,6 +121,7 @@ export async function listMessages(
     ),
     proposalForEmail(inquiryId),
     bookingForEmail(inquiryId),
+    invoiceForEmail(inquiryId),
   ]);
   return {
     items: rows.map(summary),
@@ -107,6 +129,7 @@ export async function listMessages(
     page,
     proposal: proposal ? { number: proposal.number, url: proposal.url } : null,
     booking: booking ? { url: booking.url } : null,
+    invoice: invoice ? { number: invoice.number, url: invoice.url } : null,
   };
 }
 export async function previewEmail(inquiryId: string, input: Composition) {
@@ -120,6 +143,7 @@ export async function previewEmail(inquiryId: string, input: Composition) {
     config.replyTo,
     proposal,
     await bookingForEmail(inquiryId),
+    input.includeInvoice ? await invoiceForEmail(inquiryId, true) : null,
   );
 }
 // Only a confirmed provider result can finalize a record. Activity and DB outcome are atomic.
@@ -177,6 +201,7 @@ export async function sendMessage(
         templateKey: input.templateKey,
         includeProposal: input.includeProposal,
         ...(input.includeBooking ? { includeBooking: true } : {}),
+        ...(input.includeInvoice ? { includeInvoice: true } : {}),
       }),
     )
     .digest("hex");
@@ -199,6 +224,7 @@ export async function sendMessage(
     inquiry = await getInquiry(inquiryId),
     proposal = await proposalForEmail(inquiryId);
   const booking = await bookingForEmail(inquiryId);
+  const invoice = await invoiceForEmail(inquiryId, !!input.includeInvoice);
   const mail = renderEmail(
     input,
     inquiry,
@@ -206,6 +232,7 @@ export async function sendMessage(
     config.replyTo,
     proposal,
     booking,
+    invoice,
   );
   const rawToken = booking ? checkedToken(booking.nonce, booking.hash) : null;
   const fields = [mail.subject, input.message, mail.bodyText, mail.bodyHtml];
@@ -222,12 +249,33 @@ export async function sendMessage(
       422,
       "Use this inquiry’s existing booking link or the Schedule a Call button.",
     );
-  const frozen = fields.map((value) =>
-    usesBooking ? value.split(rawToken!).join(BOOKING_TOKEN_MARKER) : value,
-  );
+  const invoiceToken = invoice
+    ? checkedInvoiceToken(invoice.id, invoice.createdAt, invoice.hash)
+    : null;
+  const usesInvoice =
+    !!invoiceToken && fields.some((v) => v.includes(invoiceToken));
+  if (
+    fields.some((v) =>
+      /\/invoice\/[A-Za-z0-9_-]{43}/.test(
+        v.replaceAll(invoiceToken ?? "__absent__", ""),
+      ),
+    )
+  )
+    throw new HttpError(
+      422,
+      "Use this inquiry’s published invoice link or the View Invoice button.",
+    );
+  const frozen = fields.map((value) => {
+    const output = usesBooking
+      ? value.split(rawToken!).join(BOOKING_TOKEN_MARKER)
+      : value;
+    return usesInvoice
+      ? output.split(invoiceToken!).join(INVOICE_TOKEN_MARKER)
+      : output;
+  });
   const rows = await query(
-    `INSERT INTO inquiry_messages (inquiry_id,from_email,reply_to_email,to_email,subject,message_text,body_text,body_html,template_key,proposal_id,request_key,payload_fingerprint,booking_nonce,booking_token_hash)
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) ON CONFLICT (request_key) DO NOTHING RETURNING *`,
+    `INSERT INTO inquiry_messages (inquiry_id,from_email,reply_to_email,to_email,subject,message_text,body_text,body_html,template_key,proposal_id,request_key,payload_fingerprint,booking_nonce,booking_token_hash,invoice_id,invoice_token_hash,invoice_token_created_at)
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17) ON CONFLICT (request_key) DO NOTHING RETURNING *`,
     [
       inquiryId,
       config.from,
@@ -240,6 +288,9 @@ export async function sendMessage(
       fingerprint,
       usesBooking ? booking!.nonce : null,
       usesBooking ? booking!.hash : null,
+      usesInvoice ? invoice!.id : null,
+      usesInvoice ? invoice!.hash : null,
+      usesInvoice ? invoice!.createdAt : null,
     ],
   );
   if (!rows[0]) return sendMessage(inquiryId, input);
@@ -260,6 +311,23 @@ export async function retryMessage(
         "The booking link changed. Check the previous send outcome before composing a new response.",
       );
     checkedToken(String(old.booking_nonce), String(old.booking_token_hash));
+  }
+  if (old.invoice_id) {
+    const current = await invoiceForEmail(inquiryId);
+    if (
+      !current ||
+      current.id !== old.invoice_id ||
+      current.hash !== old.invoice_token_hash
+    )
+      throw new HttpError(
+        409,
+        "This invoice link is no longer available for sending. Check the previous send outcome before composing another message.",
+      );
+    checkedInvoiceToken(
+      String(old.invoice_id),
+      iso(old.invoice_token_created_at),
+      String(old.invoice_token_hash),
+    );
   }
   // Never reuse an expired provider key: an ambiguous old send needs manual reconciliation.
   if (

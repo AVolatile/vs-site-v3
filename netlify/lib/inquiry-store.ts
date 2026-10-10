@@ -109,11 +109,12 @@ export async function updateInquiry(id: string, status: InquiryStatus, adminNote
 }
 
 export async function listInquiryActivity(id: string): Promise<InquiryActivity[]> {
-  const rows = await query(`SELECT id,inquiry_id,created_at,activity_type,from_status,to_status,note,actor,follow_up_at,proposal_number
+  const rows = await query(`SELECT id,inquiry_id,created_at,activity_type,from_status,to_status,note,actor,follow_up_at,proposal_number,to_jsonb(inquiry_activity)->>'invoice_number' AS invoice_number
     FROM inquiry_activity WHERE inquiry_id=$1 ORDER BY created_at DESC,id DESC`, [id]);
   return rows.map(row => ({
     id: String(row.id), inquiryId: String(row.inquiry_id), createdAt: iso(row.created_at),
     type: row.activity_type as InquiryActivity['type'],
+    ...(row.invoice_number ? {invoiceNumber:String(row.invoice_number)} : {}),
     fromStatus: row.from_status as InquiryStatus | null, toStatus: row.to_status as InquiryStatus | null,
     note: String(row.note), actor: row.actor as InquiryActivity['actor'], followUpAt: row.follow_up_at == null ? null : iso(row.follow_up_at), proposalNumber: row.proposal_number == null ? null : String(row.proposal_number),
   }));

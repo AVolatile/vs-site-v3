@@ -3,12 +3,14 @@ import Heading from '@components/ui/atoms/Heading.astro';
 import Text from '@components/ui/atoms/Text.astro';
 import Button from '@components/ui/atoms/Button.astro';
 import InquiryField from '@components/inquiry/InquiryField.astro';
+import InvoiceSummary from '@components/invoices/InvoiceSummary.astro';
 import ProposalDocument from './ProposalDocument.astro';
 ---
 <div class="proposal-admin" data-proposal-admin>
   <div class="editor-heading"><div><Text variant="accent-label">Volatile Solutions / Admin</Text><Heading tag="h1" variant="section-title">Proposal editor</Heading></div><div class="editor-actions"><Button href="/admin/" variant="outline" size="sm" data-proposal-back>Back to inquiry</Button><Button type="button" variant="outline" size="sm" data-proposal-logout>Sign out</Button></div></div>
   <Text variant="body" role="status" aria-live="polite" data-editor-message>Checking access…</Text>
   <div class="editor-meta" data-editor-meta hidden><Text variant="body" data-editor-number></Text><Text variant="body" data-editor-status></Text><Button type="button" variant="outline" size="sm" data-editor-reload>Reload proposal</Button></div>
+  <InvoiceSummary />
   <form data-proposal-form novalidate hidden>
     <fieldset class="editor-section"><legend>Project details</legend><InquiryField compact name="proposalTitle" label="Proposal title" required maxLength={160} /><InquiryField compact name="proposalSummary" label="Project summary" type="textarea" maxLength={4000} /><InquiryField compact name="proposalValidUntil" label="Valid through (UTC)" type="date" /></fieldset>
     <fieldset class="editor-section"><legend>Line items</legend><Text variant="feature-body-sm">Whole quantities, rates in USD. Use up to 25 items. Move items with Up / Down.</Text><div class="editor-items" data-editor-items></div><Button type="button" variant="outline" size="sm" data-editor-add>Add item</Button><Text variant="feature-body-sm" role="alert" data-editor-items-error hidden></Text></fieldset>

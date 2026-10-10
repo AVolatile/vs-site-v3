@@ -2,6 +2,7 @@
 import Section from '@components/ui/layout/Section.astro';
 import BookingSummary from '@components/booking/BookingSummary.astro';
 import Container from '@components/ui/layout/Container.astro';
+import BookingSyncStatus from '@components/booking/BookingSyncStatus.astro';
 import Heading from '@components/ui/atoms/Heading.astro';
 import Text from '@components/ui/atoms/Text.astro';
 import Button from '@components/ui/atoms/Button.astro';
@@ -17,6 +18,7 @@ import InquiryField from '@components/inquiry/InquiryField.astro';
 </div>
 <div class="calendar-actions">
 <Button href="/admin/" variant="outline" size="sm">Inquiries</Button>
+<Button href="/admin/settings/integrations/" variant="outline" size="sm">Integrations</Button>
 <Button href="/admin/calendar/settings/" variant="outline" size="sm">Availability</Button>
 <Button type="button" variant="ghost" class="booking-tertiary" size="sm" data-calendar-logout>Sign out</Button>
 </div>
@@ -47,6 +49,7 @@ import InquiryField from '@components/inquiry/InquiryField.astro';
   <section data-calendar-detail hidden class="calendar-detail" aria-labelledby="calendar-detail-heading">
 <Heading id="calendar-detail-heading" tag="h2" variant="feature-title" tabindex="-1">Booking details</Heading>
 <BookingSummary data-calendar-detail-copy/>
+<BookingSyncStatus />
 <Text variant="body" data-calendar-detail-contact></Text>
 <Text variant="body" data-calendar-detail-notes>
 </Text>

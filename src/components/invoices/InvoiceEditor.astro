@@ -1,0 +1,52 @@
+---
+import Heading from '@components/ui/atoms/Heading.astro';
+import Text from '@components/ui/atoms/Text.astro';
+import Button from '@components/ui/atoms/Button.astro';
+import InquiryField from '@components/inquiry/InquiryField.astro';
+import InvoiceDocument from './InvoiceDocument.astro';
+---
+<div class="invoice-admin" data-invoice-admin>
+  <div class="editor-heading"><div><Text variant="accent-label">Volatile Solutions / Admin</Text><Heading tag="h1" variant="section-title">Invoice editor</Heading></div><div class="editor-actions"><Button href="/admin/" variant="outline" size="sm" data-invoice-back>Back to inquiry</Button><Button type="button" variant="outline" size="sm" data-calendar-logout>Sign out</Button></div></div>
+  <Text variant="body" role="status" aria-live="polite" data-editor-message>Checking access…</Text>
+  <div class="editor-meta" data-editor-meta hidden><Text variant="body" data-editor-number></Text><Text variant="body" data-editor-status></Text><Button type="button" variant="outline" size="sm" data-editor-reload>Reload invoice</Button></div>
+  <form data-invoice-form novalidate hidden>
+    <fieldset class="editor-section"><legend>Invoice details</legend><Text variant="feature-body-sm" data-editor-timezone></Text><InquiryField compact name="invoiceTitle" label="Invoice title" required maxLength={160} /><div class="billing-fields"><InquiryField compact name="invoiceIssueDate" label="Issue date" type="date" required /><InquiryField compact name="invoiceDueDate" label="Due date" type="date" hint="Choose the agreed due date; no payment term is assumed." /></div></fieldset>
+    <fieldset class="editor-section"><legend>Client / billing</legend><div class="billing-fields"><InquiryField compact name="invoiceClientName" label="Client name" required maxLength={120} /><InquiryField compact name="invoiceClientCompany" label="Company (optional)" maxLength={160} /><InquiryField compact name="invoiceClientEmail" label="Client email" type="email" required maxLength={254} /></div><Text variant="feature-body-sm">All billing address fields are optional.</Text><div class="billing-fields">{[{name:'line1',label:'Address line 1',max:200},{name:'line2',label:'Address line 2',max:200},{name:'city',label:'City',max:120},{name:'region',label:'State / region',max:120},{name:'postalCode',label:'Postal code',max:40},{name:'country',label:'Country',max:100}].map(field=><InquiryField compact name={'invoiceBilling'+field.name} label={field.label+' (optional)'} maxLength={field.max} />)}</div></fieldset>
+    <fieldset class="editor-section"><legend>Line items</legend><Text variant="feature-body-sm">Whole quantities, rates in USD. Use up to 25 items. Move items with Up / Down.</Text><div class="editor-items" data-editor-items></div><Button type="button" variant="outline" size="sm" data-editor-add>Add item</Button><Text variant="feature-body-sm" role="alert" data-editor-items-error hidden></Text></fieldset>
+    <fieldset class="editor-section editor-pricing"><legend>Pricing</legend><InquiryField compact name="invoiceDiscount" label="Fixed discount (USD)" inputMode="decimal" /><InquiryField compact name="invoiceTax" label="Tax (%)" inputMode="decimal" /><Text variant="feature-body-sm">Tax applies to the subtotal after discount. Default is 0%; no tax is applied automatically.</Text><dl data-editor-totals></dl><Text variant="feature-body-sm">Preview totals. Saved server totals are authoritative.</Text></fieldset>
+    <fieldset class="editor-section"><legend>Notes</legend><InquiryField compact name="invoiceNotes" label="Notes — shown on invoice" type="textarea" maxLength={4000} /><InquiryField compact name="invoiceTerms" label="Terms — shown on invoice" type="textarea" maxLength={4000} /></fieldset>
+    <div class="editor-actions"><Button type="submit" variant="primary" data-editor-save>Save draft</Button><Button type="button" variant="outline" data-editor-send>Send invoice</Button></div>
+    <Text variant="feature-body-sm">Sending publishes a private invoice link; no email is sent. Save changes before sending. Published invoices are read-only.</Text>
+  </form>
+  <div class="editor-client-link editor-section" data-editor-link hidden><Heading tag="h2" variant="feature-title">Client invoice link</Heading><InquiryField compact name="invoiceClientUrl" label="Public invoice link" /><div class="editor-actions"><Button type="button" variant="outline" size="sm" data-editor-copy>Copy link</Button><Button href="/" variant="outline" size="sm" data-editor-open target="_blank" rel="noopener noreferrer">Open client view</Button></div></div>
+  <div class="editor-actions" data-invoice-status-actions hidden><Button type="button" variant="outline" data-invoice-action="mark-paid">Mark as paid</Button><Button type="button" variant="ghost" class="booking-tertiary booking-destructive" data-invoice-action="void">Void invoice</Button><Text variant="feature-body-sm">Mark as paid records your manual confirmation; it does not verify a processor payment.</Text></div>
+  <section class="editor-section" data-editor-preview hidden><Heading tag="h2" variant="feature-title">Client-safe preview</Heading><InvoiceDocument adminPreview /></section>
+  <template data-editor-item-template>
+    <div class="editor-item"><Heading tag="h3" variant="feature-title" data-editor-item-heading></Heading><div class="editor-item-fields"><InquiryField compact name="itemDescription" label="Description" maxLength={500} /><InquiryField compact name="itemQuantity" label="Quantity" inputMode="numeric" required /><InquiryField compact name="itemRate" label="Rate (USD)" inputMode="decimal" required /><div class="item-amount"><Text variant="feature-body-sm">Amount</Text><Text variant="body" data-item-amount></Text></div></div><div class="editor-actions"><Button type="button" variant="outline" size="sm" data-item-up>Up</Button><Button type="button" variant="outline" size="sm" data-item-down>Down</Button><Button type="button" variant="outline" size="sm" data-item-remove>Remove</Button></div></div>
+  </template>
+  <noscript><Text variant="body">JavaScript is required to edit invoices.</Text></noscript>
+</div>
+<script>import {setupInvoiceEditor} from '@/lib/invoices/admin';setupInvoiceEditor();</script>
+<style>
+  [hidden] { display: none !important; }
+  .invoice-admin { width: min(100%,76rem); margin: auto; padding: var(--spacing-xl) var(--spacing-container-px); display: grid; gap: var(--spacing-lg); min-width: 0; }
+  .editor-heading,.editor-actions,.editor-meta { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
+  .editor-actions { justify-content: flex-start; }
+  .editor-heading > div:first-child { display: grid; gap: var(--spacing-sm); }
+  .billing-fields {display:grid;gap:var(--spacing-sm);min-width:0;}
+  @media(min-width:48rem){.billing-fields{grid-template-columns:repeat(2,minmax(0,1fr));}}
+  form,.editor-section,.editor-items,.editor-item { display: grid; gap: var(--spacing-md); min-width: 0; }
+  .editor-section { margin: 0; padding: var(--spacing-md); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-md); background: var(--color-brand-cream); }
+  legend { font-weight: 700; padding-inline: var(--spacing-xs); }
+  .editor-item { padding-bottom: var(--spacing-md); border-bottom: 1px solid var(--color-outline-variant); }
+  .editor-item-fields { display: grid; gap: var(--spacing-sm); min-width: 0; }
+  .item-amount { align-self: end; min-width: 0; }
+  .item-amount :global(p) { overflow-wrap: anywhere; }
+  .editor-item :global(h3) { font-size: 1rem; }
+  :global([data-editor-message][role="alert"]) { background: var(--color-error-container); color: var(--color-on-error-container); padding: var(--spacing-md); border-radius: var(--ui-radius-sm); }
+  .editor-pricing :global(dl) { display: grid; gap: var(--spacing-sm); margin: 0; }
+  .editor-pricing :global(dl div) { display: flex; justify-content: space-between; gap: var(--spacing-md); }
+  .editor-pricing :global(dd) { margin: 0; font-weight: 600; }
+  :global([data-editor-private-copy]) { white-space: pre-wrap; overflow-wrap: anywhere; }
+  @media (min-width: 48rem) { .editor-item-fields { grid-template-columns: minmax(0,3fr) repeat(3,minmax(0,1fr)); } }
+</style>
