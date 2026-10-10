@@ -129,12 +129,16 @@ beforeAll(async () => {
     await db.exec(readFileSync("database/migrations/" + name + ".sql", "utf8"));
 }, 30000);
 afterAll(() => db.close());
-afterEach(() => vi.unstubAllEnvs());
+afterEach(() => {
+  vi.unstubAllEnvs();
+  vi.unstubAllGlobals();
+});
 beforeEach(async () => {
   await db.exec(
     "TRUNCATE invoice_items,invoices,bookings,booking_links,inquiry_messages,proposal_items,proposals,inquiry_activity,inquiries; DELETE FROM booking_exceptions; UPDATE booking_availability SET enabled=false,start_time='09:00',end_time='17:00'; UPDATE booking_settings SET timezone='America/New_York',slot_duration_minutes=30,buffer_minutes=0,minimum_notice_hours=12,horizon_days=60,updated_at=clock_timestamp();",
   );
   vi.resetAllMocks();
+  vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("Unexpected network request in isolated booking tests")));
   for (const [key, value] of Object.entries({
     DATABASE_URL: "postgresql://isolated-test-only",
     SITE_URL: "https://staging.example.test",
@@ -308,6 +312,8 @@ describe("booking token, URL, privacy and database workflows", () => {
     expect(r.booking.startAt).toMatch(/Z$/);
   });
   it("does not fabricate a Zoom link or require a phone for Zoom", async () => {
+    for (const key of ["ZOOM_ACCOUNT_ID", "ZOOM_CLIENT_ID", "ZOOM_CLIENT_SECRET", "ZOOM_USER_ID"])
+      vi.stubEnv(key, "synthetic-test-only");
     await enable();
     const l = await link(),
       page = await publicBookingPage(l.token),
@@ -316,10 +322,40 @@ describe("booking token, URL, privacy and database workflows", () => {
       ...input(slot.startAt),
       meetingType: "zoom",
       clientPhone: "",
-    });
+    }, () => {});
     expect(saved.meetingType).toBe("zoom");
     expect(saved.clientPhone).toBeNull();
     expect(JSON.stringify(saved)).not.toContain("zoom.us");
+  });
+  it("offers phone only and books without dormant provider configuration", async () => {
+    for (const key of ["ZOOM_ACCOUNT_ID", "ZOOM_CLIENT_ID", "ZOOM_CLIENT_SECRET", "ZOOM_USER_ID", "MICROSOFT_CLIENT_ID", "MICROSOFT_CLIENT_SECRET"])
+      vi.stubEnv(key, "");
+    const r = await reservation();
+    expect((await publicBookingPage(r.token)).meetingTypes).toEqual(["phone"]);
+    expect(r.booking.meetingType).toBe("phone");
+    expect(r.booking.status).toBe("scheduled");
+  });
+  it("rejects new unavailable Zoom requests without creating a booking or activity", async () => {
+    vi.stubEnv("ZOOM_CLIENT_SECRET", "");
+    await enable();
+    const l = await link(), page = await publicBookingPage(l.token);
+    const slot = (await publicSlots(l.token, page.dates[0].date)).slots[0];
+    await expect(book(l.token, {...input(slot.startAt), meetingType: "zoom", clientPhone: ""}))
+      .rejects.toMatchObject({status:422, message:"Choose a phone call. Zoom calls are currently unavailable."});
+    expect((await db.query("SELECT * FROM bookings")).rows).toEqual([]);
+    expect((await db.query("SELECT * FROM inquiry_activity WHERE activity_type='booking_scheduled'")).rows).toEqual([]);
+  });
+  it("offers configured Zoom and preserves idempotent retries if configuration is later removed", async () => {
+    for (const key of ["ZOOM_ACCOUNT_ID", "ZOOM_CLIENT_ID", "ZOOM_CLIENT_SECRET", "ZOOM_USER_ID"])
+      vi.stubEnv(key, "synthetic-test-only");
+    await enable();
+    const l = await link(), page = await publicBookingPage(l.token);
+    expect(page.meetingTypes).toEqual(["phone", "zoom"]);
+    const slot = (await publicSlots(l.token, page.dates[0].date)).slots[0];
+    const payload = {...input(slot.startAt), meetingType: "zoom" as const, clientPhone: ""};
+    const saved = await book(l.token, payload, () => {});
+    vi.stubEnv("ZOOM_CLIENT_SECRET", "");
+    expect(await book(l.token, payload)).toEqual(saved);
   });
   it("prevents two simultaneous inquiries from reserving the same slot", async () => {
     await enable();

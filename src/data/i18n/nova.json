@@ -59,24 +59,7 @@
         "trustItems": [],
         "image": "/assets/images/t001-nova/t001-nova-hero-anthony-volatile.webp",
         "imageAlt": "Anthony Volatile, founder of Volatile Solutions",
-        "stats": [
-          {
-            "value": "—",
-            "label": "Projects"
-          },
-          {
-            "value": "—",
-            "label": "Experience"
-          },
-          {
-            "value": "—",
-            "label": "Development Hours"
-          },
-          {
-            "value": "—",
-            "label": "Creative Pieces"
-          }
-        ]
+        "stats": []
       },
       "nova-projects": {
         "title": "Selected Work",

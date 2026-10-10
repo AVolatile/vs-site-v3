@@ -15,6 +15,31 @@ afterEach(()=>vi.unstubAllEnvs());
 const render=async(props:Record<string,unknown>={})=>cheerio.load(await container.renderToString(Layout,{props:{showShell:false,clientRuntime:false,enableLenis:false,...props},request:new Request('https://request-host.example.test/portfolio/')}));
 const meta=($:cheerio.CheerioAPI,key:string)=>$('head meta[property="'+key+'"],head meta[name="'+key+'"]').attr('content');
 describe('shared social metadata',()=>{
+ it('publishes only approved Organization and WebSite facts with current brand assets',async()=>{
+  const $=await render();
+  const schemas=$('script[type="application/ld+json"]').map((_,node)=>JSON.parse($(node).text())).get();
+  expect(schemas.map(s=>s['@type'])).toEqual(['Organization','WebSite']);
+  const organization=schemas[0];
+  expect(organization).toMatchObject({name:'Volatile Solutions',telephone:'+14015456860',email:'volatile-solutions@outlook.com',url:'https://volatile-solutions.net',image:'https://volatile-solutions.net/volatile-solutions-og.png',logo:'https://volatile-solutions.net/assets/images/t001-nova/t001-nova-navbar-logo.png'});
+  for(const field of ['address','geo','openingHoursSpecification','priceRange','taxID'])expect(organization).not.toHaveProperty(field);
+  expect(organization.sameAs).toHaveLength(4);
+ });
+ it('keeps schema and social images on the same staging origin',async()=>{
+  vi.stubEnv('PUBLIC_SITE_URL','https://vs-site-v3.netlify.app/');
+  const $=await render();const organization=JSON.parse($('script[type="application/ld+json"]').first().text());
+  expect(organization.image).toBe(meta($,'og:image'));
+  expect(organization.logo).toBe('https://vs-site-v3.netlify.app/assets/images/t001-nova/t001-nova-navbar-logo.png');
+  expect(organization.url).toBe('https://vs-site-v3.netlify.app');
+ });
+ it('keeps previews noindex after the production indexing switch is enabled',async()=>{
+  const original=seo.index;seo.index=true;
+  try{
+   vi.stubEnv('PUBLIC_SITE_URL','https://vs-site-v3.netlify.app/');expect(meta(await render(),'robots')).toBe('noindex, follow');
+   vi.stubEnv('PUBLIC_SITE_URL','https://volatile-solutions.net/');vi.stubEnv('CONTEXT','deploy-preview');expect(meta(await render(),'robots')).toBe('noindex, follow');
+   vi.stubEnv('CONTEXT','production');vi.stubEnv('NETLIFY','true');expect(meta(await render(),'robots')).toBe('index, follow');
+   expect(meta(await render({noIndex:true}),'robots')).toBe('noindex, follow');
+  }finally{seo.index=original;}
+ });
  it('provides one authoritative value for every required OG and Twitter tag',async()=>{
   const $=await render();
   for(const key of ['og:type','og:site_name','og:url','og:title','og:description','og:image','og:image:width','og:image:height','og:image:alt','twitter:card','twitter:title','twitter:description','twitter:image','twitter:image:alt'])expect($('head meta[property="'+key+'"],head meta[name="'+key+'"]').length,key).toBe(1);

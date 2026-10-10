@@ -112,6 +112,15 @@ export async function setupPublicBooking() {
         : "A phone number is required for a phone call.";
   }
   function render() {
+    const zoom = form.querySelector<HTMLInputElement>(
+      '[name="meetingType"][value="zoom"]',
+    )!;
+    zoom.disabled = !page.meetingTypes?.includes("zoom");
+    el("[data-booking-zoom]").hidden = zoom.disabled;
+    if (zoom.disabled && zoom.checked)
+      form.querySelector<HTMLInputElement>(
+        '[name="meetingType"][value="phone"]',
+      )!.checked = true;
     field("clientName").value = field("clientName").value || page.name;
     field("clientEmail").value = page.email;
     el("[data-booking-timezone]").textContent =
@@ -367,6 +376,9 @@ export async function setupPublicBooking() {
           | HTMLTextAreaElement
         >("button,input,select,textarea")
         .forEach((b) => (b.disabled = false));
+      form.querySelector<HTMLInputElement>(
+        '[name="meetingType"][value="zoom"]',
+      )!.disabled = !page.meetingTypes?.includes("zoom");
       feedback.tabIndex = -1;
       feedback.focus();
     }

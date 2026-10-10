@@ -1,6 +1,7 @@
 ---
 import '@styles/global.css';
 import '@styles/booking.css';
+import '@styles/admin.css';
 import BookingActionDialog from '@components/booking/BookingActionDialog.astro';
 import '@styles/.generated/phosphor.css';
 import company from '@data/global/company.json';
@@ -19,8 +20,10 @@ const { loginPresentation = false, title = "Inquiry Admin | Volatile Solutions" 
     <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" /><meta name="referrer" content="no-referrer" />
     <title>{title}</title>
+    <link rel="icon" href="/vs-favicon.ico" />
+    <link rel="apple-touch-icon" href="/vs-apple-touch-icon.png" />
   </head>
-  <body class:list={{ 'admin-login-layout': loginPresentation }}>
+  <body class:list={['admin-ui', { 'admin-login-layout': loginPresentation }]}>
     <header class="admin-header">
       <a href="/" aria-label="Volatile Solutions home"><img src={company.branding.logoImage} width={company.branding.logoWidth} height={company.branding.logoHeight} alt="Volatile Solutions" /></a>
       <Text tag="span" variant="feature-body-sm">Private workspace</Text>

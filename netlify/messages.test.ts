@@ -387,6 +387,17 @@ describe("private outbound CRM messages and provider boundary", () => {
     expect(mocks.send).not.toHaveBeenCalled();
     expect((await listMessages(id)).total).toBe(0);
   });
+  it("retains readable image-blocked branding and complete plain text with intentional CTA", async () => {
+    vi.stubEnv("SITE_URL", "https://staging.example.test");
+    vi.stubEnv("EMAIL_PUBLIC_URL", "https://assets.example.test");
+    const inquiry = await getInquiry(await create());
+    const mail = renderEmail({...composition(), message: "Your project update.", includeBooking: true}, inquiry, "Anthony <hello@example.test>", "reply@example.test", null, {url:"https://staging.example.test/book/intentional-test-link/"});
+    expect(mail.bodyHtml).toContain('src="https://assets.example.test/assets/images/t001-nova/t001-nova-navbar-logo.png" width="240" height="48" alt="Volatile Solutions"');
+    expect(mail.bodyHtml).not.toContain("data:image");
+    expect(mail.bodyText).toBe("Hi Test,\n\nYour project update.\n\nSchedule a Call: https://staging.example.test/book/intentional-test-link/\n\nAnthony Volatile\nVolatile Solutions\nhttps://staging.example.test/\nreply@example.test");
+    expect(mail.bodyText).not.toMatch(/<[^>]+>/);
+    expect(mail.bodyHtml.replace(/<img[^>]*>/g, "")).toContain("Anthony Volatile<br><strong>Volatile Solutions</strong>");
+  });
   it("permits preview without a provider key, while Send stays disabled by configuration", async () => {
     const id = await create();
     vi.stubEnv("RESEND_API_KEY", "");

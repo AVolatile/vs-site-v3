@@ -1,5 +1,14 @@
 # Volatile Content Source — Anthony Volatile / Volatile Solutions
 
+## Approved final pre-launch cleanup — October 10, 2026
+
+The user authorizes removal of false public legal/business facts, accurate Organization/WebSite schema, empty English hero stats, legacy redirects, factual Privacy/Cookie policies and llms.txt, and configuration-aware public Zoom availability. Shared address/postal/city/hours/NIP/KRS/REGON values remain empty until real facts are approved; no office location, coordinates, hours, registration status or performance numbers are invented. Existing assets remain unchanged; schema image is /volatile-solutions-og.png and logo is /assets/images/t001-nova/t001-nova-navbar-logo.png.
+
+Layout canonical, social and schema URLs share the existing PUBLIC_SITE_URL build override. Runtime secure document/email/booking URLs continue using SITE_URL and optional EMAIL_PUBLIC_URL assets. Public Zoom is hidden/disabled without all four provider configuration values; Phone stays available and a stale new Zoom request is rejected before persistence. Booking timing and existing provider architecture are preserved. Indexing remains false; production-only enabling is a separate explicit launch step.
+
+Permanent legacy mappings: /about → /#zespol; /contact → /start-a-project/; /graphic-design and /packages → /#services; /privacy → /polityka-prywatnosci/; /terms → /start-a-project/ for contact, because no active Terms page exists. /pl redirects remain unchanged. Full manual environment, email DNS and domain-cutover gates are recorded in [INQUIRY_ADMIN_SETUP.md](INQUIRY_ADMIN_SETUP.md#final-pre-launch-cleanup--october-10-2026). Prior unresolved legal/schema/metrics/route cleanup notes are historical; production configuration/live workflow verification is still pending.
+
+
 Recorded: October 7, 2026. Asset and visual decisions A1–A7 added October 8, 2026. English Projects copy, production image families and alt text approved October 8, 2026; see B2.
 
 **This file stores factual source material. It is not final website copy, a redesign, a marketing exercise, or authorization to begin migration.**

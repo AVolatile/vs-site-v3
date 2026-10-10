@@ -9,7 +9,7 @@ import { legalBodyToHtml } from "@utils/legal-body-to-html";
 const injectData = (text: string) => {
   return text
     .replace(/{{COMPANY_NAME}}/g, company.name)
-    .replace(/{{SITE_URL}}/g, company.siteUrl || "nasza-strona.pl");
+    .replace(/{{SITE_URL}}/g, company.siteUrl);
 };
 
 const html = legalBodyToHtml(injectData(cookiesContent.body));

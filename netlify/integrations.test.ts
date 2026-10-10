@@ -1126,10 +1126,13 @@ describe("background sync and communication readiness", () => {
     expect(providerCalls("/meetings")).toHaveLength(1);
   });
   it("missing Zoom environment leaves a scheduled booking valid and flags configuration", async () => {
-    vi.stubEnv("ZOOM_CLIENT_SECRET", "");
     const r = await reservation(true);
-    expect(r.admin.status).toBe("scheduled");
-    expect(r.admin.zoomSync.status).toBe("failed");
+    vi.stubEnv("ZOOM_CLIENT_SECRET", "");
+    mocks.fetch.mockClear();
+    await syncBooking(r.admin.id);
+    const current = (await getInquiryBooking(r.inquiryId)).booking!;
+    expect(current.status).toBe("scheduled");
+    expect(current.zoomSync.status).toBe("failed");
     expect(
       mocks.fetch.mock.calls.some(([u]) => String(u).includes("zoom.us")),
     ).toBe(false);

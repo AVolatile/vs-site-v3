@@ -315,6 +315,44 @@
   status = 301
   force = true
 
+
+# Retired public URLs; no Terms page exists, so direct questions to project contact.
+[[redirects]]
+  from = "/about"
+  to = "/#zespol"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/contact"
+  to = "/start-a-project/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/graphic-design"
+  to = "/#services"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/packages"
+  to = "/#services"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/privacy"
+  to = "/polityka-prywatnosci/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/terms"
+  to = "/start-a-project/"
+  status = 301
+  force = true
+
 # Przekierowania — trailing slash
 [[redirects]]
   from = "/:path((?!.*\\.\\w+$).*)"

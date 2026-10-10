@@ -1,0 +1,151 @@
+/* Private-workspace presentation only; public Nova surfaces keep their own scale. */
+body.admin-ui .ui-type-accent-label {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--color-on-surface-variant);
+}
+
+body.admin-ui .ui-form-label > span {
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: none;
+}
+
+body.admin-ui .inquiry-field .ui-form-input {
+  border-color: var(--color-outline);
+}
+
+body.admin-ui .inquiry-field .ui-form-input[aria-invalid='true'] {
+  border-color: var(--color-error);
+}
+
+body.admin-ui :is([data-inquiry-admin], [data-proposal-admin], [data-invoice-admin]) .ui-button {
+  height: auto;
+  min-height: 2.75rem;
+  padding: 0.65rem 1rem;
+  font-size: 0.875rem;
+  letter-spacing: normal;
+  box-shadow: none;
+}
+
+body.admin-ui .ui-button-text-wrap {
+  min-width: 0;
+}
+
+body.admin-ui :is(a.ui-button, summary):focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+body.admin-ui [tabindex='-1']:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 4px;
+  border-radius: var(--ui-radius-sm);
+}
+
+body.admin-ui :is([data-admin-logout], [data-proposal-logout], [data-calendar-logout], [data-admin-clear-follow-up]) {
+  border-color: transparent;
+  background: transparent;
+  color: var(--color-on-surface-variant);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  box-shadow: none;
+}
+
+body.admin-ui :is([data-admin-clear-follow-up], .booking-destructive) {
+  color: var(--color-error);
+}
+
+body.admin-ui :is(.booking-tertiary, [data-admin-logout], [data-proposal-logout], [data-calendar-logout], [data-admin-clear-follow-up])::after {
+  display: none;
+}
+
+body.admin-ui :is(.booking-tertiary, [data-admin-logout], [data-proposal-logout], [data-calendar-logout], [data-admin-clear-follow-up]):hover {
+  background: var(--color-secondary-container);
+  color: var(--color-on-surface);
+}
+
+body.admin-ui :is(.booking-destructive, [data-admin-clear-follow-up]):hover {
+  color: var(--color-error);
+}
+
+body.admin-ui [data-inquiry-admin] .admin-status,
+body.admin-ui :is([data-editor-status], [data-invoice-status], [data-inquiry-proposal-status]) {
+  width: fit-content;
+  max-width: 100%;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--ui-radius-sm);
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+body.admin-ui :is([data-editor-status], [data-invoice-status]) {
+  background: var(--color-secondary-container);
+  color: var(--color-on-surface-variant);
+}
+
+body.admin-ui :is([data-admin-message], [data-editor-message], [data-calendar-feedback], [data-integration-feedback], [data-email-feedback], [data-admin-save-message], [data-admin-follow-up-message])[role='alert']:not(:empty) {
+  padding: var(--spacing-md);
+  border-radius: var(--ui-radius-sm);
+  background: var(--color-error-container);
+  color: var(--color-on-error-container);
+  overflow-wrap: anywhere;
+}
+
+body.admin-ui .inquiry-field input.ui-form-input[readonly] {
+  background: var(--color-secondary-container);
+  color: var(--color-on-surface-variant);
+}
+
+/* Detail views should not reserve space for unloaded global totals. */
+body.admin-ui .admin-dashboard:has([data-admin-detail-panel]:not([hidden])) > :is(.admin-global-context, .admin-metrics) {
+  display: none;
+}
+
+body.admin-ui .admin-dashboard:has([data-admin-detail-panel]:not([hidden])) .admin-follow-up-summary {
+  display: none;
+}
+
+body.admin-ui :is(.proposal-admin, .invoice-admin) {
+  width: min(100%, 80rem);
+  padding-block: var(--spacing-lg);
+}
+
+body.admin-ui .editor-section > .ui-button {
+  justify-self: start;
+}
+
+body.admin-ui .editor-pricing dl > div:last-child {
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--color-outline-variant);
+  font-weight: 700;
+}
+
+body.admin-ui :is(.integration-section, .integration-select) > p:empty {
+  display: none;
+}
+
+@media (min-width: 48rem) {
+  body.admin-ui .admin-save-actions > .ui-button {
+    flex: 0 1 auto;
+  }
+
+  body.admin-ui .editor-pricing {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body.admin-ui .editor-pricing > :is(legend, p, dl) {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 47.999rem) {
+  body.admin-ui .admin-login-shell:has([data-admin-dashboard][hidden]) .admin-login-content {
+    align-items: flex-start;
+  }
+}

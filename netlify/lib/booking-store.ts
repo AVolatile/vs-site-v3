@@ -1,6 +1,7 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { calendarProvider } from "./integrations/calendar";
 import { attemptBookingSync } from "./integrations/sync";
+import { zoomConfig } from "./integrations/zoom";
 import { safeMessage } from "./integrations/provider";
 import { createHash } from "node:crypto";
 import { z } from "zod";
@@ -196,6 +197,7 @@ export async function publicBookingPage(
     email: String(link.email),
     timezone: settings.timezone,
     durationMinutes: settings.slotDurationMinutes,
+    meetingTypes: zoomConfig() ? ["phone", "zoom"] : ["phone"],
     dates,
     booking: row ? publicData(row) : null,
     ...(availabilityMessage ? { availabilityMessage } : {}),
@@ -289,6 +291,11 @@ export async function book(
   }
   const existing = await existingRequest();
   if (existing) return existing;
+  if (input.meetingType === "zoom" && !zoomConfig())
+    throw new HttpError(
+      422,
+      "Choose a phone call. Zoom calls are currently unavailable.",
+    );
   const settings = await getBookingSettings(),
     date = calendarDate(input.startAt, settings.timezone),
     slot = slotsForDate(

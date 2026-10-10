@@ -124,6 +124,7 @@ export interface AdminBooking extends PublicBooking {
   completedAt: string | null;
 }
 export interface PublicBookingPage {
+  meetingTypes: MeetingType[];
   name: string;
   email: string;
   timezone: string;

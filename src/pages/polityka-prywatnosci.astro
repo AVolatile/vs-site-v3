@@ -17,7 +17,7 @@ const injectData = (text: string) => {
     .replace(/{{COMPANY_REGON}}/g, company.regon || "")
     .replace(/{{COMPANY_KRS}}/g, company.krs)
     .replace(/{{COMPANY_EMAIL}}/g, company.email)
-    .replace(/{{SITE_URL}}/g, company.siteUrl || "nasza-strona.pl");
+    .replace(/{{SITE_URL}}/g, company.siteUrl);
 };
 
 const html = legalBodyToHtml(injectData(privacyContent.body));

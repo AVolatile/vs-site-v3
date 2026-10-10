@@ -1,8 +1,8 @@
-/* Booking-only surfaces. Core Nova controls and other admin screens keep their styling. */
-.booking-ui {
+/* Compact Nova controls shared by booking surfaces and the private admin layout. */
+:is(.booking-ui, .admin-ui) {
   --ui-button-radius: var(--ui-radius-sm);
 }
-.booking-ui .ui-button {
+:is(.booking-ui, .admin-ui) .ui-button {
   height: auto;
   min-height: 2.75rem;
   padding: 0.7rem 1rem;
@@ -11,10 +11,10 @@
   text-transform: none;
   box-shadow: none;
 }
-.booking-ui .ui-button-outline {
+:is(.booking-ui, .admin-ui) .ui-button-outline {
   border-width: 1px;
 }
-.booking-ui .booking-tertiary {
+:is(.booking-ui, .admin-ui) .booking-tertiary {
   border-color: transparent;
   background: transparent;
   color: var(--color-on-surface-variant);
@@ -22,11 +22,11 @@
   text-decoration: underline;
   text-underline-offset: 0.2em;
 }
-.booking-ui .booking-destructive {
+:is(.booking-ui, .admin-ui) .booking-destructive {
   color: var(--color-error);
 }
-.booking-ui .inquiry-field .ui-form-input,
-.booking-ui .exception-row .ui-form-input {
+:is(.booking-ui, .admin-ui) .inquiry-field .ui-form-input,
+:is(.booking-ui, .admin-ui) .exception-row .ui-form-input {
   border-radius: var(--ui-radius-sm);
   min-height: 2.75rem;
   height: 2.75rem;
@@ -36,15 +36,15 @@
   font-size: 1rem;
   line-height: 1.4;
 }
-.booking-ui .inquiry-field textarea.ui-form-input {
+:is(.booking-ui, .admin-ui) .inquiry-field textarea.ui-form-input {
   height: auto;
   min-height: 7rem;
 }
-.booking-ui .inquiry-field select.ui-form-input {
+:is(.booking-ui, .admin-ui) .inquiry-field select.ui-form-input {
   padding-inline-end: 2.75rem;
 }
-.booking-ui .inquiry-field .ui-form-label,
-.booking-ui .exception-row .ui-form-label {
+:is(.booking-ui, .admin-ui) .inquiry-field .ui-form-label,
+:is(.booking-ui, .admin-ui) .exception-row .ui-form-label {
   font-family: var(--font-sans);
   font-size: 0.8125rem;
   font-weight: 500;
@@ -52,11 +52,11 @@
   text-transform: none;
   margin: 0;
 }
-.booking-ui :is(input, select, textarea):focus-visible {
+:is(.booking-ui, .admin-ui) :is(input, select, textarea):focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 3px;
 }
-.booking-ui :is(button, input, select):disabled {
+:is(.booking-ui, .admin-ui) :is(button, input, select):disabled {
   opacity: 0.55;
   cursor: not-allowed;
 }
@@ -147,14 +147,14 @@ body:has(dialog.booking-confirmation[open]) {
   overflow: hidden;
 }
 @media (prefers-reduced-motion: reduce) {
-  .booking-ui .ui-button,
-  .booking-ui .ui-button-text-default,
-  .booking-ui .ui-button-text-hover {
+  :is(.booking-ui, .admin-ui) .ui-button,
+  :is(.booking-ui, .admin-ui) .ui-button-text-default,
+  :is(.booking-ui, .admin-ui) .ui-button-text-hover {
     transition: none;
   }
 }
 
-.booking-ui [tabindex="-1"]:focus {
+:is(.booking-ui, .admin-ui) [tabindex="-1"]:focus {
   outline: 2px solid var(--color-primary);
   outline-offset: 4px;
   border-radius: var(--ui-radius-sm);

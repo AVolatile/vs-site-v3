@@ -40,8 +40,8 @@ import InquiryField from '@components/inquiry/InquiryField.astro';
 <input type="radio" name="meetingType" value="phone" checked/>
 <Text tag="span" variant="body">Phone</Text>
 </label>
-<label>
-<input type="radio" name="meetingType" value="zoom"/>
+<label data-booking-zoom hidden>
+<input type="radio" name="meetingType" value="zoom" disabled/>
 <Text tag="span" variant="body">Zoom</Text>
 </label>
 </div>

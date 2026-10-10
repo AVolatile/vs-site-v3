@@ -59,13 +59,12 @@ interface Props {
 	enableLenis?: boolean;
 }
 
-// Staging/Netlify preview should be noindex even when seo.index = true.
-// Netlify sets NETLIFY='true' in build, STAGING is convenient override
-// for other environments (e.g. Vercel preview). Props noIndex always wins
-// because destructuring uses default only when prop is missing.
-// By default (seo.index = false in seo.json) site is noindex, follow;
-// client explicitly enables indexing by setting index to true.
-const isStaging = import.meta.env.NETLIFY === 'true' || import.meta.env.STAGING === 'true';
+const publicSiteUrl = process.env.PUBLIC_SITE_URL || Astro.site || company.siteUrl;
+// Netlify also sets NETLIFY=true for production. Guard actual previews and
+// staging origins while leaving the explicit seo.index launch switch effective.
+const isStaging = import.meta.env.STAGING === 'true'
+	|| ['deploy-preview', 'branch-deploy'].includes(import.meta.env.CONTEXT || '')
+	|| new URL(publicSiteUrl).hostname.endsWith('.netlify.app');
 const reviewApiUrl = import.meta.env.PUBLIC_REVIEW_API_URL || '';
 const reviewProject = import.meta.env.PUBLIC_REVIEW_PROJECT || '';
 
@@ -104,7 +103,6 @@ const theme = themeProp || urlTheme || (ACTIVE_TEMPLATE as string);
 
 // Why: siteUrl comes from company.json (SSOT of company data), Astro.site
 // (site.config.mjs) overrides it if set in build config.
-const publicSiteUrl = process.env.PUBLIC_SITE_URL || Astro.site || company.siteUrl;
 const configuredSitePath = new URL(publicSiteUrl).pathname;
 const basePath = process.env.PUBLIC_BASE_PATH
 	|| (configuredSitePath !== '/' ? configuredSitePath : import.meta.env.BASE_URL);
@@ -293,7 +291,7 @@ const mainPaddingStyle = fullBleedTop
 			}
 		</script>
 		{clientRuntime && <ClientRouter />}
-		<Schema template={schemaTemplate} />
+		<Schema template={schemaTemplate} siteUrl={publicSiteUrl} assetBasePath={normalizedAssetBasePath} />
 		<!-- Content Security Policy -->
 		<meta http-equiv="Content-Security-Policy" content="
 			default-src 'self';
