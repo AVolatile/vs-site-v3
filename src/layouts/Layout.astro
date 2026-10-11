@@ -255,23 +255,9 @@ const mainPaddingStyle = fullBleedTop
 				</script>
 			</>
 		)}
-		{
-			// Why: project data can provide a custom favicon
-			// (company.branding.favicon). Fallback to default favicon set.
-			company.branding.favicon ? (
-				<>
-					<link rel="icon" type="image/png" sizes="32x32" href={publicAsset(company.branding.favicon)} />
-					<link rel="shortcut icon" type="image/x-icon" href={publicAsset('/vs-favicon.ico')} />
-					<link rel="apple-touch-icon" sizes="180x180" href={publicAsset('/vs-apple-touch-icon.png')} />
-				</>
-			) : (
-				<>
-					<link rel="icon" type="image/svg+xml" href={publicAsset('/favicon.svg')} />
-					<link rel="apple-touch-icon" href={publicAsset('/apple-touch-icon.png')} />
-					<link rel="shortcut icon" href={publicAsset('/favicon.svg')} />
-				</>
-			)
-		}
+		<link rel="icon" type="image/vnd.microsoft.icon" sizes="16x16 32x32" href={publicAsset('/favicon.ico')} />
+		<link rel="icon" type="image/png" sizes="180x180" href={publicAsset(company.branding.favicon || '/vs-favicon.png')} />
+		<link rel="apple-touch-icon" sizes="180x180" href={publicAsset('/apple-touch-icon.png')} />
 		<meta name="generator" content={Astro.generator} />
 		<script is:inline>
 			if (
