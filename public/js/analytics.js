@@ -23,6 +23,17 @@
     }
   }
 
+  function getConsentStatus() {
+    if (window.WebScaleCookies && window.WebScaleCookies.getStatus) {
+      return window.WebScaleCookies.getStatus();
+    }
+    try {
+      return window.localStorage.getItem('cookie-consent-status');
+    } catch (_error) {
+      return null;
+    }
+  }
+
   function injectScript(src) {
     var script = document.createElement('script');
     script.async = true;
@@ -88,7 +99,7 @@
   }
 
   function loadAnalytics() {
-    if (trackersLoaded || analyticsRevoked || localStorage.getItem('cookie-consent-status') !== 'accepted') return;
+    if (trackersLoaded || analyticsRevoked || getConsentStatus() !== 'accepted') return;
     if (config.googleTagManagerId) {
       initGoogleTagManager(config.googleTagManagerId);
     } else if (config.googleAnalyticsId) {
@@ -107,7 +118,7 @@
   }
 
   function sendPageView() {
-    if (!trackersLoaded || analyticsRevoked || localStorage.getItem('cookie-consent-status') !== 'accepted') return;
+    if (!trackersLoaded || analyticsRevoked || getConsentStatus() !== 'accepted') return;
     var pagePath = window.location.pathname + window.location.search;
     if (config.googleTagManagerId && window.dataLayer) {
       window.dataLayer.push({ event: 'page_view', page_path: pagePath });
@@ -118,7 +129,7 @@
   }
 
   function sendEvent(name, params) {
-    if (!trackersLoaded || analyticsRevoked || localStorage.getItem('cookie-consent-status') !== 'accepted') return;
+    if (!trackersLoaded || analyticsRevoked || getConsentStatus() !== 'accepted') return;
     if (config.googleTagManagerId && window.dataLayer) {
       window.dataLayer.push({ event: name, ...params });
     } else if (config.googleAnalyticsId && window.gtag) {
@@ -155,7 +166,7 @@
 
   // If consent was already granted earlier (localStorage), load immediately;
   // otherwise wait for the event from cookie-consent.js.
-  if (localStorage.getItem('cookie-consent-status') === 'accepted') {
+  if (getConsentStatus() === 'accepted') {
     loadAnalytics();
   } else {
     window.addEventListener('cookie-consent-accepted', loadAnalytics);

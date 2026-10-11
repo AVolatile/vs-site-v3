@@ -161,7 +161,6 @@ const analyticsConfig = {
   facebookPixelId: seo.analytics?.facebookPixelId || '',
   clarityId: resolveAnalyticsId(import.meta.env.PUBLIC_CLARITY_ID, seo.analytics?.clarityId),
 };
-const hasOptionalTracking = Object.values(analyticsConfig).some(Boolean);
 
 // Why: navbar and footer are GLOBAL. Layout renders them on every
 // page (fallback to defaultVariant from registry), so no subpage appears
@@ -373,7 +372,7 @@ const mainPaddingStyle = fullBleedTop
 		<!-- Analytics must not delay first render, defer keeps cookie consent compatibility. -->
 		{clientRuntime && <script is:inline data-astro-rerun src="/js/analytics.js" defer></script>}
 		{clientRuntime && <script is:inline data-astro-rerun src="/js/theme-switcher.js" defer></script>}
-		{clientRuntime && hasOptionalTracking && <CookieConsent />}
+		{clientRuntime && showShell && <CookieConsent />}
 	        {clientRuntime && <Toast />}
 	        {clientRuntime && <FloatingBar />}
 	        {clientRuntime && <ImageLightbox />}

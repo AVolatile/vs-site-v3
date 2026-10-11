@@ -3,6 +3,7 @@ import Text from "@components/ui/atoms/Text.astro";
 import Button from "@components/ui/atoms/Button.astro";
 import company from "@data/global/company.json";
 import novaCopy from "@data/i18n/nova.json";
+import cookieData from "@data/global/cookie-consent.json";
 import { getNavDrawerSocialLinks } from "@components/ui/molecules/Navbar/shared/nav-drawer-social";
 import { getNovaCopy, getNovaNavigationPath, type NovaLocale } from "@utils/nova-i18n";
 
@@ -40,6 +41,7 @@ const socialLabel = novaCopy.en.footer.ariaSocials;
     <div class="flex flex-col items-center gap-8 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
       <nav aria-label={copy.ariaLegal} class="flex w-full flex-wrap justify-center gap-x-6 gap-y-3 sm:w-auto sm:justify-start">
         {legalLinks.map((link) => <a href={link.href} class="inline-flex min-h-11 items-center text-sm text-brand-light/80 transition-colors hover:text-brand-accent sm:min-h-0">{link.label}</a>)}
+        {locale === "en" && <button type="button" data-cookie-preferences hidden aria-controls="cookie-consent" aria-expanded="false" class="cookie-preferences inline-flex min-h-11 items-center text-left text-sm text-brand-light/80 transition-colors hover:text-brand-accent sm:min-h-0">{cookieData.preferencesLabel}</button>}
       </nav>
       <nav aria-label={copy.ariaNavigation} class="grid w-full grid-cols-2 gap-x-6 gap-y-3 sm:flex sm:w-auto sm:flex-wrap sm:justify-start lg:justify-end">
         {footerLinks.map((link) => <a href={link.href} class="inline-flex min-h-11 items-center text-sm text-brand-light transition-colors hover:text-brand-accent sm:min-h-0">{link.label}</a>)}
@@ -61,3 +63,11 @@ const socialLabel = novaCopy.en.footer.ariaSocials;
     </div>
   </div>
 </footer>
+
+<style>
+  .cookie-preferences[hidden] { display: none; }
+  .cookie-preferences:focus-visible {
+    outline: 2px solid var(--color-brand-accent);
+    outline-offset: 4px;
+  }
+</style>

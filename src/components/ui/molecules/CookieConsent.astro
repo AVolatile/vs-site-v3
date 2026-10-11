@@ -1,8 +1,8 @@
 ---
-// Why: CookieConsent is a legal requirement (GDPR). The banner must appear before any analytical/marketing cookies are stored. Two buttons (accept and necessary) give the user a clear choice.
 import cookieData from "@data/global/cookie-consent.json";
 import Heading from "@components/ui/atoms/Heading.astro";
 import Text from "@components/ui/atoms/Text.astro";
+import Button from "@components/ui/atoms/Button.astro";
 
 interface Props {
   title?: string;
@@ -11,59 +11,96 @@ interface Props {
   essentialLabel?: string;
 }
 
-const { title: titleProp, description: descriptionProp, acceptLabel: acceptLabelProp, essentialLabel: essentialLabelProp } = Astro.props;
-
-// Dlaczego: teksty banera czytamy z cookie-consent.json (edytowalne w CMS).
-// Props take precedence and hardcoded PL is just the ultimate fallback.
-const title = titleProp || cookieData.title || "Prywatność i Cookies";
-const description = descriptionProp || cookieData.description || "Używamy plików cookie, aby poprawić wygodę przeglądania. Korzystając ze strony, zgadzasz się na naszą <a href=\"/cookies/\" class=\"font-semibold text-brand-primary underline decoration-brand-primary/30 underline-offset-4 hover:decoration-brand-primary transition-all\">politykę prywatności</a>.";
-const acceptLabel = acceptLabelProp || cookieData.acceptLabel || "Akceptuję";
-const essentialLabel = essentialLabelProp || cookieData.essentialLabel || "Niezbędne";
-const acceptHover = cookieData.hover || "Rozumiem!";
-const essentialHover = cookieData.essentialHover || cookieData.essentialLabel || "Tylko te";
+const {
+  title = cookieData.title,
+  description = cookieData.description,
+  acceptLabel = cookieData.acceptLabel,
+  essentialLabel = cookieData.essentialLabel,
+} = Astro.props;
 ---
 
-<div
-  id="cookie-consent"
-  aria-hidden="true"
-  class="fixed bottom-6 left-6 right-6 z-[2000] hidden md:left-6 md:right-auto md:max-w-[400px] w-auto min-w-0"
->
-    <div class="relative overflow-hidden rounded-[2rem] border border-white/40 bg-white/70 p-7 shadow-[0_20px_50px_rgba(0,0,0,0.1)] backdrop-blur-2xl">
-      <div class="flex min-w-0 flex-col gap-6">
-        <div class="flex min-w-0 items-center gap-4">
-          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-primary/10 text-brand-primary">
-            <i class="ph ph-cookie text-2xl"></i>
-          </div>
-          <Heading level={3} variant="feature-title" class="min-w-0 text-lg text-brand-dark">
-            {title}
-          </Heading>
-        </div>
-        
-        <Text class="min-w-0 text-[0.9375rem] text-brand-dark/70" set:html={description} />
+<section id="cookie-consent" class="cookie-consent" role="region" aria-labelledby="cookie-consent-title" aria-describedby="cookie-consent-description" hidden>
+  <Heading id="cookie-consent-title" level={2} variant="feature-title">{title}</Heading>
+  <Text id="cookie-consent-description" variant="feature-body-sm" class="cookie-consent-copy">{description}</Text>
+  <Text variant="feature-body-sm" class="cookie-consent-policy">
+    {cookieData.policyPrefix}{" "}<a href="/cookies/">{cookieData.policyLabel}</a>.
+  </Text>
+  <div class="cookie-consent-actions">
+    <Button id="accept-cookies" type="button" size="sm" variant="primary">{acceptLabel}</Button>
+    <Button id="decline-cookies" type="button" size="sm" variant="outline">{essentialLabel}</Button>
+  </div>
+</section>
+<div id="cookie-consent-spacer" hidden aria-hidden="true"></div>
+<Text id="cookie-consent-announcement" tag="span" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></Text>
 
-        <div class="flex min-w-0 gap-3">
-          <button
-            id="accept-cookies"
-            class="ui-button ui-button-primary ui-type-cta-label font-semibold min-h-[44px] min-w-0 flex-1 !rounded-xl !px-5 !py-2.5 !text-sm"
-          >
-            <span class="ui-button-text-wrap">
-              <span class="ui-button-text-default">{acceptLabel}</span>
-              <span class="ui-button-text-hover">{acceptHover}</span>
-            </span>
-          </button>
-          <button
-            id="decline-cookies"
-            class="ui-button ui-button-outline ui-type-cta-label font-semibold min-h-[44px] min-w-0 flex-1 !rounded-xl !px-5 !py-2.5 !text-sm"
-          >
-            <span class="ui-button-text-wrap">
-              <span class="ui-button-text-default">{essentialLabel}</span>
-              <span class="ui-button-text-hover">{essentialHover}</span>
-            </span>
-          </button>
-        </div>
-      </div>
-    </div>
-</div>
+<script is:inline data-astro-rerun src="/js/cookie-consent.js" defer></script>
 
-<!-- The banner is not needed for the first render, so its support loads after HTML parsing.-->
-<script is:inline src="/js/cookie-consent.js" defer></script>
+<style>
+  .cookie-consent {
+    position: fixed;
+    z-index: 70;
+    inset-inline-start: max(1rem, env(safe-area-inset-left));
+    inset-inline-end: max(1rem, env(safe-area-inset-right));
+    bottom: calc(8rem + env(safe-area-inset-bottom));
+    max-height: calc(100dvh - 10rem - env(safe-area-inset-bottom) - env(safe-area-inset-top));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 1.25rem;
+    border: 1px solid var(--color-outline-variant);
+    border-radius: var(--rounded-md);
+    background: var(--color-brand-cream);
+    color: var(--color-brand-dark);
+    box-shadow: var(--ui-elevation-soft);
+  }
+  .cookie-consent[hidden] { display: none; }
+  #cookie-consent-spacer[hidden] { display: none; }
+  .cookie-consent :global(#cookie-consent-title) {
+    margin: 0;
+    font-size: 1.125rem;
+    line-height: 1.3;
+  }
+  .cookie-consent :global(.cookie-consent-copy) {
+    margin: .75rem 0 0;
+    color: var(--color-on-surface-variant);
+  }
+  .cookie-consent :global(.cookie-consent-policy) { margin: .75rem 0 0; }
+  .cookie-consent a {
+    text-decoration: underline;
+    text-decoration-color: var(--color-brand-accent);
+    text-underline-offset: .2em;
+  }
+  .cookie-consent-actions { display: flex; gap: .75rem; margin-top: 1rem; }
+  .cookie-consent-actions :global(.ui-button) {
+    flex: 1;
+    min-width: 0;
+    min-height: 2.75rem;
+    padding: .625rem 1rem;
+    border-radius: var(--rounded-sm);
+    box-shadow: none;
+  }
+  .cookie-consent a:focus-visible {
+    outline: 2px solid var(--color-brand-dark);
+    outline-offset: 4px;
+  }
+  .cookie-consent-actions :global(.ui-button:focus-visible) {
+    outline: 2px solid var(--color-brand-dark);
+    outline-offset: 3px;
+  }
+  @media (min-width: 768px) {
+    .cookie-consent {
+      inset-inline-start: max(1.5rem, env(safe-area-inset-left));
+      inset-inline-end: auto;
+      bottom: calc(1.5rem + env(safe-area-inset-bottom));
+      width: 25rem;
+      max-height: calc(100dvh - 3rem - env(safe-area-inset-bottom) - env(safe-area-inset-top));
+      padding: 1.5rem;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cookie-consent :global(.ui-button),
+    .cookie-consent :global(.ui-button::after),
+    .cookie-consent :global(.ui-button-text-default),
+    .cookie-consent :global(.ui-button-text-hover) { transition: none; }
+  }
+  @media print { .cookie-consent { display: none; } }
+</style>
