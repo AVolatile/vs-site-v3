@@ -82,6 +82,33 @@
       "imageFit": "cover"
     },
     {
+      "id": "relaygrid",
+      "title": "RelayGrid",
+      "categories": [
+        "web-apps"
+      ],
+      "tags": [
+        "B2B SaaS",
+        "Product Design",
+        "Frontend Development",
+        "Workflow Automation"
+      ],
+      "technologies": [
+        "Next.js",
+        "React",
+        "TypeScript"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/relaygrid.webp",
+      "alt": "RelayGrid concept presentation combining its brand identity, marketing website, workflow automation, and product dashboard",
+      "shortDescription": "A complete B2B SaaS operations concept spanning brand identity, product design, frontend development, workflow automation, analytics, and campaign creative.",
+      "imageNote": "Self-initiated concept with fictional demo data.",
+      "externalUrl": "https://relay-grid.netlify.app/",
+      "actionLabel": "View Project",
+      "imageFit": "cover"
+    },
+    {
       "id": "pvd-photography",
       "title": "PVD Photography",
       "categories": [
