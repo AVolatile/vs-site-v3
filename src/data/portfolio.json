@@ -63,22 +63,74 @@
   },
   "items": [
     {
-      "id": "the-moody-brewer",
-      "title": "The Moody Brewer",
+      "id": "sideby",
+      "title": "Sideby",
       "categories": [
+        "web-apps",
+        "websites",
+        "branding"
+      ],
+      "tags": [
+        "Family Tech",
+        "Consumer Product",
+        "Brand Design",
+        "Product Design"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/sideby.webp",
+      "alt": "Sideby family-tech concept showing its brand, marketing website, and parent and teen mobile experiences for shared plans, rides, and check-ins",
+      "shortDescription": "A family-tech startup concept spanning shared plans, rides, check-ins, teen independence, brand identity, mobile product design, frontend development, and campaign creative.",
+      "imageNote": "Self-initiated concept project.",
+      "externalUrl": "https://sideby-family-startup-project.netlify.app/",
+      "actionLabel": "View Project",
+      "imageFit": "cover"
+    },
+    {
+      "id": "alder-and-row",
+      "title": "Alder & Row",
+      "categories": [
+        "websites",
+        "web-apps",
+        "branding"
+      ],
+      "tags": [
+        "Healthcare",
+        "Brand Design",
+        "UX Design",
+        "Frontend Development"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/alder-and-row.webp",
+      "alt": "Alder & Row healthcare and wellness concept showing its pharmacy brand, marketing website, service discovery, care scheduling, and location finder",
+      "shortDescription": "An enterprise healthcare and wellness concept spanning service discovery, appointments, member UX, accessible frontend design, brand systems, and campaign creative.",
+      "imageNote": "Self-initiated concept project.",
+      "externalUrl": "https://alder-and-row-healthcare-project.netlify.app/",
+      "actionLabel": "View Project",
+      "imageFit": "cover"
+    },
+    {
+      "id": "ternwell-financial-planning",
+      "title": "Ternwell Financial Planning",
+      "categories": [
+        "web-apps",
         "websites"
       ],
       "tags": [
-        "Client Work",
-        "Food & Beverage"
+        "Fintech",
+        "Financial Planning",
+        "Product Design",
+        "Dashboard UX"
       ],
-      "classification": "Verified Client Work",
-      "clientStatus": "verified",
-      "image": "/assets/images/t001-nova/t001-nova-project-moody-brewer.webp",
-      "alt": "The Moody Brewer website shown on a MacBook in a warm café setting",
-      "shortDescription": "A website for a West Warwick coffee shop, taken from concept through a real client launch.",
-      "externalUrl": "https://themoodybrewer.net/",
-      "actionLabel": "Visit Website",
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/ternwell-financial-planning.webp",
+      "alt": "Ternwell Financial Planning concept presentation showing its marketing website, client investment dashboard, retirement planning, and advisor messaging",
+      "shortDescription": "A financial planning platform concept combining a marketing website, client dashboard, portfolio insights, goals, retirement planning, and advisor messaging.",
+      "imageNote": "Self-initiated concept with illustrative financial data.",
+      "externalUrl": "https://ternwell-dashboard.netlify.app/",
+      "actionLabel": "View Project",
       "imageFit": "cover"
     },
     {
@@ -109,26 +161,22 @@
       "imageFit": "cover"
     },
     {
-      "id": "ternwell-financial-planning",
-      "title": "Ternwell Financial Planning",
+      "id": "the-moody-brewer",
+      "title": "The Moody Brewer",
       "categories": [
-        "web-apps",
         "websites"
       ],
       "tags": [
-        "Fintech",
-        "Financial Planning",
-        "Product Design",
-        "Dashboard UX"
+        "Client Work",
+        "Food & Beverage"
       ],
-      "classification": "Concept Project",
-      "clientStatus": "unverified",
-      "image": "/assets/images/t001-nova/portfolio/ternwell-financial-planning.webp",
-      "alt": "Ternwell Financial Planning concept presentation showing its marketing website, client investment dashboard, retirement planning, and advisor messaging",
-      "shortDescription": "A financial planning platform concept combining a marketing website, client dashboard, portfolio insights, goals, retirement planning, and advisor messaging.",
-      "imageNote": "Self-initiated concept with illustrative financial data.",
-      "externalUrl": "https://ternwell-dashboard.netlify.app/",
-      "actionLabel": "View Project",
+      "classification": "Verified Client Work",
+      "clientStatus": "verified",
+      "image": "/assets/images/t001-nova/t001-nova-project-moody-brewer.webp",
+      "alt": "The Moody Brewer website shown on a MacBook in a warm café setting",
+      "shortDescription": "A website for a West Warwick coffee shop, taken from concept through a real client launch.",
+      "externalUrl": "https://themoodybrewer.net/",
+      "actionLabel": "Visit Website",
       "imageFit": "cover"
     },
     {
