@@ -109,6 +109,29 @@
       "imageFit": "cover"
     },
     {
+      "id": "ternwell-financial-planning",
+      "title": "Ternwell Financial Planning",
+      "categories": [
+        "web-apps",
+        "websites"
+      ],
+      "tags": [
+        "Fintech",
+        "Financial Planning",
+        "Product Design",
+        "Dashboard UX"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/ternwell-financial-planning.webp",
+      "alt": "Ternwell Financial Planning concept presentation showing its marketing website, client investment dashboard, retirement planning, and advisor messaging",
+      "shortDescription": "A financial planning platform concept combining a marketing website, client dashboard, portfolio insights, goals, retirement planning, and advisor messaging.",
+      "imageNote": "Self-initiated concept with illustrative financial data.",
+      "externalUrl": "https://ternwell-dashboard.netlify.app/",
+      "actionLabel": "View Project",
+      "imageFit": "cover"
+    },
+    {
       "id": "pvd-photography",
       "title": "PVD Photography",
       "categories": [
