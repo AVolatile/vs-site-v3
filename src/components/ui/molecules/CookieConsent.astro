@@ -20,17 +20,18 @@ const {
 ---
 
 <section id="cookie-consent" class="cookie-consent" role="region" aria-labelledby="cookie-consent-title" aria-describedby="cookie-consent-description" hidden>
-  <Heading id="cookie-consent-title" level={2} variant="feature-title">{title}</Heading>
-  <Text id="cookie-consent-description" variant="feature-body-sm" class="cookie-consent-copy">{description}</Text>
-  <Text variant="feature-body-sm" class="cookie-consent-policy">
-    {cookieData.policyPrefix}{" "}<a href="/cookies/">{cookieData.policyLabel}</a>.
-  </Text>
+  <div class="cookie-consent-content">
+    <Heading id="cookie-consent-title" level={2} variant="feature-title">{title}</Heading>
+    <Text id="cookie-consent-description" variant="feature-body-sm" class="cookie-consent-copy">{description}</Text>
+    <Text variant="feature-body-sm" class="cookie-consent-policy">
+      {cookieData.policyPrefix}{" "}<a href="/cookies/">{cookieData.policyLabel}</a>.
+    </Text>
+  </div>
   <div class="cookie-consent-actions">
     <Button id="accept-cookies" type="button" size="sm" variant="primary">{acceptLabel}</Button>
     <Button id="decline-cookies" type="button" size="sm" variant="outline">{essentialLabel}</Button>
   </div>
 </section>
-<div id="cookie-consent-spacer" hidden aria-hidden="true"></div>
 <Text id="cookie-consent-announcement" tag="span" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></Text>
 
 <script is:inline data-astro-rerun src="/js/cookie-consent.js" defer></script>
@@ -41,8 +42,10 @@ const {
     z-index: 70;
     inset-inline-start: max(1rem, env(safe-area-inset-left));
     inset-inline-end: max(1rem, env(safe-area-inset-right));
-    bottom: calc(8rem + env(safe-area-inset-bottom));
-    max-height: calc(100dvh - 10rem - env(safe-area-inset-bottom) - env(safe-area-inset-top));
+    bottom: max(.75rem, env(safe-area-inset-bottom));
+    margin-inline: auto;
+    max-width: 44rem;
+    max-height: calc(100dvh - 1.5rem - env(safe-area-inset-bottom) - env(safe-area-inset-top));
     overflow-y: auto;
     overscroll-behavior: contain;
     padding: 1.25rem;
@@ -53,7 +56,7 @@ const {
     box-shadow: var(--ui-elevation-soft);
   }
   .cookie-consent[hidden] { display: none; }
-  #cookie-consent-spacer[hidden] { display: none; }
+  .cookie-consent-content { min-width: 0; }
   .cookie-consent :global(#cookie-consent-title) {
     margin: 0;
     font-size: 1.125rem;
@@ -86,15 +89,23 @@ const {
     outline: 2px solid var(--color-brand-dark);
     outline-offset: 3px;
   }
-  @media (min-width: 768px) {
+  @media (min-width: 900px) {
     .cookie-consent {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 2rem;
       inset-inline-start: max(1.5rem, env(safe-area-inset-left));
-      inset-inline-end: auto;
-      bottom: calc(1.5rem + env(safe-area-inset-bottom));
-      width: 25rem;
+      inset-inline-end: max(1.5rem, env(safe-area-inset-right));
+      bottom: max(1.5rem, env(safe-area-inset-bottom));
+      max-width: 80rem;
       max-height: calc(100dvh - 3rem - env(safe-area-inset-bottom) - env(safe-area-inset-top));
-      padding: 1.5rem;
+      padding: 1.25rem 1.5rem;
     }
+    .cookie-consent :global(.cookie-consent-copy) { margin-top: .375rem; }
+    .cookie-consent :global(.cookie-consent-policy) { margin-top: .375rem; }
+    .cookie-consent-actions { margin-top: 0; }
+    .cookie-consent-actions :global(.ui-button) { flex: 0 0 auto; min-width: 6.5rem; }
   }
   @media (prefers-reduced-motion: reduce) {
     .cookie-consent :global(.ui-button),
