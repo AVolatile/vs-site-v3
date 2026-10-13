@@ -266,27 +266,6 @@
       "imageFit": "cover"
     },
     {
-      "id": "cloud-keep",
-      "title": "Cloud Keep",
-      "categories": [
-        "web-apps",
-        "websites"
-      ],
-      "tags": [
-        "SaaS",
-        "File Management"
-      ],
-      "classification": "Portfolio Work",
-      "clientStatus": "unverified",
-      "image": "/assets/images/t001-nova/portfolio/cloud-keep.webp",
-      "alt": "Cloud Keep website or product design presentation",
-      "shortDescription": "A cloud-storage product presentation exploring file organization, collaboration, and access controls.",
-      "imageNote": "Product concept presentation; backend and security implementation are unverified.",
-      "externalUrl": "https://cloud-keep.netlify.app/",
-      "actionLabel": "View Project",
-      "imageFit": "cover"
-    },
-    {
       "id": "ember-and-fig",
       "title": "Ember & Fig",
       "categories": [
@@ -384,25 +363,6 @@
       "imageFit": "contain"
     },
     {
-      "id": "frost",
-      "title": "Frost",
-      "categories": [
-        "websites"
-      ],
-      "tags": [
-        "Fitness",
-        "Coaching"
-      ],
-      "classification": "Portfolio Work",
-      "clientStatus": "unverified",
-      "image": "/assets/images/t001-nova/portfolio/frost.webp",
-      "alt": "Frost website or product design presentation under the JackFrost Coaching name",
-      "shortDescription": "A JackFrost Coaching website presentation organizing a coaching offer, training approach, and inquiry flow.",
-      "externalUrl": "https://frost-fitness.netlify.app/",
-      "actionLabel": "View Project",
-      "imageFit": "cover"
-    },
-    {
       "id": "scholarlink",
       "title": "ScholarLink",
       "categories": [
@@ -477,26 +437,6 @@
       "shortDescription": "A menswear social graphic pairing editorial product photography with seasonal typography.",
       "artworkHref": "/assets/images/t001-nova/portfolio/sable-row@1080.webp",
       "actionLabel": "View Artwork",
-      "imageFit": "cover"
-    },
-    {
-      "id": "northline-plumbing",
-      "title": "Northline Plumbing",
-      "categories": [
-        "websites"
-      ],
-      "tags": [
-        "Local Business",
-        "Concept Work"
-      ],
-      "classification": "Concept Project",
-      "clientStatus": "unverified",
-      "image": "/assets/images/t001-nova/portfolio/northline-plumbing.webp",
-      "alt": "Northline Plumbing website or product design presentation",
-      "shortDescription": "A fictional plumbing-service website concept with residential and commercial service routes and an inquiry flow.",
-      "imageNote": "Fictional business presentation; service details are illustrative.",
-      "externalUrl": "https://plumbing-portfolio.netlify.app/",
-      "actionLabel": "View Project",
       "imageFit": "cover"
     },
     {
