@@ -10,6 +10,7 @@ export interface PortfolioItem {
   image: string;
   imageFit?: 'cover' | 'contain';
   imagePosition?: string;
+  imageScale?: number;
   mediaAspect?: '16:9';
   alt: string;
   shortDescription: string;

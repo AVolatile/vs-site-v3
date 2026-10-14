@@ -84,7 +84,8 @@
       "imageNote": "Self-initiated concept project.",
       "externalUrl": "https://sideby-family-startup-project.netlify.app/",
       "actionLabel": "View Project",
-      "imageFit": "contain"
+      "imageFit": "contain",
+      "imageScale": 1.07
     },
     {
       "id": "alder-and-row",

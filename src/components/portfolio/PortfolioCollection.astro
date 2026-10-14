@@ -46,11 +46,16 @@ const categoryLabels = new Map(data.categories.map((category) => [category.id, c
           const actionLabel = item.actionLabel ?? (item.detailHref ? data.labels.viewDetail : item.externalUrl ? data.labels.viewLive : data.labels.viewArtwork);
           const external = href ? isExternal(href) : false;
           const imageFit = item.imageFit ?? 'cover';
+          const imageScale = typeof item.imageScale === 'number' && Number.isFinite(item.imageScale) && item.imageScale > 0 ? item.imageScale : undefined;
+          const imageStyle = {
+            ...(item.imagePosition ? { '--portfolio-image-position': item.imagePosition } : {}),
+            ...(imageScale !== undefined ? { '--portfolio-image-scale': imageScale } : {}),
+          };
           const isIdentityBoard = imageFit === 'contain' && item.categories.includes('branding') && item.tags?.includes('Brand Identity');
           const isThumbnail = item.mediaAspect === '16:9';
           return (
             <article id={item.id} class="portfolio-card" role="listitem" data-portfolio-item data-categories={item.categories.join(' ')} aria-labelledby={`${item.id}-title`}>
-              <figure class="portfolio-card-image group" data-image-fit={imageFit} data-media-aspect={item.mediaAspect} data-identity-board={isIdentityBoard ? '' : undefined} style={item.imagePosition ? { '--portfolio-image-position': item.imagePosition } : undefined}>
+              <figure class="portfolio-card-image group" data-image-fit={imageFit} data-media-aspect={item.mediaAspect} data-image-scale={imageScale} data-identity-board={isIdentityBoard ? '' : undefined} style={item.imagePosition || imageScale !== undefined ? imageStyle : undefined}>
                 <SmartImage src={item.image} alt={item.alt} width={1280} height={isThumbnail ? 720 : 960} sizes="(min-width: 768px) 45vw, 90vw" loading="lazy" class={isIdentityBoard || isThumbnail ? undefined : 'transition-transform duration-[1200ms] ease-out group-hover:scale-[1.02] motion-reduce:transition-none'} />
               </figure>
               <div class="portfolio-card-content">
@@ -239,6 +244,7 @@ const categoryLabels = new Map(data.categories.map((category) => [category.id, c
   .portfolio-card-image { position: relative; margin: 0; display: grid; aspect-ratio: 4 / 3; overflow: hidden; place-items: center; border-radius: var(--ui-radius-lg); background: var(--color-surface-container-low); }
   .portfolio-card-image :global(picture), .portfolio-card-image :global(img) { display: block; width: 100%; height: 100%; }
   .portfolio-card-image :global(picture) { position: absolute; inset: 0; }
+  .portfolio-card-image[data-image-scale] :global(picture) { transform: scale(var(--portfolio-image-scale, 1)); }
   .portfolio-card-image :global(img) { object-fit: cover; object-position: var(--portfolio-image-position, center); }
   .portfolio-card-image[data-image-fit='contain'] :global(img) { object-fit: contain; }
   .portfolio-card-image[data-media-aspect='16:9'] { aspect-ratio: 16 / 9; }
