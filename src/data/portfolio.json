@@ -84,7 +84,7 @@
       "imageNote": "Self-initiated concept project.",
       "externalUrl": "https://sideby-family-startup-project.netlify.app/",
       "actionLabel": "View Project",
-      "imageFit": "cover"
+      "imageFit": "contain"
     },
     {
       "id": "alder-and-row",
@@ -107,6 +107,30 @@
       "shortDescription": "An enterprise healthcare and wellness concept spanning service discovery, appointments, member UX, accessible frontend design, brand systems, and campaign creative.",
       "imageNote": "Self-initiated concept project.",
       "externalUrl": "https://alder-and-row-healthcare-project.netlify.app/",
+      "actionLabel": "View Project",
+      "imageFit": "cover"
+    },
+    {
+      "id": "velt",
+      "title": "Velt",
+      "categories": [
+        "web-apps",
+        "websites",
+        "branding"
+      ],
+      "tags": [
+        "E-commerce",
+        "Brand Design",
+        "Product Design",
+        "Frontend Development"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/velt.webp",
+      "alt": "Velt e-commerce concept showing its consumer brand, storefront, product discovery campaign, and comparison cards for bags and everyday essentials",
+      "shortDescription": "A premium e-commerce concept spanning brand identity, merchandising, product discovery and detail UX, cart and checkout, membership, and campaign and lifecycle creative.",
+      "imageNote": "Self-initiated e-commerce concept project.",
+      "externalUrl": "https://velt-ecommerce-project.netlify.app/",
       "actionLabel": "View Project",
       "imageFit": "cover"
     },
