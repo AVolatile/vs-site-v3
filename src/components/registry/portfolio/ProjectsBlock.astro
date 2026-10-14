@@ -7,7 +7,7 @@ import SmartImage from "@components/ui/atoms/SmartImage.astro";
 import jsonData from "@data/sections/nova-projects.json";
 import { ACTIVE_TEMPLATE } from "@config/template";
 
-type Project = { category: string; title: string; image: string; alt: string; href?: string };
+type Project = { category: string; title: string; image: string; alt: string; href?: string; imageFit?: "cover" | "contain" };
 interface Props { locale?: "en" | "pl"; title?: string; description?: string; linkLabel?: string; linkHref?: string; items?: Project[]; class?: string; }
 const props = Astro.props as Props;
 const fallback = ACTIVE_TEMPLATE === "nova" ? undefined : jsonData;
@@ -40,7 +40,7 @@ const items: Project[] = props.items ?? fallback?.items ?? [];
         return (
         <CardTag class="project-card__link group" href={href}>
           <article class="project-card">
-          <figure>
+          <figure data-image-fit={item.imageFit}>
             <SmartImage src={item.image} alt={item.alt} width={1280} height={800} loading="lazy" class="transition-transform duration-[1200ms] ease-out group-hover:scale-[1.02] motion-reduce:transition-none" />
             <figcaption class="project-card__overlay">
               <Heading tag="h3" variant="feature-title" class="project-card__title">{item.title}</Heading>
@@ -137,6 +137,19 @@ const items: Project[] = props.items ?? fallback?.items ?? [];
 
   .project-card figure :global(img) {
     object-fit: cover;
+  }
+
+  .project-card figure[data-image-fit="contain"] {
+    background: var(--color-on-tertiary-container);
+  }
+
+  .project-card figure[data-image-fit="contain"] :global(picture) {
+    position: absolute;
+    inset: 0;
+  }
+
+  .project-card figure[data-image-fit="contain"] :global(img) {
+    object-fit: contain;
   }
 
   .project-card__overlay {
