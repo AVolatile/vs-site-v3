@@ -135,6 +135,30 @@
       "imageFit": "cover"
     },
     {
+      "id": "serein",
+      "title": "Serein",
+      "categories": [
+        "web-apps",
+        "websites",
+        "branding"
+      ],
+      "tags": [
+        "Hospitality",
+        "Travel",
+        "Product Design",
+        "Frontend Development"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/serein.webp",
+      "alt": "Serein travel and hospitality concept showing its brand, curated stays, destination discovery, booking, and trip-planning experiences",
+      "shortDescription": "A premium hospitality and travel concept spanning destination discovery, curated stays, booking UX, trip planning, editorial storytelling, and campaign design.",
+      "imageNote": "Self-initiated travel and hospitality concept project.",
+      "externalUrl": "https://travel-leisure-project.netlify.app/",
+      "actionLabel": "View Project",
+      "imageFit": "cover"
+    },
+    {
       "id": "ternwell-financial-planning",
       "title": "Ternwell Financial Planning",
       "categories": [
