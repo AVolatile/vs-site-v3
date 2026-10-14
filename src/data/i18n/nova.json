@@ -88,7 +88,6 @@
             "category": "Client Website",
             "title": "The Moody Brewer",
             "image": "/assets/images/t001-nova/t001-nova-project-moody-brewer.webp",
-            "imageFit": "contain",
             "alt": "The Moody Brewer website shown on a MacBook in a warm café setting",
             "href": "/portfolio/#the-moody-brewer"
           },
