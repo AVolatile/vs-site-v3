@@ -87,6 +87,59 @@
       "imageFit": "cover"
     },
     {
+      "id": "ruckus",
+      "title": "Ruckus",
+      "categories": [
+        "web-apps",
+        "websites",
+        "branding"
+      ],
+      "tags": [
+        "Real-Time",
+        "Multiplayer"
+      ],
+      "technologies": [
+        "React",
+        "TypeScript",
+        "Node.js",
+        "Socket.IO",
+        "Vite"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/ruckus.webp",
+      "alt": "Ruckus multiplayer product showing its startup brand, live game room, player avatars, QR joining, and a mobile phone controller",
+      "shortDescription": "A deployed real-time multiplayer workplace game platform with QR joining, phone controllers, original party games, live scoring, and custom game creation in Ruckus Studio.",
+      "imageNote": "Self-initiated concept; functional deployed multiplayer product.",
+      "externalUrl": "https://ruckus-icebreaker-game.netlify.app/",
+      "actionLabel": "View Project",
+      "imageFit": "cover"
+    },
+    {
+      "id": "tandemly",
+      "title": "Tandemly",
+      "categories": [
+        "web-apps",
+        "websites",
+        "branding"
+      ],
+      "tags": [
+        "Consumer Product",
+        "Caregiving",
+        "Product Design",
+        "Brand Design"
+      ],
+      "classification": "Concept Project",
+      "clientStatus": "unverified",
+      "image": "/assets/images/t001-nova/portfolio/tandemly.webp",
+      "alt": "Tandemly caregiving concept showing its brand, shared family calendar, daily plans, rides, care circle, and mobile coordination experience",
+      "shortDescription": "A consumer caregiving coordination concept for shared plans, appointments, rides, handoffs, reminders, and family updates that supports a loved one’s independence.",
+      "imageNote": "Self-initiated consumer caregiving concept.",
+      "externalUrl": "https://caregiving-coordination.netlify.app/",
+      "actionLabel": "View Project",
+      "imageFit": "cover"
+    },
+    {
       "id": "alder-and-row",
       "title": "Alder & Row",
       "categories": [
