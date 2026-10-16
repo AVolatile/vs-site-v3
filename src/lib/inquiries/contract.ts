@@ -45,6 +45,9 @@ export const updateSchema = z.object({
   adminNotes: text(10_000),
   updatedAt: z.string().datetime(),
 }).strict();
+export const deleteSchema = z.object({
+  updatedAt: z.string().datetime(),
+}).strict();
 export const moveSchema = z.object({
   action: z.literal('move'),
   status: z.enum(STATUS_OPTIONS),

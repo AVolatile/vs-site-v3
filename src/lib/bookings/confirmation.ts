@@ -2,6 +2,7 @@ interface Confirmation {
   title: string;
   message: string;
   action: string;
+  cancelLabel?: string;
 }
 
 const preparedDialogs = new WeakSet<HTMLDialogElement>();
@@ -54,6 +55,8 @@ export function confirmBookingAction(content: Confirmation): Promise<boolean> {
   const back = dialog.querySelector<HTMLButtonElement>(
     "[data-booking-action-back]",
   )!;
+  back.querySelectorAll<HTMLElement>(".ui-button-text-default,.ui-button-text-hover")
+    .forEach(node => { node.textContent = content.cancelLabel ?? "Back"; });
   prepareBookingDialog(dialog);
   const previous = document.activeElement;
   return new Promise((resolve) => {
@@ -66,6 +69,8 @@ export function confirmBookingAction(content: Confirmation): Promise<boolean> {
     const finish = () => {
       accept.removeEventListener("click", yes);
       back.removeEventListener("click", no);
+      back.querySelectorAll<HTMLElement>(".ui-button-text-default,.ui-button-text-hover")
+        .forEach(node => { node.textContent = "Back"; });
       dialog.querySelector<HTMLElement>(
         "[data-booking-action-heading]",
       )!.textContent = "";

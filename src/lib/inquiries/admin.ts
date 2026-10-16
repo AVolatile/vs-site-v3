@@ -4,6 +4,7 @@ import { presentInquiryRow, presentInquiryStatus } from './admin-presentation';
 import { inquiryDetailApiUrl, adminBrowseUrl, adminInquiryUrl, adminViewFromUrl, type AdminView } from './admin-routes';
 import { browseSchema, browseApiQuery, browseDefaults, browseFromUrl, hasBrowseFilters, type AdminBrowse } from './admin-browse';
 import { setupAdminFollowUp } from './admin-follow-up';
+import { setupAdminDelete } from './admin-delete';
 import { presentFollowUp } from './follow-up';
 import { setupInvoicePanel } from '@/lib/invoices/proposal-panel';
 import { setupInquiryProposal } from '../proposals/inquiry-panel';
@@ -47,7 +48,7 @@ export async function setupInquiryAdmin(): Promise<void> {
     passwordPanel.hidden = true; passwordForm.reset(); element('[data-admin-refresh]').hidden = true;
     dashboard.hidden = true; logoutButton.hidden = true; loginPanel.hidden = false;
     if (document.activeElement?.closest('[hidden]')) element<HTMLInputElement>('[name="loginEmail"]').focus();
-    pipeline.clear(); followUp.clear(); inquiryProposal.clear(); communication.clear(); inquiryBooking.clear(); activityVersion++; renderInquiryActivity(activityList, activityEmpty, []); activityList.removeAttribute('aria-busy');
+    inquiryDeletion.clear(); pipeline.clear(); followUp.clear(); inquiryProposal.clear(); communication.clear(); inquiryBooking.clear(); activityVersion++; renderInquiryActivity(activityList, activityEmpty, []); activityList.removeAttribute('aria-busy');
   }
   class ServiceError extends Error { constructor(public status: number, message: string) { super(message); } }
   async function api<T>(url: string, options: RequestInit = {}): Promise<T> {
@@ -93,6 +94,23 @@ export async function setupInquiryAdmin(): Promise<void> {
   const inquiryProposal = setupInquiryProposal({invoice:invoicePanel,panel: element('[data-inquiry-proposal]'), current: () => lead, active: () => authenticated, version: () => detailVersion, announce, request: api});
   const communication = setupInquiryCommunication({panel: element('[data-inquiry-communication]'), current: () => lead, active: () => authenticated, version: () => detailVersion, request: api, validate: validation, refreshActivity, error: friendly});
   const inquiryBooking = setupInquiryBooking({panel: element('[data-inquiry-booking]'), current: () => lead, active: () => authenticated, request: api, changed: async () => {await communication.refreshLinks();if(lead)await refreshActivity(lead.id,detailVersion);}});
+  const inquiryDeletion = setupAdminDelete({
+    button: element<HTMLButtonElement>('[data-admin-delete]'), message: element('[data-admin-save-message]'),
+    current: () => lead, active: () => authenticated, version: () => detailVersion, saving: () => saving,
+    busy: setSaving, request: api, error: friendly, announce,
+    deleted: async () => {
+      detailAbort?.abort(); detailVersion++; activityVersion++; lead = null;
+      rows.replaceChildren(); loadedListQuery = ''; updateForm.reset();
+      pipeline.clear();
+      root!.querySelectorAll<HTMLElement>('[data-admin-metric]').forEach(node => { node.textContent = '—'; });
+      root!.querySelectorAll<HTMLElement>('[data-admin-detail]').forEach(node => { node.textContent = ''; });
+      inquiryDeletion.clear(); followUp.clear(); inquiryProposal.clear(); communication.clear(); inquiryBooking.clear(); invoicePanel.clear();
+      renderInquiryActivity(activityList, activityEmpty, []);
+      history.replaceState(null, '', adminBrowseUrl(view, browse));
+      await loadBrowse();
+      if (authenticated && message.getAttribute('role') !== 'alert') announce('Request permanently deleted.');
+    },
+  });
   function setSaving(value: boolean): void {
     saving = value;
     [...detailPanel.querySelectorAll<HTMLButtonElement | HTMLSelectElement | HTMLTextAreaElement | HTMLInputElement>('button,select,textarea,input'), ...viewButtons].forEach(control => { control.disabled = value; });
@@ -164,6 +182,7 @@ export async function setupInquiryAdmin(): Promise<void> {
   }
   function renderDetail(inquiry: Inquiry, preserve?: 'notes' | 'follow-up'): void {
     lead = inquiry;
+    element('[data-admin-delete]').hidden = false;
     root!.querySelectorAll<HTMLElement>('[data-admin-detail]').forEach(node => {
       const key = node.dataset.adminDetail as keyof Inquiry; const value = String(inquiry[key]);
       node.textContent = key.endsWith('At') ? date(value) : label(key, value);
@@ -180,6 +199,7 @@ export async function setupInquiryAdmin(): Promise<void> {
   }
   async function loadDetail(id: string): Promise<void> {
     if (!authenticated) return;
+    inquiryDeletion.clear();
     pipeline.hide(); syncView(); inquiryProposal.clear(); filterForm.hidden = true; communication.clear(); inquiryBooking.clear(); followUp.clear(); activityVersion++; renderInquiryActivity(activityList, activityEmpty, []);
     const version = ++detailVersion; detailAbort?.abort(); detailAbort = new AbortController();
     listAbort?.abort(); listVersion++;

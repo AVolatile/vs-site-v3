@@ -1,5 +1,17 @@
 # Client inquiry and admin foundation
 
+## Permanent request deletion — October 15, 2026
+
+The inquiry detail action row includes a small trash control alongside Email contact. It uses the existing Nova confirmation dialog with Cancel and Delete. Archive remains an ordinary, reversible status update; archived inquiries are never deleted automatically. There is no list-row or bulk delete action.
+
+`DELETE /api/admin/inquiries?id=<uuid>` uses the existing Identity admin authorization before any database query, requires the same origin, and accepts only `{ "updatedAt": "<saved ISO timestamp>" }`. A stale request must be reloaded before deletion. Successful deletion clears detail/list/pipeline state and refetches the current browse view and metrics, preserving its filters and pagination.
+
+Deletion runs as one parameterized PostgreSQL data-modifying CTE statement, an atomic transaction through the existing Neon HTTP query layer. It locks the inquiry, related messages and proposals; removes owned activity before messages; deletes owned proposals (their items use the existing cascade), unused booking links, and finally the inquiry, including its notes and follow-up fields. Existing foreign keys remain unchanged and roll back the entire statement if an unexpected or concurrent relationship prevents cleanup. Shared/provider settings and other inquiries, including those from the same email address, are not deleted.
+
+Requests with **any invoice or actual booking** are protected and return a concise conflict directing the admin to Archive. This preserves financial records, booking history and external calendar/Zoom references without changing those systems. A booking link with no booking can be removed. An email still in `sending` state also blocks deletion, protecting its delivery/idempotency record while the provider outcome is unresolved. Other request-owned email history and proposals are permanently removed; already delivered provider-side messages are not recalled.
+
+No schema migration is required beyond the existing migrations 001–009. The deletion query is tested locally against all nine migrations with isolated PGlite; it does not apply migrations or remove live records. Database credentials, live Identity access and deployed provider behavior must be checked separately after deployment.
+
 ## Final pre-launch cleanup — October 10, 2026
 
 This entry supersedes the earlier legal/schema/metrics/legacy-route launch findings. Code is prepared locally; domain transfer, deployment, DNS changes, migrations, live emails and provider connection were not performed. The user reports a successful first Resend email, initially placed in Outlook Junk. That confirms that reported delivery, not ongoing inbox placement or independently verified DNS.

@@ -120,6 +120,61 @@ export async function listInquiryActivity(id: string): Promise<InquiryActivity[]
   }));
 }
 
+export async function deleteInquiry(id: string, updatedAt: string): Promise<void> {
+  // A single data-modifying statement is one transaction over Neon HTTP. Lock
+  // request-owned rows before checking eligibility; existing FKs remain the final
+  // guard against new/concurrent relationships and roll back every deletion.
+  let rows: Record<string, unknown>[];
+  try {
+    rows = await query(`WITH target AS MATERIALIZED (
+      SELECT id,updated_at FROM inquiries WHERE id=$1 FOR UPDATE
+    ), messages AS MATERIALIZED (
+      SELECT id,status FROM inquiry_messages WHERE inquiry_id IN (SELECT id FROM target) FOR UPDATE
+    ), related_proposals AS MATERIALIZED (
+      SELECT id FROM proposals WHERE inquiry_id IN (SELECT id FROM target) FOR UPDATE
+    ), eligibility AS MATERIALIZED (
+      SELECT CASE
+        WHEN NOT EXISTS(SELECT 1 FROM target) THEN 'missing'
+        WHEN NOT EXISTS(SELECT 1 FROM target WHERE updated_at=$2::timestamptz) THEN 'stale'
+        WHEN EXISTS(SELECT 1 FROM invoices WHERE inquiry_id=$1)
+          OR EXISTS(SELECT 1 FROM invoices WHERE proposal_id IN (SELECT id FROM related_proposals)) THEN 'invoice'
+        WHEN EXISTS(SELECT 1 FROM bookings WHERE inquiry_id=$1)
+          OR EXISTS(SELECT 1 FROM bookings WHERE link_id IN (SELECT id FROM booking_links WHERE inquiry_id=$1)) THEN 'booking'
+        WHEN EXISTS(SELECT 1 FROM messages WHERE status='sending') THEN 'sending'
+        ELSE 'ready' END AS reason
+    ), permitted AS MATERIALIZED (
+      SELECT id FROM target WHERE (SELECT reason FROM eligibility)='ready'
+    ), removed_activity AS (
+      DELETE FROM inquiry_activity WHERE inquiry_id IN (SELECT id FROM permitted) RETURNING id
+    ), removed_messages AS (
+      DELETE FROM inquiry_messages WHERE inquiry_id IN (SELECT id FROM permitted)
+        AND (SELECT count(*) FROM removed_activity)>=0 RETURNING id
+    ), removed_proposals AS (
+      DELETE FROM proposals WHERE inquiry_id IN (SELECT id FROM permitted)
+        AND (SELECT count(*) FROM removed_messages)>=0 RETURNING id
+    ), removed_links AS (
+      DELETE FROM booking_links WHERE inquiry_id IN (SELECT id FROM permitted)
+        AND (SELECT count(*) FROM removed_proposals)>=0 RETURNING id
+    ), removed_request AS (
+      DELETE FROM inquiries WHERE id IN (SELECT id FROM permitted)
+        AND (SELECT count(*) FROM removed_links)>=0 RETURNING id
+    ) SELECT reason,EXISTS(SELECT 1 FROM removed_request) AS deleted FROM eligibility`, [id, updatedAt]);
+  } catch (error) {
+    if (typeof error === 'object' && error !== null && 'code' in error && ['23503','40001','40P01'].includes(String(error.code))) {
+      throw new HttpError(409, 'Related records changed. Reload this request and try again, or archive it instead.');
+    }
+    throw error;
+  }
+  const result = rows[0];
+  if (result?.deleted === true) return;
+  if (result?.reason === 'missing') throw new HttpError(404, 'This request has already been deleted or could not be found.');
+  if (result?.reason === 'stale') throw new HttpError(409, 'This request changed in another session. Reload it before deleting.');
+  if (result?.reason === 'invoice') throw new HttpError(409, 'This request has an invoice and cannot be deleted. Archive it instead.');
+  if (result?.reason === 'booking') throw new HttpError(409, 'This request has a booking and cannot be deleted. Archive it instead.');
+  if (result?.reason === 'sending') throw new HttpError(409, 'An email is still sending. Check communication history before trying again.');
+  throw new HttpError(503, 'This request could not be deleted. Please try again.');
+}
+
 export async function getInquiryPipeline(filters = browseDefaults()): Promise<InquiryPipeline> {
   const values = browseValues(filters, 'all');
   const [rows, metrics] = await Promise.all([

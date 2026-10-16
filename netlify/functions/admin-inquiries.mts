@@ -1,9 +1,9 @@
 import type { Context } from '@netlify/functions';
 import { z } from 'zod';
-import { updateSchema, moveSchema, followUpSchema, fieldErrors } from '../../src/lib/inquiries/contract';
+import { updateSchema, moveSchema, followUpSchema, deleteSchema, fieldErrors } from '../../src/lib/inquiries/contract';
 import { browseSchema } from '../../src/lib/inquiries/admin-browse';
 import { requireAdmin } from '../lib/authorize';
-import { listInquiries, getInquiry, updateInquiry, updateFollowUp, listInquiryActivity, getInquiryPipeline } from '../lib/inquiry-store';
+import { listInquiries, getInquiry, updateInquiry, updateFollowUp, listInquiryActivity, getInquiryPipeline, deleteInquiry } from '../lib/inquiry-store';
 import { json, readJson, sameOrigin, failure, HttpError } from '../lib/http';
 
 export default async (request: Request, context: Context): Promise<Response> => {
@@ -26,6 +26,14 @@ export default async (request: Request, context: Context): Promise<Response> => 
       if (view === 'pipeline') return json(await getInquiryPipeline(filters));
       return json(await listInquiries(filters.status, filters.sort, filters.page, filters));
     }
+    if (request.method === 'DELETE') {
+      sameOrigin(request);
+      if (!id) throw new HttpError(400, 'Choose a request to delete.');
+      const result = deleteSchema.safeParse(await readJson(request));
+      if (!result.success) throw new HttpError(422, 'Reload this request before deleting it.');
+      await deleteInquiry(id, result.data.updatedAt);
+      return json({ deleted: true });
+    }
     if (request.method === 'PATCH' && id) {
       sameOrigin(request);
       const body = await readJson(request);
@@ -40,6 +48,6 @@ export default async (request: Request, context: Context): Promise<Response> => 
       const notes = 'adminNotes' in result.data ? result.data.adminNotes : undefined;
       return json({ inquiry: await updateInquiry(id, result.data.status, notes, result.data.updatedAt) });
     }
-    return new Response(null, { status: 405, headers: { Allow: id ? 'GET, PATCH' : 'GET', 'Cache-Control': 'no-store' } });
+    return new Response(null, { status: 405, headers: { Allow: id ? 'GET, PATCH, DELETE' : 'GET', 'Cache-Control': 'no-store' } });
   } catch (error) { return failure(error); }
 };
