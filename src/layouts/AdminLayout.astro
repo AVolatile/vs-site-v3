@@ -23,7 +23,7 @@ const { loginPresentation = false, title = "Inquiry Admin | Volatile Solutions" 
     <link rel="apple-touch-icon" href="/vs-apple-touch-icon.png" />
   </head>
   <body class:list={['admin-ui', { 'admin-login-layout': loginPresentation }]}>
-    {!loginPresentation && <AdminNavigation />}
+    <AdminNavigation />
     <main id="main-content" class:list={['admin-shell', { 'admin-login-shell': loginPresentation }]}>
       {loginPresentation ? (
         <>

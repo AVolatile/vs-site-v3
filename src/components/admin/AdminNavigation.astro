@@ -11,7 +11,7 @@ const links = [
 ];
 const current = links.find(link => link.active)?.label ?? 'Workspace';
 ---
-<header class="admin-header">
+<header class="admin-header" hidden>
   <a class="admin-brand" href="/" aria-label="Volatile Solutions home"><img src={company.branding.logoImage} width={company.branding.logoWidth} height={company.branding.logoHeight} alt={company.name} /></a>
   <>
     <nav class="admin-desktop-nav" aria-label="Admin workspace">{links.map(link => <Text tag="a" href={link.href} aria-current={link.active ? 'page' : undefined} variant="feature-body-sm">{link.label}</Text>)}</nav>
@@ -23,9 +23,19 @@ const current = links.find(link => link.active)?.label ?? 'Workspace';
   <Text tag="span" variant="feature-body-sm" class="admin-private-label">Private workspace</Text>
 </header>
 <script>
+  import { setupAdminNavigation } from '@/lib/admin/navigation';
+  const header = document.querySelector<HTMLElement>('.admin-header');
+  if (header) {
+    const cleanup = setupAdminNavigation(header);
+    document.addEventListener('astro:before-swap', cleanup, { once: true });
+  }
   const menu = document.querySelector<HTMLDetailsElement>('.admin-mobile-nav');
   if (menu) {
     document.addEventListener('keydown', event => { if (event.key === 'Escape' && menu.open) { menu.open = false; menu.querySelector('summary')?.focus(); } });
     document.addEventListener('click', event => { if (event.target instanceof Node && !menu.contains(event.target)) menu.open = false; });
   }
 </script>
+<style>
+  /* The existing auth view also covers invitation, recovery and cleared private data. */
+  :global(body.admin-ui:has([data-inquiry-admin] [data-admin-dashboard][hidden])) .admin-header { display: none; }
+</style>

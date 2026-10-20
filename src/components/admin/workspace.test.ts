@@ -9,8 +9,18 @@ import CalendarAvailability from '@components/admin/CalendarAvailability.astro';
 import IntegrationSettings from '@components/admin/IntegrationSettings.astro';
 import ProposalEditor from '@components/proposals/ProposalEditor.astro';
 import InvoiceEditor from '@components/invoices/InvoiceEditor.astro';
+import AdminLayout from '@layouts/AdminLayout.astro';
 
 describe('shared admin presentation accessibility contracts', () => {
+  it.each([false, true])('retains one initially hidden navigation shell for live auth changes (login: %s)', async loginPresentation => {
+    const container = await AstroContainer.create();
+    const $ = load(await container.renderToString(AdminLayout, { props: { loginPresentation } }));
+    expect($('.admin-header')).toHaveLength(1);
+    expect($('.admin-header').attr('hidden')).toBeDefined();
+    expect($('nav[aria-label="Admin workspace"] a')).toHaveLength(5);
+    expect($('nav[aria-label="Mobile admin workspace"] a')).toHaveLength(5);
+  });
+
   it.each([
     ['/admin/', 'Inquiries'],
     ['/admin/login/', 'Inquiries'],
