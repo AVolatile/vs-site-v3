@@ -4,8 +4,7 @@ import '@styles/booking.css';
 import '@styles/admin.css';
 import BookingActionDialog from '@components/booking/BookingActionDialog.astro';
 import '@styles/.generated/phosphor.css';
-import company from '@data/global/company.json';
-import Text from '@components/ui/atoms/Text.astro';
+import AdminNavigation from '@components/admin/AdminNavigation.astro';
 
 interface Props {
   loginPresentation?: boolean;
@@ -24,12 +23,8 @@ const { loginPresentation = false, title = "Inquiry Admin | Volatile Solutions" 
     <link rel="apple-touch-icon" href="/vs-apple-touch-icon.png" />
   </head>
   <body class:list={['admin-ui', { 'admin-login-layout': loginPresentation }]}>
-    <header class="admin-header">
-      <a href="/" aria-label="Volatile Solutions home"><img src={company.branding.logoImage} width={company.branding.logoWidth} height={company.branding.logoHeight} alt="Volatile Solutions" /></a>
-      <Text tag="span" variant="feature-body-sm">Private workspace</Text>
-    </header>
-    {!loginPresentation && <nav class="admin-header" aria-label="Admin workspace"><Text tag="a" href="/admin/" variant="feature-body-sm">Inquiries</Text><Text tag="a" href="/admin/leads/" variant="feature-body-sm">Leads</Text><Text tag="a" href="/admin/calendar/" variant="feature-body-sm">Calendar</Text></nav>}
-    <main id="main-content" class:list={{ 'admin-login-shell': loginPresentation }}>
+    <AdminNavigation />
+    <main id="main-content" class:list={['admin-shell', { 'admin-login-shell': loginPresentation }]}>
       {loginPresentation ? (
         <>
           <div class="admin-login-content"><slot /></div>
@@ -40,12 +35,13 @@ const { loginPresentation = false, title = "Inquiry Admin | Volatile Solutions" 
       ) : <slot />}
     </main>
     <BookingActionDialog />
+    <script>
+      import { setupAdminPresentation } from '@/lib/admin/presentation';
+      setupAdminPresentation();
+    </script>
   </body>
 </html>
 <style>
-  .admin-header { max-width: 80rem; margin: auto; padding: 1.25rem clamp(1rem,4vw,3rem); display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--color-outline-variant); }
-  .admin-header img { height: 2.5rem; width: auto; max-width: 100%; }
-  .admin-header a { min-width: 0; }
   .admin-login-brand { display: none; }
 
   /* The existing auth component reveals the dashboard in place after sign-in. */

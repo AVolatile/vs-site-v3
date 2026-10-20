@@ -1,0 +1,14 @@
+---
+import Heading from '@components/ui/atoms/Heading.astro';
+import Text from '@components/ui/atoms/Text.astro';
+interface Props { title?: string; context?: string; description?: string; class?: string }
+const { title, context = 'Studio workspace', description, class: className } = Astro.props;
+---
+<header class:list={['admin-page-header', className]}>
+  <div class="admin-page-intro">
+    <Text variant="accent-label" class="admin-eyebrow">{context}</Text>
+    <Heading tag="h1" variant="section-title"><slot name="title">{title}</slot></Heading>
+    {Astro.slots.has('description') ? <slot name="description" /> : description && <Text variant="lead" class="admin-page-description">{description}</Text>}
+  </div>
+  <div class="admin-page-actions"><slot /></div>
+</header>

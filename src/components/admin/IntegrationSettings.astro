@@ -1,4 +1,6 @@
 ---
+import AdminPageHeader from '@components/admin/AdminPageHeader.astro';
+import AdminSectionHeading from '@components/admin/AdminSectionHeading.astro';
 import Section from '@components/ui/layout/Section.astro';
 import Container from '@components/ui/layout/Container.astro';
 import Heading from '@components/ui/atoms/Heading.astro';
@@ -8,10 +10,7 @@ import InquiryField from '@components/inquiry/InquiryField.astro';
 ---
 <Section tone="page" class="py-10"><Container class="max-w-4xl">
 <div data-integration-settings class="integrations booking-ui">
- <div class="integration-heading">
-  <div><Text variant="accent-label">Volatile Solutions / Admin</Text><Heading tag="h1" variant="section-title">Integrations</Heading></div>
-  <div class="integration-actions"><Button href="/admin/calendar/" variant="outline" size="sm">Calendar</Button><Button href="/admin/" variant="outline" size="sm">Inquiries</Button><Button type="button" variant="ghost" class="booking-tertiary" size="sm" data-calendar-logout>Sign out</Button></div>
- </div>
+ <AdminPageHeader title="Connections" context="Studio / Integrations" description="The tools behind a seamless conversation."><Button href="/admin/calendar/" variant="outline">Back to calendar</Button><Button type="button" variant="ghost" class="admin-utility" data-calendar-logout>Sign out</Button></AdminPageHeader>
  <Text variant="body" data-integration-feedback role="status" aria-live="polite">Checking access…</Text>
  <div data-integration-private hidden class="integration-sections">
   <section aria-labelledby="outlook-integration-heading" class="integration-section">
@@ -44,15 +43,3 @@ import InquiryField from '@components/inquiry/InquiryField.astro';
 import { setupIntegrations } from '@/lib/integrations/admin';
 void setupIntegrations();
 </script>
-<style>
-.integrations,.integration-sections,.integration-section,.integration-select {display:grid;gap:var(--spacing-md);min-width:0;}
-.integration-heading,.integration-actions {display:flex;align-items:center;flex-wrap:wrap;gap:var(--spacing-sm);}
-.integration-heading {justify-content:space-between;gap:var(--spacing-lg);}
-.integration-heading>div:first-child {display:grid;gap:var(--spacing-sm);}
-.integration-section {padding-block:var(--spacing-lg);border-top:1px solid var(--color-outline-variant);}
-.integration-section :global(.ui-text) {overflow-wrap:anywhere;}
-.integration-section :global(button) {justify-self:start;}
-.integration-select {max-width:32rem;padding-top:var(--spacing-md);}
-.integrations :global([role='alert']),.integrations :global([data-outlook-error]),.integrations :global([data-zoom-error]) {color:var(--color-error);}
-[hidden] {display:none !important;}
-</style>

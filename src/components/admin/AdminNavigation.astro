@@ -1,0 +1,31 @@
+---
+import Text from '@components/ui/atoms/Text.astro';
+import company from '@data/global/company.json';
+const path = Astro.url.pathname;
+const links = [
+  { href: '/admin/', label: 'Inquiries', active: (path === '/admin/' || path === '/admin/login/') },
+  { href: '/admin/leads/', label: 'Leads', active: path.startsWith('/admin/leads') },
+  { href: '/admin/calendar/', label: 'Calendar', active: path === '/admin/calendar/' },
+  { href: '/admin/calendar/settings/', label: 'Availability', active: path.startsWith('/admin/calendar/settings') },
+  { href: '/admin/settings/integrations/', label: 'Integrations', active: path.startsWith('/admin/settings/integrations') },
+];
+const current = links.find(link => link.active)?.label ?? 'Workspace';
+---
+<header class="admin-header">
+  <a class="admin-brand" href="/" aria-label="Volatile Solutions home"><img src={company.branding.logoImage} width={company.branding.logoWidth} height={company.branding.logoHeight} alt={company.name} /></a>
+  <>
+    <nav class="admin-desktop-nav" aria-label="Admin workspace">{links.map(link => <Text tag="a" href={link.href} aria-current={link.active ? 'page' : undefined} variant="feature-body-sm">{link.label}</Text>)}</nav>
+    <details class="admin-mobile-nav">
+      <summary><Text tag="span" variant="feature-body-sm">{current}</Text><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" aria-hidden="true"><path d="m5 8 5 5 5-5" /></svg></summary>
+      <nav aria-label="Mobile admin workspace">{links.map(link => <Text tag="a" href={link.href} aria-current={link.active ? 'page' : undefined} variant="body">{link.label}<span aria-hidden="true">↗</span></Text>)}</nav>
+    </details>
+  </>
+  <Text tag="span" variant="feature-body-sm" class="admin-private-label">Private workspace</Text>
+</header>
+<script>
+  const menu = document.querySelector<HTMLDetailsElement>('.admin-mobile-nav');
+  if (menu) {
+    document.addEventListener('keydown', event => { if (event.key === 'Escape' && menu.open) { menu.open = false; menu.querySelector('summary')?.focus(); } });
+    document.addEventListener('click', event => { if (event.target instanceof Node && !menu.contains(event.target)) menu.open = false; });
+  }
+</script>

@@ -36,32 +36,3 @@ const title = (status: string) => status[0].toUpperCase() + status.slice(1);
     </article>
   </template>
 </div>
-<style>
-  [hidden] { display: none !important; }
-  .admin-pipeline-panel { display: grid; gap: var(--spacing-lg); min-width: 0; }
-  .pipeline-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-md); }
-  .pipeline-header > div { display: grid; gap: var(--spacing-sm); }
-  .pipeline-board { display: grid; gap: var(--spacing-md); min-width: 0; padding: var(--spacing-xs); }
-  .pipeline-column { display: grid; align-content: start; gap: var(--spacing-md); min-width: 0; padding: var(--spacing-md); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-lg); background: var(--color-brand-cream); }
-  .pipeline-column-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-sm); }
-  .pipeline-items { display: grid; gap: var(--spacing-md); }
-  .pipeline-card { display: grid; gap: var(--spacing-md); min-width: 0; padding: var(--spacing-md); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-md); background: var(--color-brand-light); }
-  .pipeline-card-heading { display: grid; gap: var(--spacing-xs); }
-  .pipeline-card-heading :global(h4),.pipeline-card-heading :global(h4 span) { font-size: 1rem; line-height: 1.4; overflow-wrap: anywhere; }
-  .pipeline-card-heading a { color: var(--color-on-surface); text-decoration: underline; text-underline-offset: .2em; text-decoration-color: var(--color-outline); }
-  .pipeline-facts { display: grid; gap: var(--spacing-sm); margin: 0; }
-  .pipeline-facts > div { min-width: 0; }
-  .pipeline-facts :global(dt),.pipeline-card-heading :global([data-pipeline-field="company"]) { color: var(--color-on-surface-variant); }
-  .pipeline-facts :global(dd) { margin: 0; overflow-wrap: anywhere; }
-  .pipeline-move-form { display: grid; gap: var(--spacing-sm); padding-top: var(--spacing-md); border-top: 1px solid var(--color-outline-variant); }
-  .pipeline-move-form :global(.ui-form-label) { color: var(--color-on-surface-variant); }
-  .pipeline-card[data-last-viewed="true"],.pipeline-card:focus-within { border-color: var(--color-on-tertiary-container); }
-  .pipeline-card[data-dragging="true"] { opacity: .65; }
-  .pipeline-column[data-drop-target="true"] { outline: 2px solid var(--color-on-tertiary-container); outline-offset: -2px; }
-  .pipeline-column :global([data-pipeline-empty]) { color: var(--color-on-surface-variant); }
-  @media (pointer: fine) { .pipeline-card[draggable="true"] { cursor: grab; } }
-  @media (min-width: 48rem) {
-    .pipeline-board { grid-auto-flow: column; grid-auto-columns: 18rem; align-items: start; overflow-x: auto; scroll-snap-type: x proximity; padding-bottom: var(--spacing-md); }
-    .pipeline-column { scroll-snap-align: start; }
-  }
-</style>

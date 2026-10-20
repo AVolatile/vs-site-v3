@@ -19,33 +19,3 @@ import Button from '@components/ui/atoms/Button.astro';
 <BookingSyncStatus />
  <Button href="/admin/calendar/" variant="outline" size="sm" data-booking-view hidden>Manage booking</Button>
 </section>
-<style>
-.inquiry-booking {
-  grid-column: 1/-1;
-  display: grid;
-  gap: var(--spacing-sm);
-  padding-top: var(--spacing-md);
-  border-top: 1px solid var(--color-outline-variant);
-  min-width: 0;
-}
-.inquiry-booking :global([data-booking-view]) {
-  justify-self: start;
-}
-.inquiry-booking :global(.booking-summary) {
-  padding: var(--spacing-md);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: var(--ui-radius-sm);
-  background: var(--color-brand-cream);
-}
-.booking-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-sm);
-}
-[hidden] {
-  display: none !important;
-}
-.inquiry-booking :global([data-booking-summary]) {
-  overflow-wrap: anywhere;
-}
-</style>

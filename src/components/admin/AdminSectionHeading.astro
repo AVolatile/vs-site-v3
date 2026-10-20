@@ -1,0 +1,11 @@
+---
+import Heading from '@components/ui/atoms/Heading.astro';
+import Text from '@components/ui/atoms/Text.astro';
+interface Props { title: string; number?: string; description?: string; id?: string; tag?: 'h2' | 'h3' | 'h4' }
+const { title, number, description, id, tag = 'h3' } = Astro.props;
+---
+<div class="admin-section-heading">
+  {number && <Text tag="span" variant="accent-label" class="admin-section-number" aria-hidden="true">{number}</Text>}
+  <div><Heading tag={tag} id={id} variant="feature-title">{title}</Heading>{description && <Text variant="feature-body-sm" class="admin-section-description">{description}</Text>}</div>
+  {Astro.slots.has('default') && <div class="admin-section-actions"><slot /></div>}
+</div>

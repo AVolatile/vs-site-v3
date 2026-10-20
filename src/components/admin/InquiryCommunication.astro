@@ -31,30 +31,3 @@ import { EMAIL_TEMPLATES } from '@/lib/communications/templates';
   <div class="communication-actions" data-email-pagination hidden><Button type="button" variant="outline" size="sm" data-email-previous>Newer messages</Button><Text tag="span" variant="feature-body-sm" data-email-page></Text><Button type="button" variant="outline" size="sm" data-email-next>Older messages</Button></div>
   <template data-email-history-template><li><details class="email-history-item"><summary><Text tag="span" class="email-history-subject" data-email-history-subject></Text><Text tag="span" variant="feature-body-sm" data-email-history-meta></Text><Text tag="span" variant="feature-body-sm" data-email-history-status></Text></summary><div class="email-history-content"><Text variant="body" data-email-history-body></Text><Button type="button" variant="outline" size="sm" data-email-retry hidden>Retry saved email</Button><Text variant="feature-body-sm" class="text-on-surface-variant" data-email-retry-help hidden>Retry uses the original content and send key. If the safe window has ended, check Resend before composing another copy.</Text></div></details></li></template>
 </section>
-<style>
-  [hidden] { display: none !important; }
-  .communication-panel { grid-column: 1 / -1; display: grid; gap: var(--spacing-md); min-width: 0; padding-top: var(--spacing-lg); border-top: 1px solid var(--color-outline-variant); }
-  .communication-heading,.communication-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-sm); }
-  .communication-heading { justify-content: space-between; }
-  .email-composer,.email-preview-panel { display: grid; gap: var(--spacing-md); min-width: 0; padding: var(--spacing-md); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-md); background: var(--color-brand-cream); }
-  .email-composer :global(textarea) { min-height: 12rem; height: auto; }
-  .email-composer :global([id$="-hint"]) { position: static; width: auto; height: auto; margin: 0; clip-path: none; white-space: normal; overflow-wrap: anywhere; }
-  .email-composer :global(input[readonly]) { color: var(--color-on-surface-variant); }
-  .email-preview-meta { display: grid; gap: var(--spacing-sm); min-width: 0; margin: 0; }
-  .email-preview-meta :global(dd) { margin: 0; overflow-wrap: anywhere; }
-  iframe { display: block; width: 100%; height: 36rem; border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-sm); background: var(--color-brand-light); }
-  .email-history { list-style: none; display: grid; gap: var(--spacing-sm); margin: 0; padding: 0; min-width: 0; }
-  .email-history :global(li) { min-width: 0; }
-  .email-history :global(details) { border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-sm); padding: var(--spacing-md); }
-  .email-history :global(summary) { cursor: pointer; overflow-wrap: anywhere; }
-  .email-history :global(summary span) { display: block; }
-  .email-history :global(.email-history-subject) { display: inline; font-weight: 600; }
-  .email-history :global(.email-history-content) { display: grid; gap: var(--spacing-md); padding-top: var(--spacing-md); }
-  .email-history :global([data-email-history-body]) { white-space: pre-wrap; overflow-wrap: anywhere; }
-  .email-history :global([data-email-history-status]) { color: var(--color-on-surface-variant); }
-  .email-history :global([data-status="failed"]) { color: var(--color-error); }
-  .email-history :global([data-status="sent"]) { color: var(--color-success); }
-  .email-history :global(summary:focus-visible) { outline: 2px solid var(--color-primary); outline-offset: 4px; }
-  .communication-panel :global([data-email-feedback][role="alert"]) { color: var(--color-error); }
-  @media (max-width: 47.999rem) { .communication-actions > :global(button) { flex: 1 1 10rem; } }
-</style>

@@ -1,4 +1,6 @@
 ---
+import AdminPageHeader from '@components/admin/AdminPageHeader.astro';
+import AdminSectionHeading from '@components/admin/AdminSectionHeading.astro';
 import Section from '@components/ui/layout/Section.astro';
 import Container from '@components/ui/layout/Container.astro';
 import Heading from '@components/ui/atoms/Heading.astro';
@@ -18,19 +20,19 @@ const detailGroups = [
   { title: 'Scope', fields: [['budgetRange','Budget'],['timeline','Timeline'],['createdAt','Submitted']] },
   { title: 'Record details', fields: [['updatedAt','Last updated'],['consentAt','Consent recorded'],['source','Source']] },
 ];
+import AdminRecordNav from '@components/admin/AdminRecordNav.astro';
+import InquiryProposal from '@components/admin/InquiryProposal.astro';
 import InvoiceSummary from '@components/invoices/InvoiceSummary.astro';
 ---
 <Section tone="page" class="py-10 sm:py-14">
   <Container class="max-w-7xl">
     <div data-inquiry-admin class="admin-area">
-      <div class="admin-heading">
-        <div>
-          <Text variant="accent-label">Volatile Solutions / Admin</Text>
-          <Heading tag="h1" variant="section-title"><Text tag="span" class="admin-title-text admin-auth-title">Client inquiries</Text><Text tag="span" class="admin-title-text admin-dashboard-title">Inquiries</Text></Heading>
-          <Text variant="body" class="admin-dashboard-context">Review and manage project inquiries submitted through Volatile Solutions.</Text>
-        </div>
-        <Button type="button" variant="outline" class="min-h-11" data-admin-logout hidden>Sign out</Button>
-      </div>
+      <AdminPageHeader class="admin-heading" context="Relationships / Inbound">
+        <Fragment slot="title"><Text tag="span" class="admin-title-text admin-auth-title">Client inquiries</Text><Text tag="span" class="admin-title-text admin-dashboard-title">Inquiries</Text></Fragment>
+        <Text slot="description" variant="lead" class="admin-page-description admin-dashboard-context">New conversations. Considered next steps.</Text>
+        <Button type="button" variant="outline" data-admin-retry>Refresh inquiries</Button>
+        <Button type="button" variant="ghost" class="admin-utility" data-admin-logout hidden>Sign out</Button>
+      </AdminPageHeader>
       <Text variant="body" role="status" data-admin-message aria-live="polite">Checking access…</Text>
       <noscript><Text variant="body">JavaScript is required to sign in and manage inquiries.</Text></noscript>
       <div data-admin-login hidden>
@@ -56,9 +58,11 @@ import InvoiceSummary from '@components/invoices/InvoiceSummary.astro';
         </form>
       </div>
       <div data-admin-dashboard hidden class="admin-dashboard">
-        <Text variant="feature-body-sm" class="admin-global-context">All inquiries — global totals. Follow-up counts exclude archived inquiries.</Text>
-        <div class="admin-metrics" role="group" aria-label="Global inquiry summary">
-          {[['new','New inquiries'],['total','Total inquiries'],['active','Active inquiries'],['won','Won']].map(([key,label]) => <div class="admin-metric"><Text variant="feature-body-sm">{label}</Text><Heading tag="p" variant="section-title" data-admin-metric={key}>—</Heading></div>)}
+        <div class="admin-summary">
+          <Text variant="accent-label" class="admin-global-context">The conversation so far</Text>
+          <div class="admin-metrics" role="group" aria-label="Global inquiry summary">
+            {[['new','New inquiries'],['total','Total inquiries'],['active','Active inquiries'],['won','Won']].map(([key,label]) => <div class="admin-metric"><Text variant="feature-body-sm">{label}</Text><Heading tag="p" variant="section-title" data-admin-metric={key}>—</Heading></div>)}
+          </div>
         </div>
         <section class="admin-browse-card" aria-labelledby="admin-browse-heading">
           <div class="admin-browse-header">
@@ -68,7 +72,7 @@ import InvoiceSummary from '@components/invoices/InvoiceSummary.astro';
               <Text tag="span" variant="feature-body-sm">Overdue <Text tag="strong" data-admin-metric="followUpOverdue">—</Text></Text>
             </div>
           </div>
-          <div><Button href="/admin/calendar/" variant="outline" size="sm">Calendar & availability</Button></div>
+
           <div class="admin-view-switch" role="group" aria-label="Inquiry view">
             <Button type="button" variant="outline" size="sm" data-admin-view="list" aria-pressed="true" aria-controls="admin-list-panel">List</Button>
             <Button type="button" variant="outline" size="sm" data-admin-view="pipeline" aria-pressed="false" aria-controls="admin-pipeline-panel">Pipeline</Button>
@@ -81,11 +85,11 @@ import InvoiceSummary from '@components/invoices/InvoiceSummary.astro';
             <div class="admin-filter-field"><InquiryField compact name="filterBudget" label="Budget" type="select" required options={[{ value: 'all', label: 'All budgets' },...inquiryContent.budgets]} /></div>
             <div class="admin-filter-field"><InquiryField compact name="filterTimeline" label="Timeline" type="select" required options={[{ value: 'all', label: 'All timelines' },...inquiryContent.timelines]} /></div>
             <div class="admin-filter-field"><InquiryField compact name="filterFollowUp" label="Follow-up" type="select" required options={[...FOLLOW_UP_OPTIONS]} /></div>
-            <div class="admin-filter-actions"><Button type="submit" variant="primary" size="sm">Apply filters</Button><Button type="button" variant="outline" size="sm" data-admin-clear-filters hidden>Clear filters</Button></div>
+            <div class="admin-filter-actions"><Text tag="span" variant="feature-body-sm" data-admin-filter-summary></Text><Button type="submit" variant="primary" size="sm">Apply filters</Button><Button type="button" variant="outline" size="sm" data-admin-clear-filters hidden>Clear filters</Button></div>
           </form>
         </section>
         <div id="admin-list-panel" data-admin-list-panel class="admin-list-panel">
-          <div class="admin-list-heading"><Heading tag="h2" variant="feature-title">Project inquiries</Heading><Button type="button" variant="outline" class="min-h-11" data-admin-retry>Refresh inquiries</Button></div>
+          <div class="admin-list-heading"><Heading tag="h2" variant="feature-title">All conversations</Heading></div>
           <div class="admin-table-wrap" role="region" aria-label="Project inquiry list">
             <table role="table"><caption class="sr-only">Project inquiries</caption><thead role="rowgroup"><tr role="row">{INQUIRY_COLUMNS.map(label => <th scope="col" role="columnheader"><Text tag="span" variant="feature-body-sm">{label}</Text></th>)}</tr></thead><tbody role="rowgroup" data-admin-rows></tbody></table>
           </div>
@@ -95,10 +99,11 @@ import InvoiceSummary from '@components/invoices/InvoiceSummary.astro';
         <InquiryPipeline />
         <div data-admin-detail-panel hidden class="admin-detail-panel">
           <div class="admin-detail-nav"><Button type="button" variant="outline" size="sm" class="min-h-11" data-admin-back><svg slot="icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><path d="M19 12H5m6-6-6 6 6 6" stroke-linecap="round" stroke-linejoin="round" /></svg>Back to inquiries</Button></div>
-          <div class="admin-detail-actions"><Heading tag="h2" variant="feature-title" tabindex="-1" data-admin-detail-heading>Inquiry details</Heading><div class="admin-detail-actions"><Button href="mailto:" variant="outline" class="min-h-11" data-admin-email hidden>Email contact</Button><Button type="button" variant="ghost" size="icon" class="min-h-11 min-w-11" aria-label="Permanently delete request" title="Permanently delete request" data-admin-delete hidden><i slot="icon-left" class="ph ph-trash" aria-hidden="true"></i><span class="sr-only">Delete request</span></Button></div></div>
+          <div class="admin-detail-actions admin-record-header"><Heading tag="h2" variant="feature-title" tabindex="-1" data-admin-detail-heading>Inquiry details</Heading><div class="admin-detail-actions"><Button href="mailto:" variant="outline" class="min-h-11" data-admin-email hidden>Email contact</Button><Button type="button" variant="ghost" size="icon" class="min-h-11 min-w-11" aria-label="Permanently delete request" title="Permanently delete request" data-admin-delete hidden><i slot="icon-left" class="ph ph-trash" aria-hidden="true"></i><span class="sr-only">Delete request</span></Button></div></div>
           <div data-admin-detail-unavailable hidden><Button type="button" variant="outline" size="sm" class="min-h-11" data-admin-detail-retry>Try again</Button></div>
+          <AdminRecordNav />
           <div class="admin-detail-content" data-admin-detail-content hidden>
-            <div class="admin-detail-sections">
+            <div class="admin-detail-sections" id="record-overview">
               {detailGroups.map(({ title, fields }) => <div class="admin-detail-group">
                 <Heading tag="h3" variant="feature-title">{title}</Heading>
                 <dl class="admin-details">{fields.map(([key,label]) => <div>
@@ -108,15 +113,15 @@ import InvoiceSummary from '@components/invoices/InvoiceSummary.astro';
               </div>)}
             </div>
             <form data-admin-update-form novalidate class="admin-form admin-edit-panel">
-              <Heading tag="h3" variant="feature-title">Admin</Heading>
+              <AdminSectionHeading number="01" title="Opportunity & notes" />
               <div class="admin-current-status"><Text variant="feature-body-sm">Current status</Text><Text tag="span" variant="feature-body-sm" data-admin-detail="status" class="admin-status"></Text></div>
               <InquiryField name="status" label="Update status" type="select" required options={statuses} />
               <InquiryField name="adminNotes" label="Private admin notes" type="textarea" maxLength={10000} hint="Visible only to administrators." />
               <div class="admin-save-actions"><Button type="submit" variant="primary" class="min-h-11">Save changes</Button><Button type="button" variant="outline" class="min-h-11" data-admin-reload>Reload inquiry</Button></div>
               <Text variant="body" role="status" data-admin-save-message aria-live="polite"></Text>
             </form>
-            <form data-admin-follow-up-form novalidate class="admin-form admin-follow-up-panel">
-              <Heading tag="h3" variant="feature-title">Follow-up</Heading>
+            <form data-admin-follow-up-form novalidate class="admin-form admin-follow-up-panel" id="record-follow-up">
+              <AdminSectionHeading number="02" title="The next conversation" description="Give the follow-up a time and a clear next step." />
               <Text variant="body" data-admin-follow-up-state></Text>
               <div class="admin-follow-up-datetime" role="group" aria-label="Follow-up schedule" aria-describedby="admin-follow-up-timezone">
                 <InquiryField compact name="nextFollowUpDate" label="Date" type="date" />
@@ -127,15 +132,8 @@ import InvoiceSummary from '@components/invoices/InvoiceSummary.astro';
               <div class="admin-save-actions"><Button type="submit" variant="primary" class="min-h-11">Save follow-up</Button><Button type="button" variant="outline" class="min-h-11" data-admin-clear-follow-up>Clear follow-up</Button></div>
               <Text variant="body" role="status" aria-live="polite" data-admin-follow-up-message></Text>
             </form>
-            <section class="admin-proposal-panel" data-inquiry-proposal hidden aria-labelledby="inquiry-proposal-heading">
-              <Heading id="inquiry-proposal-heading" tag="h3" variant="feature-title">Proposal</Heading>
-              <Text variant="body" role="status" aria-live="polite" data-inquiry-proposal-message></Text>
-              <Button type="button" variant="outline" size="sm" data-inquiry-proposal-create hidden>Create proposal</Button>
-              <div data-inquiry-proposal-summary hidden><div class="admin-proposal-facts"><Text tag="span" data-inquiry-proposal-number></Text><Text tag="span" data-inquiry-proposal-status></Text><Text tag="span" data-inquiry-proposal-total></Text><Text tag="span" variant="feature-body-sm" data-inquiry-proposal-valid></Text></div><div class="admin-save-actions"><Button href="/admin/" variant="outline" size="sm" data-inquiry-proposal-open="view">View proposal</Button><Button href="/admin/" variant="outline" size="sm" data-inquiry-proposal-open="edit">Edit proposal</Button></div></div>
-            </section>
-            <InvoiceSummary headingTag="h3" />
-            <InquiryBooking />
-            <InquiryCommunication />
+            <div class="admin-record-documents"><InquiryProposal /><InvoiceSummary headingTag="h3" /><InquiryBooking /></div>
+            <div class="admin-record-correspondence"><InquiryCommunication /></div>
             <InquiryActivity />
           </div>
         </div>
@@ -167,119 +165,3 @@ import InvoiceSummary from '@components/invoices/InvoiceSummary.astro';
     renderResult();
   }
 </script>
-<style>
-  [hidden] { display: none !important; }
-  .admin-area,.admin-dashboard,.admin-form,.admin-list-panel,.admin-detail-panel { display: grid; gap: 1.5rem; }
-  .admin-heading,.admin-detail-actions,.admin-pagination,.admin-list-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
-  .admin-heading > div { display: grid; gap: .75rem; }
-  .admin-login-panel { display: grid; gap: 1.25rem; max-width: 30rem; padding: clamp(1rem,4vw,2rem); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-lg); background: var(--color-brand-cream); }
-  .admin-heading :global(.admin-title-text) { line-height: inherit; }
-  .admin-heading :global(.admin-dashboard-title),.admin-heading :global(.admin-dashboard-context) { display: none; }
-  :global(.admin-area:has([data-admin-dashboard]:not([hidden]))) .admin-heading :global(.admin-auth-title) { display: none; }
-  :global(.admin-area:has([data-admin-dashboard]:not([hidden]))) .admin-heading :global(.admin-dashboard-title) { display: inline; }
-  :global(.admin-area:has([data-admin-dashboard]:not([hidden]))) .admin-heading :global(.admin-dashboard-context) { display: block; color: var(--color-on-surface-variant); }
-  :global(.admin-area:has([data-admin-dashboard]:not([hidden]))) .admin-heading :global(.ui-type-accent-label),.admin-dashboard :global(.ui-form-label) { color: var(--color-on-surface-variant); }
-  :global(.admin-area:has([data-admin-dashboard]:not([hidden]))) :global([data-admin-message]) { font-size: .875rem; line-height: 1.4; color: var(--color-on-surface-variant); }
-  :global(.admin-area:has([data-admin-dashboard]:not([hidden]))) :global([data-admin-message][data-browse-result]) { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-  :global(.admin-area:has([data-admin-dashboard]:not([hidden]))) :global([data-admin-message][role="alert"]) { padding: var(--spacing-md); border-radius: var(--ui-radius-sm); background: var(--color-error-container); color: var(--color-on-error-container); }
-  .admin-dashboard { gap: var(--spacing-md); }
-  .admin-area,.admin-dashboard { min-width: 0; }
-  .admin-browse-card { display: grid; gap: var(--spacing-sm); min-width: 0; padding: var(--spacing-md); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-md); background: var(--color-brand-cream); }
-  .admin-browse-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); }
-  .admin-browse-heading { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--spacing-sm); min-width: 0; }
-  .admin-browse-heading :global(h2) { font-size: 1rem; line-height: 1.4; }
-  .admin-browse-heading :global([data-admin-result-count]) { font-size: .8125rem; color: var(--color-on-surface-variant); font-variant-numeric: tabular-nums; }
-  .admin-view-switch { display: flex; flex-wrap: wrap; gap: .25rem; }
-  .admin-view-switch :global(.ui-button),.admin-filter-actions :global(.ui-button) { min-height: 2.75rem; height: 2.75rem; padding-inline: .75rem; font-size: .75rem; letter-spacing: .02em; }
-  .admin-view-switch :global([aria-pressed="true"]) { background: var(--color-brand-dark); color: var(--color-on-primary); border-color: var(--color-brand-dark); }
-  .admin-metrics { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--spacing-md); }
-  .admin-metric { display: grid; gap: var(--spacing-md); padding: clamp(1rem,2vw,1.5rem); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-lg); background: var(--color-brand-cream); }
-  .admin-metric :global([data-admin-metric]) { font-size: clamp(2rem,3vw,3rem); line-height: 1; font-variant-numeric: tabular-nums; }
-  .admin-list-panel,.admin-detail-panel { padding: clamp(1rem,2vw,1.5rem); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-lg); min-width: 0; }
-  .admin-filter-toolbar { display: grid; gap: var(--spacing-sm); align-items: start; min-width: 0; }
-  .admin-filter-toolbar > div { min-width: 0; }
-  .admin-table-wrap { min-width: 0; max-width: 100%; }
-  table { width: 100%; table-layout: fixed; text-align: left; border-collapse: collapse; }
-  th,.admin-table-wrap :global(td) { padding: .875rem .75rem; vertical-align: top; border-bottom: 1px solid var(--color-outline-variant); overflow-wrap: anywhere; }
-  th { background: var(--color-brand-cream); font-weight: 600; }
-  th:nth-child(1),th:nth-child(8) { width: 17%; }
-  th:nth-child(2),th:nth-child(3) { width: 12%; }
-  th:nth-child(4),th:nth-child(5),th:nth-child(6) { width: 10%; }
-  th:nth-child(7) { width: 12%; }
-  .admin-table-wrap :global(td) { font-size: .875rem; line-height: 1.55; }
-  .admin-table-wrap :global(td:last-child) { color: var(--color-on-surface-variant); font-size: .8125rem; }
-  .admin-table-wrap :global(td:first-child a) { font-weight: 700; color: var(--color-on-surface); text-decoration: underline; text-decoration-color: var(--color-outline); text-underline-offset: .2em; }
-  .admin-table-wrap :global(tr:hover),.admin-table-wrap :global(tr:focus-within) { background: var(--color-brand-cream); }
-  .admin-table-wrap :global(tr[data-last-viewed="true"]) { background: var(--color-tertiary-container); }
-  .admin-table-wrap :global(.admin-last-viewed) { display: block; padding-top: var(--spacing-xs); font-size: .75rem; color: var(--color-on-tertiary-container); }
-  .admin-area :global(.admin-status) { display: inline-flex; align-items: center; width: fit-content; max-width: 100%; padding: .25rem .5rem; border-radius: var(--rounded-full); background: var(--color-secondary-container); color: var(--color-on-surface-variant); font-size: .75rem; line-height: 1.4; font-weight: 600; overflow-wrap: anywhere; }
-  .admin-area :global(.admin-status[data-status="new"]) { background: var(--color-info-container); color: var(--color-on-info-container); }
-  .admin-area :global(.admin-status[data-status="reviewing"]),.admin-area :global(.admin-status[data-status="contacted"]) { background: var(--color-tertiary-container); color: var(--color-on-tertiary-container); }
-  .admin-area :global(.admin-status[data-status="qualified"]),.admin-area :global(.admin-status[data-status="proposal"]) { background: var(--color-warning-container); color: var(--color-on-warning-container); }
-  .admin-area :global(.admin-status[data-status="won"]) { background: var(--color-success-container); color: var(--color-on-success-container); }
-  .admin-area :global(.admin-status[data-status="lost"]) { background: var(--color-error-container); color: var(--color-on-error-container); }
-  .admin-list-panel :global([data-admin-empty]:not([hidden])) { padding: var(--spacing-lg) var(--spacing-md); border: 1px dashed var(--color-outline-variant); border-radius: var(--ui-radius-md); color: var(--color-on-surface-variant); }
-  .admin-pagination { padding-top: var(--spacing-md); border-top: 1px solid var(--color-outline-variant); }
-  .admin-detail-content,.admin-detail-sections,.admin-detail-group { display: grid; gap: var(--spacing-lg); min-width: 0; align-items: start; }
-  .admin-detail-nav { padding-bottom: var(--spacing-sm); }
-  .admin-detail-group { gap: var(--spacing-md); }
-  .admin-details { display: grid; gap: var(--spacing-md); margin: 0; }
-  .admin-details > div { min-width: 0; }
-  .admin-details :global(dd) { margin: .25rem 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
-  .admin-detail-group { padding-bottom: var(--spacing-lg); border-bottom: 1px solid var(--color-outline-variant); }
-  .admin-edit-panel { padding: clamp(1rem,2vw,1.5rem); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-lg); background: var(--color-brand-cream); min-width: 0; }
-  .admin-edit-panel :global(.ui-form-label > span) { font: inherit; letter-spacing: inherit; text-transform: none; }
-  .admin-current-status,.admin-save-actions { display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-md); }
-  .admin-current-status { justify-content: space-between; }
-  .admin-save-actions > :global(button) { flex: 1 1 12rem; }
-  .admin-edit-panel :global([data-admin-save-message]) { min-height: 1.5rem; overflow-wrap: anywhere; }
-  @media (min-width: 48rem) {
-    .admin-metrics { grid-template-columns: repeat(4,minmax(0,1fr)); }
-    .admin-view-switch :global(.ui-button),.admin-filter-actions :global(.ui-button) { min-height: 2.5rem; height: 2.5rem; }
-    .admin-detail-sections { grid-template-columns: repeat(2,minmax(0,1fr)); }
-  }
-  .admin-global-context { color: var(--color-on-surface-variant); }
-  .admin-follow-up-summary,.admin-filter-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-sm); }
-  .admin-filter-actions { grid-column: 1 / -1; }
-  .admin-follow-up-summary :global(span) { font-size: .75rem; color: var(--color-on-surface-variant); }
-  .admin-follow-up-summary :global(strong) { display: inline; font: inherit; font-weight: 600; color: var(--color-on-surface); }
-  .admin-proposal-panel { grid-column: 1 / -1; display: grid; gap: var(--spacing-sm); padding-top: var(--spacing-md); border-top: 1px solid var(--color-outline-variant); }
-  .admin-proposal-facts { display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-md); margin-bottom: var(--spacing-sm); }
-  [data-proposal-status="accepted"] :global([data-inquiry-proposal-status]) { color: var(--color-on-success-container); background: var(--color-success-container); padding: var(--spacing-xs) var(--spacing-sm); border-radius: var(--ui-radius-sm); }
-  .admin-follow-up-panel { grid-column: 1 / -1; min-width: 0; padding-top: var(--spacing-lg); border-top: 1px solid var(--color-outline-variant); }
-  .admin-area :global(.admin-follow-up) { font-size: .875rem; line-height: 1.55; overflow-wrap: anywhere; }
-  .admin-area :global(.admin-follow-up[data-follow-up-state="today"]) { color: var(--color-on-warning-container); background: var(--color-warning-container); padding: var(--spacing-xs); border-radius: var(--ui-radius-sm); }
-  .admin-area :global(.admin-follow-up[data-follow-up-state="overdue"]) { color: var(--color-on-error-container); background: var(--color-error-container); padding: var(--spacing-xs); border-radius: var(--ui-radius-sm); }
-  .admin-follow-up-datetime { display: grid; gap: var(--spacing-md); min-width: 0; }
-  .admin-follow-up-datetime :global(input) { min-width: 0; max-width: 100%; }
-  @media (min-width: 48rem) { .admin-follow-up-datetime { grid-template-columns: repeat(2,minmax(0,1fr)); } }
-  @media (min-width: 23.4375rem) {
-    .admin-filter-toolbar { grid-template-columns: repeat(2,minmax(0,1fr)); }
-    .admin-search-field { grid-column: 1 / -1; }
-  }
-  @media (min-width: 64rem) {
-    .admin-filter-toolbar { grid-template-columns: repeat(14,minmax(0,1fr)); }
-    .admin-search-field { grid-column: span 5; }
-    .admin-filter-field,[data-admin-status-filter] { grid-column: span 3; }
-    .admin-filter-actions { grid-column: span 5; align-self: end; justify-content: flex-end; }
-    .admin-filter-toolbar:has([data-admin-status-filter][hidden]) .admin-filter-actions { grid-column: span 8; }
-  }
-  @media (min-width: 80rem) { .admin-detail-content { grid-template-columns: minmax(0,1.7fr) minmax(20rem,1fr); } }
-  @media (max-width: 63.999rem) {
-    table { display: block; }
-    thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
-    .admin-table-wrap :global(tbody) { display: grid; gap: var(--spacing-md); }
-    .admin-table-wrap :global(tr) { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--spacing-md); padding: var(--spacing-md); border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-md); }
-    .admin-table-wrap :global(td) { display: block; padding: 0; border: 0; min-width: 0; }
-    .admin-table-wrap :global(td:first-child) { grid-column: 1 / -1; padding-bottom: var(--spacing-sm); border-bottom: 1px solid var(--color-outline-variant); font-size: 1rem; }
-    .admin-table-wrap :global(td::before) { content: attr(data-label); display: block; margin-bottom: var(--spacing-xs); color: var(--color-on-surface-variant); font-size: .75rem; font-weight: 500; }
-    .admin-table-wrap :global(td:first-child::before) { display: none; }
-  }
-  @media (min-width: 48rem) and (max-width: 63.999rem) { .admin-table-wrap :global(tbody) { grid-template-columns: repeat(2,minmax(0,1fr)); } }
-  @media (max-width: 47.999rem) {
-    .admin-pagination { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); grid-template-areas: 'summary summary' 'previous next'; }
-    .admin-pagination :global([data-admin-page]) { grid-area: summary; text-align: center; }
-    .admin-pagination :global([data-admin-previous]) { grid-area: previous; }
-    .admin-pagination :global([data-admin-next]) { grid-area: next; }
-  }
-</style>

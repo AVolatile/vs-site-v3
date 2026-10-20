@@ -1,10 +1,13 @@
 ---
+import AdminPageHeader from '@components/admin/AdminPageHeader.astro';
+import AdminSectionHeading from '@components/admin/AdminSectionHeading.astro';
 import Section from '@components/ui/layout/Section.astro';
 import Container from '@components/ui/layout/Container.astro';
 import Heading from '@components/ui/atoms/Heading.astro';
 import Text from '@components/ui/atoms/Text.astro';
 import Button from '@components/ui/atoms/Button.astro';
 import InquiryField from '@components/inquiry/InquiryField.astro';
+import AdminRecordNav from '@components/admin/AdminRecordNav.astro';
 import InquiryProposal from '@components/admin/InquiryProposal.astro';
 import InquiryBooking from '@components/admin/InquiryBooking.astro';
 import InquiryCommunication from '@components/admin/InquiryCommunication.astro';
@@ -18,38 +21,49 @@ const textFields = [['company','Business / lead name',160],['name','Contact name
 ---
 <Section tone="page" class="py-10 sm:py-14"><Container class="max-w-7xl">
   <div data-leads-admin class="lead-stack">
-    <div class="lead-actions"><div><Text variant="accent-label">Volatile Solutions / Admin</Text><Heading tag="h1" variant="section-title">Leads</Heading><Text variant="body">Manually identified prospects. Separate from inbound inquiries.</Text></div><Button type="button" variant="outline" data-calendar-logout>Sign out</Button></div>
+    <AdminPageHeader title="Leads" context="Relationships / Prospects" description="Good connections start with a little curiosity.">
+      <Button type="button" data-lead-new>Add lead<span slot="icon-right" aria-hidden="true">↗</span></Button>
+      <Button type="button" variant="ghost" class="admin-utility" data-calendar-logout>Sign out</Button>
+    </AdminPageHeader>
     <Text variant="body" role="status" aria-live="polite" data-lead-feedback>Checking access…</Text>
     <noscript><Text variant="body">JavaScript is required to manage leads.</Text></noscript>
     <div data-lead-workspace hidden class="lead-stack">
       <div data-lead-browse class="lead-stack">
-        <div class="lead-actions"><Heading tag="h2" variant="feature-title">Browse leads</Heading><Button type="button" data-lead-new>Create lead</Button></div>
-        <form data-lead-filters class="lead-grid" novalidate>
+        <div class="admin-browse-header"><Heading tag="h2" variant="feature-title">Prospect directory</Heading><Text variant="feature-body-sm" class="admin-muted">Manually found. Personally considered.</Text></div>
+        <form data-lead-filters class="admin-filter-toolbar lead-filter-toolbar" novalidate>
           <InquiryField compact name="search" label="Search leads" type="search" maxLength={160} placeholder="Business, contact, email, phone…" />
           <InquiryField compact name="filterStatus" label="Status" type="select" required options={[{value:'all',label:'All statuses'},...statuses]} />
           <InquiryField compact name="filterPriority" label="Priority" type="select" required options={[{value:'all',label:'All priorities'},...priorities]} />
           <InquiryField compact name="filterFollowUp" label="Follow-up" type="select" required options={[{value:'all',label:'All follow-ups'},{value:'overdue',label:'Overdue'},{value:'upcoming',label:'Upcoming'},{value:'none',label:'No follow-up'}]} />
-          <div class="lead-actions"><Button type="submit" size="sm">Apply filters</Button><Button type="button" variant="outline" size="sm" data-lead-clear-filters>Clear filters</Button></div>
+          <div class="admin-filter-actions"><Text tag="span" variant="feature-body-sm" data-admin-filter-summary></Text><Button type="submit" size="sm">Apply filters</Button><Button type="button" variant="outline" size="sm" data-lead-clear-filters>Clear filters</Button></div>
         </form>
-        <div class="lead-table" role="region" aria-label="Lead list" tabindex="0"><table><thead><tr>{['Business / lead','Contact','Status','Priority','Follow-up'].map(label => <th scope="col"><Text tag="span" variant="feature-body-sm">{label}</Text></th>)}</tr></thead><tbody data-lead-rows></tbody></table></div>
+        <div class="lead-table admin-table-wrap" role="region" aria-label="Lead list" tabindex="0"><table role="table"><caption class="sr-only">Manually identified prospects</caption><thead role="rowgroup"><tr role="row">{['Business / lead','Contact','Status','Priority','Follow-up'].map(label => <th scope="col"><Text tag="span" variant="feature-body-sm">{label}</Text></th>)}</tr></thead><tbody role="rowgroup" data-lead-rows></tbody></table></div>
         <Text variant="body" data-lead-empty hidden>No leads yet. Create your first prospect manually.</Text>
-        <div class="lead-actions"><Button type="button" variant="outline" size="sm" data-lead-previous>Previous</Button><Text tag="span" data-lead-page></Text><Button type="button" variant="outline" size="sm" data-lead-next>Next</Button></div>
+        <div class="lead-actions admin-pagination"><Button type="button" variant="outline" size="sm" data-lead-previous>Previous</Button><Text tag="span" data-lead-page></Text><Button type="button" variant="outline" size="sm" data-lead-next>Next</Button></div>
       </div>
       <div data-lead-detail hidden class="lead-stack">
         <div class="lead-actions"><Button type="button" variant="outline" size="sm" data-lead-back>Back to leads</Button><Button type="button" variant="outline" size="sm" data-lead-reload>Reload lead</Button></div>
-        <div class="lead-actions"><Heading tag="h2" variant="feature-title" tabindex="-1" data-lead-heading>Lead details</Heading><Button type="button" variant="ghost" size="icon" aria-label="Permanently delete lead" title="Permanently delete lead" data-lead-delete><i slot="icon-left" class="ph ph-trash" aria-hidden="true"></i><span class="sr-only">Delete lead</span></Button></div>
+        <div class="lead-actions admin-record-header"><Heading tag="h2" variant="feature-title" tabindex="-1" data-lead-heading>Lead details</Heading><Button type="button" variant="ghost" size="icon" aria-label="Permanently delete lead" title="Permanently delete lead" data-lead-delete><i slot="icon-left" class="ph ph-trash" aria-hidden="true"></i><span class="sr-only">Delete lead</span></Button></div>
         <Text variant="feature-body-sm" data-lead-meta></Text>
-        <form data-lead-form class="lead-stack" novalidate>
-          <div class="lead-grid">{textFields.map(([name,label,maxLength]) => <InquiryField name={name} label={label} required={name === 'company'} type={name === 'email' ? 'email' : 'text'} maxLength={maxLength} />)}</div>
-          <div class="lead-grid"><InquiryField name="status" label="Status" type="select" required options={statuses} /><InquiryField name="priority" label="Priority" type="select" required options={priorities} /></div>
-          <InquiryField name="adminNotes" label="Private notes" type="textarea" maxLength={10000} />
-          <div class="lead-grid"><InquiryField name="lastContactAt" label="Last contact" type="datetime-local" /><InquiryField name="nextFollowUpAt" label="Next follow-up" type="datetime-local" /></div>
-          <Text variant="feature-body-sm">Dates use your local timezone. Clear the date to remove a follow-up.</Text>
-          <InquiryField name="followUpNote" label="Follow-up note" type="textarea" maxLength={2000} />
-          <Button type="submit" data-lead-save>Save lead</Button>
+        <AdminRecordNav />
+        <form data-lead-form class="admin-lead-edit-layout" novalidate>
+          <div class="admin-contact-editor admin-form-section" id="record-overview">
+            <AdminSectionHeading number="01" title="Business & contact" description="Start with what you know. Only the lead name is required." />
+            <div class="lead-grid">{textFields.map(([name,label,maxLength]) => <InquiryField name={name} label={label} required={name === 'company'} type={name === 'email' ? 'email' : 'text'} maxLength={maxLength} />)}</div>
+          </div>
+          <div class="admin-opportunity-editor admin-form-section" id="record-follow-up">
+            <AdminSectionHeading number="02" title="The next step" description="Where things stand, and where to go next." />
+            <div class="lead-grid"><InquiryField name="status" label="Status" type="select" required options={statuses} /><InquiryField name="priority" label="Priority" type="select" required options={priorities} /></div>
+            <InquiryField name="nextFollowUpAt" label="Next follow-up" type="datetime-local" />
+            <InquiryField name="followUpNote" label="Follow-up note" type="textarea" maxLength={2000} />
+            <InquiryField name="lastContactAt" label="Last contact" type="datetime-local" />
+            <Text variant="feature-body-sm" class="admin-muted">Dates use your local timezone. Clear the date to remove a follow-up.</Text>
+          </div>
+          <div class="admin-notes-editor admin-form-section"><AdminSectionHeading number="03" title="Private notes" description="Research, context, and the details worth remembering." /><InquiryField name="adminNotes" label="Private notes" type="textarea" maxLength={10000} /></div>
+          <div class="admin-form-actions"><Button type="submit" data-lead-save>Save lead</Button><Text variant="feature-body-sm" class="admin-muted">Changes stay private to the studio.</Text></div>
         </form>
-        <div data-lead-related hidden class="lead-stack">
-          <div class="lead-actions"><Button type="button" variant="outline" data-lead-convert>Convert to Inquiry</Button><Button href="/admin/" variant="outline" data-lead-inquiry hidden>Open converted inquiry</Button></div>
+        <div data-lead-related hidden class="admin-lead-related">
+          <div class="lead-actions"><Button type="button" variant="ghost" class="admin-text-action" data-lead-convert>Convert to Inquiry</Button><Button href="/admin/" variant="outline" data-lead-inquiry hidden>Open converted inquiry</Button></div>
           <form data-lead-conversion hidden class="lead-stack" novalidate>
             <Heading tag="h3" variant="feature-title">Convert to Inquiry</Heading>
             <Text variant="body">Supply the actual inquiry details below. The original lead and its history remain. This action does not record wizard consent.</Text>
@@ -57,15 +71,15 @@ const textFields = [['company','Business / lead name',160],['name','Contact name
             <div class="lead-grid">{[['projectType','Project type',inquiryContent.projectTypes],['projectStage','Starting point',inquiryContent.projectStages],['budgetRange','Budget',inquiryContent.budgets],['timeline','Timeline',inquiryContent.timelines]].map(([name,label,options]) => <InquiryField name={'convert_' + name} label={String(label)} type="select" required options={options as {value:string;label:string}[]} />)}</div>
             <InquiryField name="convert_projectSummary" label="Project summary" type="textarea" required maxLength={4000} />
             <InquiryField name="convert_helpNeeded" label="Help needed" type="textarea" maxLength={2000} />
-            <div class="lead-actions"><Button type="submit">Create inquiry</Button><Button type="button" variant="outline" data-lead-convert-cancel>Cancel</Button></div>
+            <div class="lead-actions"><Button type="submit">Create inquiry</Button><Button type="button" variant="ghost" class="admin-text-action" data-lead-convert-cancel>Cancel</Button></div>
           </form>
-          <InquiryProposal />
+          <div class="admin-record-documents"><InquiryProposal />
           <Text variant="feature-body-sm">Invoices use the existing workflow: create a proposal, publish it, then create an invoice after acceptance.</Text>
           <InvoiceSummary headingTag="h3" />
           <InquiryBooking />
-          <Text variant="feature-body-sm" data-lead-email-needed hidden>Add a contact email and save the lead to send email.</Text>
+          </div><div class="admin-record-correspondence"><Text variant="feature-body-sm" data-lead-email-needed hidden>Add a contact email and save the lead to send email.</Text>
           <InquiryCommunication lead />
-          <InquiryActivity />
+          </div><InquiryActivity />
         </div>
       </div>
     </div>
@@ -75,17 +89,3 @@ const textFields = [['company','Business / lead name',160],['name','Contact name
   import { setupLeadsAdmin } from '@/lib/leads/admin';
   setupLeadsAdmin();
 </script>
-<style>
-  [hidden] { display: none !important; }
-  .lead-stack { display: grid; gap: var(--spacing-lg); min-width: 0; }
-  .lead-grid { display: grid; gap: var(--spacing-md); min-width: 0; }
-  .lead-actions { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--spacing-md); }
-  .lead-table { overflow-x: auto; border: 1px solid var(--color-outline-variant); border-radius: var(--ui-radius-md); }
-  table { width: 100%; border-collapse: collapse; text-align: left; }
-  th, .lead-table :global(td) { padding: var(--spacing-md); border-bottom: 1px solid var(--color-outline-variant); overflow-wrap: anywhere; }
-  .lead-table :global(a) { text-decoration: underline; text-underline-offset: .2em; }
-  .lead-stack :global([role='alert']) { color: var(--color-error); }
-  .lead-stack :global(.admin-proposal-panel),[data-lead-conversion] { display: grid; gap: var(--spacing-md); padding-block: var(--spacing-md); border-block: 1px solid var(--color-outline-variant); }
-  .lead-stack :global(.admin-proposal-facts),.lead-stack :global(.admin-save-actions) { display: flex; flex-wrap: wrap; gap: var(--spacing-md); }
-  @media (min-width: 48rem) { .lead-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
-</style>

@@ -1,0 +1,7 @@
+---
+import Text from '@components/ui/atoms/Text.astro';
+const links = [['record-overview','Overview'],['record-follow-up','Next steps'],['communication-heading','Communication'],['inquiry-proposal-heading','Documents'],['admin-activity-heading','History']];
+---
+<nav class="admin-record-nav" aria-label="Record sections">
+  {links.map(([id,label]) => <Text tag="a" href={'#' + id} variant="feature-body-sm">{label}</Text>)}
+</nav>
