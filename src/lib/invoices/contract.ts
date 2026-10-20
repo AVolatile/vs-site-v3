@@ -97,7 +97,8 @@ export interface PublicInvoice extends ProposalTotals {
 }
 export interface AdminInvoice extends PublicInvoice {
   id: string;
-  inquiryId: string;
+  inquiryId: string | null;
+  leadId?: string;
   proposalId: string;
   persistedStatus: InvoiceStatus;
   businessTimezone: string;

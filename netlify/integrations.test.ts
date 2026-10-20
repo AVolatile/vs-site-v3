@@ -216,6 +216,7 @@ beforeAll(async () => {
     "007_create_integrations",
     "008_outlook_calendar_integration",
     "009_create_invoices",
+    "010_create_leads",
   ])
     await db.exec(readFileSync("database/migrations/" + name + ".sql", "utf8"));
 }, 30000);
@@ -226,7 +227,7 @@ afterEach(() => {
 });
 beforeEach(async () => {
   await db.exec(
-    "TRUNCATE invoice_items,invoices,integration_connections,integration_oauth_states,bookings,booking_links,inquiry_messages,proposal_items,proposals,inquiry_activity,inquiries; DELETE FROM booking_exceptions; UPDATE booking_availability SET enabled=true,start_time='09:00',end_time='17:00';UPDATE booking_settings SET timezone='America/New_York',slot_duration_minutes=30,minimum_notice_hours=1,horizon_days=60,buffer_minutes=0,updated_at=clock_timestamp();",
+    "TRUNCATE leads,invoice_items,invoices,integration_connections,integration_oauth_states,bookings,booking_links,inquiry_messages,proposal_items,proposals,inquiry_activity,inquiries; DELETE FROM booking_exceptions; UPDATE booking_availability SET enabled=true,start_time='09:00',end_time='17:00';UPDATE booking_settings SET timezone='America/New_York',slot_duration_minutes=30,minimum_notice_hours=1,horizon_days=60,buffer_minutes=0,updated_at=clock_timestamp();",
   );
   vi.resetAllMocks();
   mocks.query.mockImplementation(
@@ -1506,7 +1507,7 @@ it("migration 008 preserves populated Google history and Zoom state without chan
         )
       ).rows[0];
     const copy = async (table: string, row: Record<string, unknown>) => {
-      const keys = Object.keys(row);
+      const keys = Object.keys(row).filter(key => key !== "lead_id");
       await legacy.query(
         `INSERT INTO ${table}(${keys.join(",")}) VALUES(${keys.map((_, i) => "$" + (i + 1)).join(",")})`,
         keys.map((k) => row[k]),

@@ -295,9 +295,10 @@ export async function setupInvoiceEditor() {
     el("[data-editor-number]").textContent = saved.number;
     el("[data-editor-status]").textContent =
       saved.status[0].toUpperCase() + saved.status.slice(1);
+    el("[data-invoice-back]").querySelectorAll<HTMLElement>(".ui-button-text-default,.ui-button-text-hover").forEach(node => { node.textContent = saved.leadId ? "Back to lead" : "Back to inquiry"; });
     el<HTMLAnchorElement>("[data-invoice-back]").href = safeInquiryBack(
       new URL(location.href).searchParams.get("back"),
-      saved.inquiryId,
+      saved.inquiryId, saved.leadId,
     );
     form.hidden = saved.persistedStatus !== "draft";
     for (const [key, name] of Object.entries(names)) {

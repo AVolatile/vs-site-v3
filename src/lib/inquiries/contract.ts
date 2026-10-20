@@ -72,7 +72,7 @@ export function optionLabel(options: { value: string; label: string }[], value: 
 export type InquiryInput = z.infer<typeof inquirySchema>;
 export type InquiryStatus = typeof STATUS_OPTIONS[number];
 export interface Inquiry extends InquiryInput {
-  id: string; createdAt: string; updatedAt: string; consentAt: string;
+  id: string; createdAt: string; updatedAt: string; consentAt: string | null;
   status: InquiryStatus; source: string; adminNotes: string;
   nextFollowUpAt: string | null; followUpNote: string;
 }

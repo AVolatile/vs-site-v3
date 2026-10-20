@@ -7,7 +7,7 @@ import { browseDefaults, type AdminBrowse } from '../../src/lib/inquiries/admin-
 const iso = (value: unknown) => (value instanceof Date ? value : new Date(String(value))).toISOString();
 function detail(row: Record<string, unknown>): Inquiry {
   return {
-    id: String(row.id), createdAt: iso(row.created_at), updatedAt: iso(row.updated_at), consentAt: iso(row.consent_at),
+    id: String(row.id), createdAt: iso(row.created_at), updatedAt: iso(row.updated_at), consentAt: row.consent_at == null ? null : iso(row.consent_at),
     name: String(row.name), email: String(row.email), company: String(row.company), website: String(row.website),
     projectType: String(row.project_type), projectStage: String(row.project_stage), projectSummary: String(row.project_summary),
     helpNeeded: String(row.help_needed), budgetRange: String(row.budget_range), timeline: String(row.timeline),

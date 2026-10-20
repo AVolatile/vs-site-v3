@@ -41,7 +41,7 @@ beforeAll(async () => {
 afterAll(()=>db?.close());
 afterEach(()=>vi.unstubAllEnvs());
 beforeEach(async () => {
-  await db.exec('TRUNCATE deletion_guard_test,invoice_items,invoices,bookings,booking_links,inquiry_messages,proposal_items,proposals,inquiry_activity,inquiries');
+  await db.exec('TRUNCATE leads,deletion_guard_test,invoice_items,invoices,bookings,booking_links,inquiry_messages,proposal_items,proposals,inquiry_activity,inquiries');
   vi.resetAllMocks();vi.stubEnv('DATABASE_URL','postgresql://isolated-test-placeholder');
   mocks.user.mockResolvedValue({roles:['admin']});
   mocks.query.mockImplementation(async(sql:string,params:unknown[]=[]) => (await db.query(sql,params)).rows);

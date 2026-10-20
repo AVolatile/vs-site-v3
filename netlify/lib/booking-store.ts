@@ -1,3 +1,4 @@
+import { type CrmOwner, ownerId, ownerColumn, ownerFromRow, getOwnerContact } from './crm-owner';
 import { Temporal } from "@js-temporal/polyfill";
 import { calendarProvider } from "./integrations/calendar";
 import { attemptBookingSync } from "./integrations/sync";
@@ -6,7 +7,6 @@ import { safeMessage } from "./integrations/provider";
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import { query } from "./database";
-import { getInquiry } from "./inquiry-store";
 import { getBookingSettings } from "./booking-settings";
 import { getBookingLink, linkUrl, publicBookingLink } from "./booking-links";
 import { availableDates, slotsForDate } from "./booking-slots";
@@ -47,7 +47,8 @@ function adminData(row: Record<string, unknown>): AdminBooking {
   return {
     ...publicData(row),
     id: String(row.id),
-    inquiryId: String(row.inquiry_id),
+    inquiryId: row.inquiry_id == null ? null : String(row.inquiry_id),
+    ...(row.lead_id ? { leadId: String(row.lead_id) } : {}),
     company: String(row.company ?? ""),
     createdAt: iso(row.created_at),
     updatedAt: iso(row.updated_at),
@@ -78,14 +79,14 @@ function adminData(row: Record<string, unknown>): AdminBooking {
   };
 }
 const select =
-  "SELECT b.*,i.company FROM bookings b JOIN inquiries i ON i.id=b.inquiry_id";
-async function latest(inquiryId: string) {
+  "SELECT b.*,COALESCE(i.company,l.company) AS company FROM bookings b LEFT JOIN inquiries i ON i.id=b.inquiry_id LEFT JOIN leads l ON l.id=b.lead_id";
+async function latest(inquiryId: CrmOwner) {
   return (
     (
       await query(
         select +
-          " WHERE b.inquiry_id=$1 ORDER BY (b.status='scheduled') DESC,b.created_at DESC,b.id DESC LIMIT 1",
-        [inquiryId],
+          ` WHERE b.${ownerColumn(inquiryId)}=$1 ORDER BY (b.status='scheduled') DESC,b.created_at DESC,b.id DESC LIMIT 1`,
+        [ownerId(inquiryId)],
       )
     )[0] ?? null
   );
@@ -96,9 +97,9 @@ export async function getAdminBooking(id: string) {
   return adminData(row);
 }
 export async function getInquiryBooking(
-  inquiryId: string,
+  inquiryId: CrmOwner,
 ): Promise<InquiryBooking> {
-  await getInquiry(inquiryId);
+  await getOwnerContact(inquiryId);
   const [link, row] = await Promise.all([
     getBookingLink(inquiryId),
     latest(inquiryId),
@@ -175,7 +176,7 @@ export async function publicBookingPage(
 ): Promise<PublicBookingPage> {
   const link = await publicBookingLink(token),
     settings = await getBookingSettings(),
-    row = await latest(String(link.inquiry_id));
+    row = await latest(ownerFromRow(link));
   let dates: PublicBookingPage["dates"] = [],
     availabilityMessage: string | undefined;
   try {
@@ -206,7 +207,7 @@ export async function publicBookingPage(
 export async function publicSlots(token: string, date: string) {
   const link = await publicBookingLink(token),
     settings = await getBookingSettings(),
-    row = await latest(String(link.inquiry_id));
+    row = await latest(ownerFromRow(link));
   return {
     timezone: settings.timezone,
     slots: slotsForDate(
@@ -278,7 +279,7 @@ export async function book(
     )[0];
     if (old) {
       if (
-        old.inquiry_id !== link.inquiry_id ||
+        (old.inquiry_id !== link.inquiry_id || old.lead_id !== link.lead_id) ||
         old.payload_fingerprint !== fingerprint
       )
         throw new HttpError(
@@ -379,7 +380,7 @@ export async function changePublicBooking(
   defer?: (id: string) => void,
 ) {
   const link = await publicBookingLink(token),
-    row = await latest(String(link.inquiry_id));
+    row = await latest(ownerFromRow(link));
   if (
     !row ||
     row.status !== "scheduled" ||

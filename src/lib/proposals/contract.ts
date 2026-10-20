@@ -28,10 +28,11 @@ export const itemSchema = z
   .strict();
 export const createProposalSchema = z
   .object({
-    inquiryId: z.string().uuid(),
+    inquiryId: z.string().uuid().optional(),
+    leadId: z.string().uuid().optional(),
     title: text(160).pipe(z.string().min(1, 'Enter a proposal title.')),
   })
-  .strict();
+  .strict().refine(value => Boolean(value.inquiryId) !== Boolean(value.leadId), 'Choose one inquiry or lead.');
 export const draftSchema = z
   .object({
     action: z.literal('save'),
@@ -76,7 +77,8 @@ export interface PublicProposal extends ProposalTotals {
 }
 export interface AdminProposal extends PublicProposal {
   id: string;
-  inquiryId: string;
+  inquiryId: string | null;
+  leadId?: string;
   createdAt: string;
   updatedAt: string;
   internalNotes: string;
@@ -118,15 +120,15 @@ export const decimalValue = (units: number): string =>
   `${Math.floor(units / 100)}.${String(units % 100).padStart(2, '0')}`;
 export const proposalAdminUrl = (id: string, back?: string): string =>
   '/admin/proposals/?proposal=' + encodeURIComponent(id) + (back ? '&back=' + encodeURIComponent(back) : '');
-export function safeInquiryBack(value: string | null, inquiryId: string): string {
+export function safeInquiryBack(value: string | null, inquiryId: string | null, leadId?: string): string {
   try {
     const url = new URL(value ?? '', 'https://internal.invalid');
     if (
       url.origin === 'https://internal.invalid' &&
-      url.pathname === '/admin/' &&
-      url.searchParams.get('inquiry') === inquiryId
+      url.pathname === (leadId ? '/admin/leads/' : '/admin/') &&
+      url.searchParams.get(leadId ? 'lead' : 'inquiry') === (leadId ?? inquiryId)
     )
       return url.pathname + url.search;
   } catch {}
-  return '/admin/?inquiry=' + encodeURIComponent(inquiryId);
+  return leadId ? '/admin/leads/?lead=' + encodeURIComponent(leadId) : '/admin/?inquiry=' + encodeURIComponent(inquiryId ?? '');
 }

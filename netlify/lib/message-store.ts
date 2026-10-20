@@ -1,10 +1,10 @@
+import { type CrmOwner, ownerId, ownerColumn, ownerFromRow, getOwnerContact, requireOwnerEmail } from './crm-owner';
 import { invoiceForEmail } from "./invoice-store";
 import { checkedInvoiceToken, INVOICE_TOKEN_MARKER } from "./invoice-token";
 import { bookingForEmail } from "./booking-links";
 import { checkedToken, BOOKING_TOKEN_MARKER } from "./booking-token";
 import { createHash } from "node:crypto";
 import { query } from "./database";
-import { getInquiry } from "./inquiry-store";
 import { getInquiryProposal } from "./proposal-store";
 import {
   emailConfiguration,
@@ -88,36 +88,36 @@ function detail(row: Record<string, unknown>): MessageDetail {
     bodyHtml: hydrate(row.body_html, row),
   };
 }
-async function messageRow(inquiryId: string, id: string) {
+async function messageRow(inquiryId: CrmOwner, id: string) {
   const rows = await query(
-    "SELECT * FROM inquiry_messages WHERE inquiry_id=$1 AND id=$2",
-    [inquiryId, id],
+    `SELECT * FROM inquiry_messages WHERE ${ownerColumn(inquiryId)}=$1 AND id=$2`,
+    [ownerId(inquiryId), id],
   );
   if (!rows[0]) throw new HttpError(404, "This email could not be found.");
   return rows[0];
 }
-export async function getMessage(inquiryId: string, id: string) {
+export async function getMessage(inquiryId: CrmOwner, id: string) {
   return detail(await messageRow(inquiryId, id));
 }
-export async function proposalForEmail(inquiryId: string) {
+export async function proposalForEmail(inquiryId: CrmOwner) {
   const p = await getInquiryProposal(inquiryId);
   return p?.status === "sent" && p.clientUrl
     ? { number: p.number, url: publicEmailUrl(p.clientUrl), id: p.id }
     : null;
 }
 export async function listMessages(
-  inquiryId: string,
+  inquiryId: CrmOwner,
   page = 1,
 ): Promise<MessageList> {
-  await getInquiry(inquiryId);
+  await getOwnerContact(inquiryId);
   const [rows, total, proposal, booking, invoice] = await Promise.all([
     query(
-      "SELECT id,created_at,sent_at,to_email,from_email,subject,status,template_key,error_code,first_attempt_at,last_attempt_at,booking_nonce,booking_token_hash,invoice_id,invoice_token_hash,invoice_token_created_at FROM inquiry_messages WHERE inquiry_id=$1 ORDER BY created_at DESC,id DESC LIMIT 10 OFFSET $2",
-      [inquiryId, (page - 1) * 10],
+      `SELECT id,created_at,sent_at,to_email,from_email,subject,status,template_key,error_code,first_attempt_at,last_attempt_at,booking_nonce,booking_token_hash,invoice_id,invoice_token_hash,invoice_token_created_at FROM inquiry_messages WHERE ${ownerColumn(inquiryId)}=$1 ORDER BY created_at DESC,id DESC LIMIT 10 OFFSET $2`,
+      [ownerId(inquiryId), (page - 1) * 10],
     ),
     query(
-      "SELECT count(*) AS total FROM inquiry_messages WHERE inquiry_id=$1",
-      [inquiryId],
+      `SELECT count(*) AS total FROM inquiry_messages WHERE ${ownerColumn(inquiryId)}=$1`,
+      [ownerId(inquiryId)],
     ),
     proposalForEmail(inquiryId),
     bookingForEmail(inquiryId),
@@ -132,9 +132,9 @@ export async function listMessages(
     invoice: invoice ? { number: invoice.number, url: invoice.url } : null,
   };
 }
-export async function previewEmail(inquiryId: string, input: Composition) {
+export async function previewEmail(inquiryId: CrmOwner, input: Composition) {
   const config = emailConfiguration(false),
-    inquiry = await getInquiry(inquiryId),
+    inquiry = await requireOwnerEmail(inquiryId),
     proposal = await proposalForEmail(inquiryId);
   return renderEmail(
     input,
@@ -158,15 +158,15 @@ async function finish(
     UPDATE inquiry_messages SET status=$3,provider_message_id=$4,sent_at=CASE WHEN $3='sent' THEN clock_timestamp() ELSE NULL END,error_code=$5,updated_at=clock_timestamp()
     WHERE id=$1 AND status<>'sent' AND ($3='sent' OR (status='sending' AND attempt_count=$2)) RETURNING *
   ), activity AS (
-    INSERT INTO inquiry_activity (inquiry_id,activity_type,actor,note,message_id)
-    SELECT inquiry_id,CASE WHEN status='sent' THEN 'email_sent' ELSE 'email_failed' END,'admin',subject,id FROM saved
+    INSERT INTO inquiry_activity (inquiry_id,lead_id,activity_type,actor,note,message_id)
+    SELECT inquiry_id,lead_id,CASE WHEN status='sent' THEN 'email_sent' ELSE 'email_failed' END,'admin',subject,id FROM saved
     ON CONFLICT (message_id,activity_type) WHERE message_id IS NOT NULL DO NOTHING RETURNING id
   ) SELECT * FROM saved`,
     [row.id, row.attempt_count, status, providerId, errorCode],
   );
   return rows[0]
     ? detail(rows[0])
-    : getMessage(String(row.inquiry_id), String(row.id));
+    : getMessage(ownerFromRow(row), String(row.id));
 }
 async function deliver(row: Record<string, unknown>): Promise<MessageDetail> {
   let providerId: string;
@@ -188,7 +188,7 @@ async function deliver(row: Record<string, unknown>): Promise<MessageDetail> {
   return finish(row, providerId, null);
 }
 export async function sendMessage(
-  inquiryId: string,
+  inquiryId: CrmOwner,
   input: Composition & { requestKey: string },
 ): Promise<MessageDetail> {
   const fingerprint = createHash("sha256")
@@ -212,7 +212,7 @@ export async function sendMessage(
   if (existing[0]) {
     if (
       existing[0].payload_fingerprint !== fingerprint ||
-      existing[0].inquiry_id !== inquiryId
+      existing[0][ownerColumn(inquiryId)] !== ownerId(inquiryId)
     )
       throw new HttpError(
         409,
@@ -221,7 +221,7 @@ export async function sendMessage(
     return detail(existing[0]);
   }
   const config = emailConfiguration(),
-    inquiry = await getInquiry(inquiryId),
+    inquiry = await requireOwnerEmail(inquiryId),
     proposal = await proposalForEmail(inquiryId);
   const booking = await bookingForEmail(inquiryId);
   const invoice = await invoiceForEmail(inquiryId, !!input.includeInvoice);
@@ -274,10 +274,10 @@ export async function sendMessage(
       : output;
   });
   const rows = await query(
-    `INSERT INTO inquiry_messages (inquiry_id,from_email,reply_to_email,to_email,subject,message_text,body_text,body_html,template_key,proposal_id,request_key,payload_fingerprint,booking_nonce,booking_token_hash,invoice_id,invoice_token_hash,invoice_token_created_at)
+    `INSERT INTO inquiry_messages (${ownerColumn(inquiryId)},from_email,reply_to_email,to_email,subject,message_text,body_text,body_html,template_key,proposal_id,request_key,payload_fingerprint,booking_nonce,booking_token_hash,invoice_id,invoice_token_hash,invoice_token_created_at)
     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17) ON CONFLICT (request_key) DO NOTHING RETURNING *`,
     [
-      inquiryId,
+      ownerId(inquiryId),
       config.from,
       config.replyTo,
       mail.to,
@@ -297,7 +297,7 @@ export async function sendMessage(
   return deliver(rows[0]);
 }
 export async function retryMessage(
-  inquiryId: string,
+  inquiryId: CrmOwner,
   id: string,
 ): Promise<MessageDetail> {
   const old = await messageRow(inquiryId, id);
@@ -340,9 +340,9 @@ export async function retryMessage(
     );
   const rows = await query(
     `UPDATE inquiry_messages SET status='sending',error_code=NULL,attempt_count=attempt_count+1,last_attempt_at=clock_timestamp(),updated_at=clock_timestamp()
-    WHERE id=$1 AND inquiry_id=$2 AND attempt_count=$3 AND first_attempt_at > clock_timestamp()-interval '23 hours'
+    WHERE id=$1 AND ${ownerColumn(inquiryId)}=$2 AND attempt_count=$3 AND first_attempt_at > clock_timestamp()-interval '23 hours'
       AND (status='failed' OR (status='sending' AND last_attempt_at < clock_timestamp()-interval '90 seconds')) RETURNING *`,
-    [id, inquiryId, old.attempt_count],
+    [id, ownerId(inquiryId), old.attempt_count],
   );
   return rows[0] ? deliver(rows[0]) : getMessage(inquiryId, id);
 }

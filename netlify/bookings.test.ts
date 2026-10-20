@@ -125,6 +125,7 @@ beforeAll(async () => {
     "007_create_integrations",
     "008_outlook_calendar_integration",
     "009_create_invoices",
+    "010_create_leads",
   ])
     await db.exec(readFileSync("database/migrations/" + name + ".sql", "utf8"));
 }, 30000);
@@ -135,7 +136,7 @@ afterEach(() => {
 });
 beforeEach(async () => {
   await db.exec(
-    "TRUNCATE invoice_items,invoices,bookings,booking_links,inquiry_messages,proposal_items,proposals,inquiry_activity,inquiries; DELETE FROM booking_exceptions; UPDATE booking_availability SET enabled=false,start_time='09:00',end_time='17:00'; UPDATE booking_settings SET timezone='America/New_York',slot_duration_minutes=30,buffer_minutes=0,minimum_notice_hours=12,horizon_days=60,updated_at=clock_timestamp();",
+    "TRUNCATE leads,invoice_items,invoices,bookings,booking_links,inquiry_messages,proposal_items,proposals,inquiry_activity,inquiries; DELETE FROM booking_exceptions; UPDATE booking_availability SET enabled=false,start_time='09:00',end_time='17:00'; UPDATE booking_settings SET timezone='America/New_York',slot_duration_minutes=30,buffer_minutes=0,minimum_notice_hours=12,horizon_days=60,updated_at=clock_timestamp();",
   );
   vi.resetAllMocks();
   vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("Unexpected network request in isolated booking tests")));

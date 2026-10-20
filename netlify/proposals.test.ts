@@ -63,6 +63,7 @@ beforeAll(async () => {
     '007_create_integrations',
     '008_outlook_calendar_integration',
     '009_create_invoices',
+    '010_create_leads',
   ])
     await db.exec(readFileSync('database/migrations/' + name + '.sql', 'utf8'));
 }, 30000);
@@ -70,7 +71,7 @@ afterAll(async () => {
   await db?.close();
 });
 beforeEach(async () => {
-  await db.exec('TRUNCATE invoice_items,invoices,bookings,booking_links,inquiry_messages,proposal_items,proposals,inquiry_activity,inquiries');
+  await db.exec('TRUNCATE leads,invoice_items,invoices,bookings,booking_links,inquiry_messages,proposal_items,proposals,inquiry_activity,inquiries');
   vi.resetAllMocks();
   vi.stubEnv('DATABASE_URL', 'postgresql://isolated-test-placeholder');
   mocks.user.mockResolvedValue({ roles: ['admin'] });
@@ -122,9 +123,9 @@ describe('proposal model, arithmetic and atomic PostgreSQL workflows', () => {
       totalCents: 0,
       taxRateBasisPoints: 0,
     });
-    expect(await getInquiryProposal(proposal.inquiryId)).toEqual(proposal);
+    expect(await getInquiryProposal(proposal.inquiryId!)).toEqual(proposal);
     expect(
-      (await listInquiryActivity(proposal.inquiryId)).filter((event) => event.type === 'proposal_created'),
+      (await listInquiryActivity(proposal.inquiryId!)).filter((event) => event.type === 'proposal_created'),
     ).toHaveLength(1);
   });
   it('uses a unique sequence under concurrent creation and retries', async () => {
@@ -176,7 +177,7 @@ describe('proposal model, arithmetic and atomic PostgreSQL workflows', () => {
     const first = await saveProposal(p.id, body(p.updatedAt));
     const unchanged = await saveProposal(p.id, body(first.updatedAt));
     expect(
-      (await listInquiryActivity(p.inquiryId)).filter((e) => e.type === 'proposal_updated'),
+      (await listInquiryActivity(p.inquiryId!)).filter((e) => e.type === 'proposal_updated'),
     ).toHaveLength(1);
     const changed = await saveProposal(p.id, {
       ...body(unchanged.updatedAt),
@@ -190,10 +191,10 @@ describe('proposal model, arithmetic and atomic PostgreSQL workflows', () => {
   it('rejects stale draft saves without touching items or activity', async () => {
     const p = await draft();
     const saved = await saveProposal(p.id, body(p.updatedAt));
-    const events = await listInquiryActivity(p.inquiryId);
+    const events = await listInquiryActivity(p.inquiryId!);
     await expect(saveProposal(p.id, body(p.updatedAt))).rejects.toMatchObject({ status: 409 });
     expect(await getAdminProposal(p.id)).toEqual(saved);
-    expect(await listInquiryActivity(p.inquiryId)).toEqual(events);
+    expect(await listInquiryActivity(p.inquiryId!)).toEqual(events);
   });
   it.each([
     { discountCents: 260001 },
@@ -243,7 +244,7 @@ describe('proposal model, arithmetic and atomic PostgreSQL workflows', () => {
     expect(token(published.clientUrl)).toMatch(/^[A-Za-z0-9_-]{43}$/);
     await expect(saveProposal(p.id, body(published.updatedAt))).rejects.toMatchObject({ status: 409 });
     await expect(sendProposal(p.id, published.updatedAt)).rejects.toMatchObject({ status: 409 });
-    expect((await getInquiry(p.inquiryId)).status).toBe('new');
+    expect((await getInquiry(p.inquiryId!)).status).toBe('new');
   });
   it('returns an explicit public allowlist without IDs/tokens/internal metadata or private notes', async () => {
     const p = await sent();
@@ -257,7 +258,7 @@ describe('proposal model, arithmetic and atomic PostgreSQL workflows', () => {
     const output = JSON.stringify(client);
     for (const secret of [
       p.id,
-      p.inquiryId,
+      p.inquiryId!,
       token(p.clientUrl),
       'INTERNAL PRIVATE NOTE',
       'internalNotes',
@@ -287,9 +288,9 @@ describe('proposal model, arithmetic and atomic PostgreSQL workflows', () => {
         respondToProposal(token(p.clientUrl), action === 'accept' ? 'decline' : 'accept'),
       ).rejects.toMatchObject({ status: 409 });
       expect(
-        (await listInquiryActivity(p.inquiryId)).filter((e) => e.type === 'proposal_' + client.status),
+        (await listInquiryActivity(p.inquiryId!)).filter((e) => e.type === 'proposal_' + client.status),
       ).toEqual([expect.objectContaining({ actor: 'client', proposalNumber: p.number })]);
-      expect((await getInquiry(p.inquiryId)).status).toBe('new');
+      expect((await getInquiry(p.inquiryId!)).status).toBe('new');
     },
   );
   it('serializes competing accept/decline requests so only one response wins', async () => {
@@ -299,7 +300,7 @@ describe('proposal model, arithmetic and atomic PostgreSQL workflows', () => {
       respondToProposal(token(p.clientUrl), 'decline'),
     ]);
     expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(1);
-    expect((await listInquiryActivity(p.inquiryId)).filter((e) => e.actor === 'client')).toHaveLength(1);
+    expect((await listInquiryActivity(p.inquiryId!)).filter((e) => e.actor === 'client')).toHaveLength(1);
   });
   it('derives expiration and refuses accept/decline after the deadline', async () => {
     const p = await sent();
@@ -314,7 +315,7 @@ describe('proposal model, arithmetic and atomic PostgreSQL workflows', () => {
       let p = operation === 'create' ? await draft() : operation === 'accept' ? await sent() : await draft();
       if (operation === 'send') p = await saveProposal(p.id, body(p.updatedAt));
       const before = await getAdminProposal(p.id),
-        events = await listInquiryActivity(p.inquiryId);
+        events = await listInquiryActivity(p.inquiryId!);
       const freshInquiry = operation === 'create' ? await createInquiry(input, crypto.randomUUID()) : null;
       await db.exec(
         `CREATE FUNCTION reject_activity() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'failure'; END $$; CREATE TRIGGER reject_activity BEFORE INSERT ON inquiry_activity FOR EACH ROW EXECUTE FUNCTION reject_activity();`,
@@ -330,7 +331,7 @@ describe('proposal model, arithmetic and atomic PostgreSQL workflows', () => {
                 : respondToProposal(token(p.clientUrl), 'accept');
         await expect(action).rejects.toBeDefined();
         expect(await getAdminProposal(p.id)).toEqual(before);
-        expect(await listInquiryActivity(p.inquiryId)).toEqual(events);
+        expect(await listInquiryActivity(p.inquiryId!)).toEqual(events);
         if (freshInquiry) expect(await getInquiryProposal(freshInquiry)).toBeNull();
       } finally {
         await db.exec('DROP TRIGGER reject_activity ON inquiry_activity; DROP FUNCTION reject_activity()');
@@ -391,8 +392,8 @@ describe('proposal model, arithmetic and atomic PostgreSQL workflows', () => {
   });
   it('preserves inquiry records and restricts deleting an inquiry with a proposal', async () => {
     const p = await draft();
-    await expect(db.query('DELETE FROM inquiries WHERE id=$1', [p.inquiryId])).rejects.toBeDefined();
-    expect(await getInquiry(p.inquiryId)).toBeDefined();
+    await expect(db.query('DELETE FROM inquiries WHERE id=$1', [p.inquiryId!])).rejects.toBeDefined();
+    expect(await getInquiry(p.inquiryId!)).toBeDefined();
   });
   it('uses exact cents and half-up tax, rejecting nondecimal/negative money syntax', () => {
     expect(decimalUnits('1250.00')).toBe(125000);

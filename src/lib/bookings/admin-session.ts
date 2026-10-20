@@ -4,7 +4,7 @@ export function calendarReturnUrl(value: string | null): string | null {
     const u = new URL(value ?? "", "https://internal.invalid");
     if (
       u.origin !== "https://internal.invalid" ||
-      !["/admin/calendar/", "/admin/calendar/settings/", "/admin/settings/integrations/", "/admin/invoices/"].includes(u.pathname)
+      !["/admin/leads/", "/admin/calendar/", "/admin/calendar/settings/", "/admin/settings/integrations/", "/admin/invoices/"].includes(u.pathname)
     )
       return null;
     return u.pathname + u.search;
@@ -62,11 +62,11 @@ export async function setupBookingAdmin(clear: () => void) {
         throw Error("Sign in again to continue.");
       }
       if (!response.ok)
-        throw Error(
+        throw Object.assign(Error(
           typeof body.error === "string"
             ? body.error
             : "The calendar request could not be completed.",
-        );
+        ), { fields: body.fields });
       return body as T;
     },
   };

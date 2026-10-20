@@ -33,7 +33,7 @@ export async function syncBooking(id: string) {
   if (!row) return;
   const revision = row.sync_revision;
   const company = (
-    await query("SELECT company FROM inquiries WHERE id=$1", [row.inquiry_id])
+    await query(row.lead_id ? "SELECT company FROM leads WHERE id=$1" : "SELECT company FROM inquiries WHERE id=$1", [row.lead_id ?? row.inquiry_id])
   )[0];
   row.company = company?.company ?? "";
   const status = async (

@@ -89,7 +89,7 @@ export async function setupProposalEditor(): Promise<void> {
   }
   const invoicePanel=setupInvoicePanel(element('[data-invoice-context]'),{
     active:()=>!!proposal,
-    back:()=>safeInquiryBack(new URL(location.href).searchParams.get('back'),proposal!.inquiryId),
+    back:()=>safeInquiryBack(new URL(location.href).searchParams.get('back'),proposal!.inquiryId,proposal!.leadId),
     request:async<T>(url:string,options:RequestInit={}):Promise<T>=>{
       const response=await fetch(url,{...options,credentials:'same-origin',cache:'no-store',signal:AbortSignal.timeout(20000)}),body=await response.json();
       if(response.status===401 || response.status===403)clear();
@@ -225,9 +225,10 @@ export async function setupProposalEditor(): Promise<void> {
     element('[data-editor-meta]').hidden = false;
     element('[data-editor-number]').textContent = saved.number;
     element('[data-editor-status]').textContent = saved.status[0].toUpperCase() + saved.status.slice(1);
+    element("[data-proposal-back]").querySelectorAll<HTMLElement>(".ui-button-text-default,.ui-button-text-hover").forEach(node => { node.textContent = saved.leadId ? "Back to lead" : "Back to inquiry"; });
     element<HTMLAnchorElement>('[data-proposal-back]').href = safeInquiryBack(
       new URL(location.href).searchParams.get('back'),
-      saved.inquiryId,
+      saved.inquiryId, saved.leadId,
     );
     form.hidden = saved.status !== 'draft';
     value('proposalTitle').value = saved.title;

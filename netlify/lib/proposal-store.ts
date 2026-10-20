@@ -1,3 +1,4 @@
+import { type CrmOwner, ownerId, ownerColumn, getOwnerContact } from './crm-owner';
 import {invoiceUrl} from './invoice-store';
 import { randomBytes } from 'node:crypto';
 import { publicUrl } from './public-url';
@@ -53,7 +54,8 @@ function adminData(row: Record<string, unknown>): AdminProposal {
   return {
     ...publicData(row),
     id: String(row.id),
-    inquiryId: String(row.inquiry_id),
+    inquiryId: row.inquiry_id == null ? null : String(row.inquiry_id),
+    ...(row.lead_id ? { leadId: String(row.lead_id) } : {}),
     createdAt: iso(row.created_at),
     updatedAt: iso(row.updated_at),
     internalNotes: String(row.internal_notes),
@@ -62,29 +64,28 @@ function adminData(row: Record<string, unknown>): AdminProposal {
       row.client_token && row.status !== 'draft' ? '/proposal/' + String(row.client_token) + '/' : null,
   };
 }
-const selection = `SELECT p.*,i.name,i.company,i.email,COALESCE((SELECT jsonb_agg(jsonb_build_object(
+const selection = `SELECT p.*,COALESCE(i.name,l.name) AS name,COALESCE(i.company,l.company) AS company,COALESCE(i.email,l.email) AS email,COALESCE((SELECT jsonb_agg(jsonb_build_object(
   'description',description,'quantity',quantity,'unit_price_cents',unit_price_cents,'line_total_cents',line_total_cents) ORDER BY position)
-  FROM proposal_items WHERE proposal_id=p.id),'[]'::jsonb) AS items FROM proposals p JOIN inquiries i ON i.id=p.inquiry_id`;
+  FROM proposal_items WHERE proposal_id=p.id),'[]'::jsonb) AS items FROM proposals p LEFT JOIN inquiries i ON i.id=p.inquiry_id LEFT JOIN leads l ON l.id=p.lead_id`;
 export async function getAdminProposal(id: string): Promise<AdminProposal> {
   const rows = await query(selection + ' WHERE p.id=$1', [id]);
   if (!rows[0]) throw new HttpError(404, 'This proposal could not be found.');
   return adminData(rows[0]);
 }
-export async function getInquiryProposal(inquiryId: string): Promise<AdminProposal | null> {
-  const rows = await query(selection + ' WHERE p.inquiry_id=$1', [inquiryId]);
+export async function getInquiryProposal(inquiryId: CrmOwner): Promise<AdminProposal | null> {
+  const rows = await query(selection + ` WHERE p.${ownerColumn(inquiryId)}=$1`, [ownerId(inquiryId)]);
   return rows[0] ? adminData(rows[0]) : null;
 }
-export async function createProposal(inquiryId: string, title: string): Promise<AdminProposal> {
-  const inquiries = await query('SELECT id FROM inquiries WHERE id=$1', [inquiryId]);
-  if (!inquiries[0]) throw new HttpError(404, 'This inquiry could not be found.');
+export async function createProposal(inquiryId: CrmOwner, title: string): Promise<AdminProposal> {
+  await getOwnerContact(inquiryId);
   const rows = await query(
     `WITH created AS (
-    INSERT INTO proposals (inquiry_id,title) VALUES ($1,$2) ON CONFLICT (inquiry_id) DO NOTHING RETURNING *
+    INSERT INTO proposals (${ownerColumn(inquiryId)},title) VALUES ($1,$2) ON CONFLICT (${ownerColumn(inquiryId)}) DO NOTHING RETURNING *
   ), activity AS (
-    INSERT INTO inquiry_activity (inquiry_id,activity_type,actor,proposal_number,created_at)
-    SELECT inquiry_id,'proposal_created','admin',proposal_number,updated_at FROM created RETURNING id
-  ) SELECT created.*,i.name,i.company,i.email,'[]'::jsonb AS items FROM created JOIN inquiries i ON i.id=created.inquiry_id`,
-    [inquiryId, title],
+    INSERT INTO inquiry_activity (inquiry_id,lead_id,activity_type,actor,proposal_number,created_at)
+    SELECT inquiry_id,lead_id,'proposal_created','admin',proposal_number,updated_at FROM created RETURNING id
+  ) SELECT created.*,COALESCE(i.name,l.name) AS name,COALESCE(i.company,l.company) AS company,COALESCE(i.email,l.email) AS email,'[]'::jsonb AS items FROM created LEFT JOIN inquiries i ON i.id=created.inquiry_id LEFT JOIN leads l ON l.id=created.lead_id`,
+    [ownerId(inquiryId), title],
   );
   // Fresh lookup handles concurrent creation/retries without duplicate proposals or events.
   if (rows[0]) return adminData(rows[0]);
@@ -139,9 +140,9 @@ export async function saveProposal(id: string, input: DraftInput): Promise<Admin
     CROSS JOIN jsonb_to_recordset($13::jsonb) AS item(position integer,description text,quantity integer,unit_price_cents integer)
     CROSS JOIN (SELECT count(*) FROM removed) AS deletion_barrier RETURNING *
   ), activity AS (
-    INSERT INTO inquiry_activity (inquiry_id,activity_type,actor,proposal_number,created_at)
-    SELECT inquiry_id,'proposal_updated','admin',proposal_number,updated_at FROM saved WHERE changed RETURNING id
-  ) SELECT saved.*,i.name,i.company,i.email,COALESCE((SELECT jsonb_agg(jsonb_build_object('description',description,'quantity',quantity,'unit_price_cents',unit_price_cents,'line_total_cents',line_total_cents) ORDER BY position) FROM inserted),'[]'::jsonb) AS items FROM saved JOIN inquiries i ON i.id=saved.inquiry_id`,
+    INSERT INTO inquiry_activity (inquiry_id,lead_id,activity_type,actor,proposal_number,created_at)
+    SELECT inquiry_id,lead_id,'proposal_updated','admin',proposal_number,updated_at FROM saved WHERE changed RETURNING id
+  ) SELECT saved.*,COALESCE(i.name,l.name) AS name,COALESCE(i.company,l.company) AS company,COALESCE(i.email,l.email) AS email,COALESCE((SELECT jsonb_agg(jsonb_build_object('description',description,'quantity',quantity,'unit_price_cents',unit_price_cents,'line_total_cents',line_total_cents) ORDER BY position) FROM inserted),'[]'::jsonb) AS items FROM saved LEFT JOIN inquiries i ON i.id=saved.inquiry_id LEFT JOIN leads l ON l.id=saved.lead_id`,
     [
       id,
       input.title,
@@ -186,9 +187,9 @@ export async function sendProposal(id: string, updatedAt: string): Promise<Admin
     FROM previous WHERE p.id=previous.id AND previous.status='draft' AND previous.updated_at=$2::timestamptz
       AND previous.valid_until >= (clock_timestamp() AT TIME ZONE 'UTC')::date RETURNING p.*
   ), activity AS (
-    INSERT INTO inquiry_activity (inquiry_id,activity_type,actor,proposal_number,created_at)
-    SELECT inquiry_id,'proposal_sent','admin',proposal_number,updated_at FROM sent RETURNING id
-  ) SELECT sent.*,i.name,i.company,i.email,COALESCE((SELECT jsonb_agg(jsonb_build_object('description',description,'quantity',quantity,'unit_price_cents',unit_price_cents,'line_total_cents',line_total_cents) ORDER BY position) FROM proposal_items WHERE proposal_id=sent.id),'[]'::jsonb) AS items FROM sent JOIN inquiries i ON i.id=sent.inquiry_id`,
+    INSERT INTO inquiry_activity (inquiry_id,lead_id,activity_type,actor,proposal_number,created_at)
+    SELECT inquiry_id,lead_id,'proposal_sent','admin',proposal_number,updated_at FROM sent RETURNING id
+  ) SELECT sent.*,COALESCE(i.name,l.name) AS name,COALESCE(i.company,l.company) AS company,COALESCE(i.email,l.email) AS email,COALESCE((SELECT jsonb_agg(jsonb_build_object('description',description,'quantity',quantity,'unit_price_cents',unit_price_cents,'line_total_cents',line_total_cents) ORDER BY position) FROM proposal_items WHERE proposal_id=sent.id),'[]'::jsonb) AS items FROM sent LEFT JOIN inquiries i ON i.id=sent.inquiry_id LEFT JOIN leads l ON l.id=sent.lead_id`,
     [id, updatedAt, token],
   );
   if (!rows[0]) return draftConflict(id);
@@ -217,9 +218,9 @@ export async function respondToProposal(
       updated_at=GREATEST(date_trunc('milliseconds',clock_timestamp()),previous.updated_at + interval '1 millisecond')
     FROM previous WHERE p.id=previous.id AND previous.status='sent' AND previous.valid_until >= (clock_timestamp() AT TIME ZONE 'UTC')::date RETURNING p.*
   ), activity AS (
-    INSERT INTO inquiry_activity (inquiry_id,activity_type,actor,proposal_number,created_at)
-    SELECT inquiry_id,CASE WHEN status='accepted' THEN 'proposal_accepted' ELSE 'proposal_declined' END,'client',proposal_number,updated_at FROM responded RETURNING id
-  ) SELECT responded.*,i.name,i.company,i.email,COALESCE((SELECT jsonb_agg(jsonb_build_object('description',description,'quantity',quantity,'unit_price_cents',unit_price_cents,'line_total_cents',line_total_cents) ORDER BY position) FROM proposal_items WHERE proposal_id=responded.id),'[]'::jsonb) AS items FROM responded JOIN inquiries i ON i.id=responded.inquiry_id`,
+    INSERT INTO inquiry_activity (inquiry_id,lead_id,activity_type,actor,proposal_number,created_at)
+    SELECT inquiry_id,lead_id,CASE WHEN status='accepted' THEN 'proposal_accepted' ELSE 'proposal_declined' END,'client',proposal_number,updated_at FROM responded RETURNING id
+  ) SELECT responded.*,COALESCE(i.name,l.name) AS name,COALESCE(i.company,l.company) AS company,COALESCE(i.email,l.email) AS email,COALESCE((SELECT jsonb_agg(jsonb_build_object('description',description,'quantity',quantity,'unit_price_cents',unit_price_cents,'line_total_cents',line_total_cents) ORDER BY position) FROM proposal_items WHERE proposal_id=responded.id),'[]'::jsonb) AS items FROM responded LEFT JOIN inquiries i ON i.id=responded.inquiry_id LEFT JOIN leads l ON l.id=responded.lead_id`,
     [token, status],
   );
   if (!rows[0]) {

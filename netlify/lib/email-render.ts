@@ -28,7 +28,7 @@ export interface EmailCta {
 }
 export function renderEmail(
   input: Composition,
-  inquiry: Inquiry,
+  inquiry: Pick<Inquiry, 'name' | 'email' | 'company' | 'projectType'>,
   from: string,
   replyTo: string,
   proposal: { number: string; url: string } | null,

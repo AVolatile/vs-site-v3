@@ -15,7 +15,8 @@ import {
 } from "@/lib/inquiries/contract";
 interface Options {
   panel: HTMLElement;
-  current: () => Inquiry | null;
+  ownerType?: 'inquiry' | 'lead';
+  current: () => Pick<Inquiry, 'id' | 'name' | 'company' | 'email' | 'projectType'> | null;
   active: () => boolean;
   version: () => number;
   request: <T>(url: string, options?: RequestInit) => Promise<T>;
@@ -57,7 +58,7 @@ export function setupInquiryCommunication(options: Options) {
     epoch === version && options.active() && !!options.current();
   function endpoint() {
     return (
-      "/api/admin/messages?inquiry=" + encodeURIComponent(options.current()!.id)
+      "/api/admin/messages?" + (options.ownerType ?? "inquiry") + "=" + encodeURIComponent(options.current()!.id)
     );
   }
   async function post<T>(body: unknown) {
@@ -86,6 +87,7 @@ export function setupInquiryCommunication(options: Options) {
     el<HTMLButtonElement>("[data-email-next]").disabled =
       value || page * 10 >= total;
     el<HTMLButtonElement>("[data-email-send]").disabled = value || !!recordId;
+    if (options.ownerType === "lead") el<HTMLButtonElement>("[data-email-compose]").disabled = value || !options.current()?.email;
   }
   function closePreview() {
     el("[data-email-preview-panel]").hidden = true;

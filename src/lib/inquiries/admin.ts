@@ -184,8 +184,8 @@ export async function setupInquiryAdmin(): Promise<void> {
     lead = inquiry;
     element('[data-admin-delete]').hidden = false;
     root!.querySelectorAll<HTMLElement>('[data-admin-detail]').forEach(node => {
-      const key = node.dataset.adminDetail as keyof Inquiry; const value = String(inquiry[key]);
-      node.textContent = key.endsWith('At') ? date(value) : label(key, value);
+      const key = node.dataset.adminDetail as keyof Inquiry; const value = inquiry[key] == null ? '' : String(inquiry[key]);
+      node.textContent = key.endsWith('At') ? (value ? date(value) : 'Not recorded') : label(key, value);
     });
     presentInquiryStatus(element('[data-admin-detail="status"]'), inquiry.status);
     element<HTMLAnchorElement>('[data-admin-email]').href = 'mailto:' + encodeURIComponent(inquiry.email);

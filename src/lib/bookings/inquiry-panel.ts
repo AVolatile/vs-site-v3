@@ -4,6 +4,7 @@ import { renderBookingSummary, clearBookingSummary } from "./presentation";
 import { confirmBookingAction } from "./confirmation";
 interface Options {
   panel: HTMLElement;
+  ownerType?: 'inquiry' | 'lead';
   current: () => { id: string } | null;
   active: () => boolean;
   request: <T>(url: string, options?: RequestInit) => Promise<T>;
@@ -51,14 +52,14 @@ export function setupInquiryBooking(options: Options) {
     announce("Loading booking…");
     try {
       const data = await options.request<InquiryBooking>(
-        "/api/admin/bookings?inquiry=" + options.current()!.id,
+        "/api/admin/bookings?" + (options.ownerType ?? "inquiry") + "=" + options.current()!.id,
         { signal: abort.signal },
       );
       if (v === version && options.active()) render(data);
     } catch {
       if (v === version && options.active())
         announce(
-          "Booking could not be loaded. Use Reload inquiry to try again.",
+          `Booking could not be loaded. Use Reload ${options.ownerType ?? "inquiry"} to try again.`,
           true,
         );
     }
@@ -91,7 +92,7 @@ export function setupInquiryBooking(options: Options) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: regenerate ? "regenerate-link" : "create-link",
-          inquiryId: options.current()!.id,
+          [options.ownerType === 'lead' ? 'leadId' : 'inquiryId']: options.current()!.id,
           ...(regenerate ? { confirmed: true } : {}),
         }),
       });
@@ -124,7 +125,7 @@ export function setupInquiryBooking(options: Options) {
     announce("Reconciling external sync…");
     try {
       const current = await options.request<InquiryBooking>(
-        "/api/admin/bookings?inquiry=" + id,
+        "/api/admin/bookings?" + (options.ownerType ?? "inquiry") + "=" + id,
       );
       if (v !== version || !options.active() || !current.booking) return;
       await options.request("/api/admin/integrations", {

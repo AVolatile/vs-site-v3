@@ -7,7 +7,8 @@ export default function inquiryApiAliases() {
     configureServer(server) {
       server.middlewares.use((request, _response, next) => {
         const url = new URL(request.url || '/', 'http://localhost');
-        if (url.pathname === '/api/admin/invoices') url.pathname = '/.netlify/functions/admin-invoices';
+        if (url.pathname === '/api/admin/leads') url.pathname = '/.netlify/functions/admin-leads';
+        else if (url.pathname === '/api/admin/invoices') url.pathname = '/.netlify/functions/admin-invoices';
         else if (url.pathname === '/api/invoice') url.pathname = '/.netlify/functions/invoice';
         else if (/^\/invoice\/[A-Za-z0-9_-]{43}\/?$/.test(url.pathname)) url.pathname = '/invoice/';
         else if (url.pathname === '/api/inquiries') url.pathname = '/.netlify/functions/inquiries';

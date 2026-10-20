@@ -9,6 +9,39 @@
   directory = "netlify/functions"
   node_bundler = "esbuild"
 
+# Leads uses the existing admin shell and mandatory Function authorization.
+[[redirects]]
+  from = "/api/admin/leads"
+  to = "/.netlify/functions/admin-leads"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/admin/leads"
+  to = "/admin/leads/index.html"
+  status = 200
+  force = true
+  conditions = { Role = ["admin"] }
+
+[[redirects]]
+  from = "/admin/leads"
+  to = "/admin/login/?returnTo=%2Fadmin%2Fleads%2F"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/admin/leads/*"
+  to = "/admin/leads/index.html"
+  status = 200
+  force = true
+  conditions = { Role = ["admin"] }
+
+[[redirects]]
+  from = "/admin/leads/*"
+  to = "/admin/login/?returnTo=%2Fadmin%2Fleads%2F"
+  status = 302
+  force = true
+
 # Phase 7 invoice routes, before general admin/static rewrites.
 [[redirects]]
   from = "/api/admin/invoices"

@@ -41,6 +41,7 @@ export async function setupCalendar() {
     el("[data-calendar-detail-contact]").textContent = "";
     el("[data-calendar-detail-notes]").textContent = "";
     el<HTMLAnchorElement>("[data-calendar-email]").href = "mailto:";
+    el("[data-calendar-inquiry]").querySelectorAll<HTMLElement>(".ui-button-text-default,.ui-button-text-hover").forEach(node => { node.textContent = "Open inquiry"; });
     el<HTMLAnchorElement>("[data-calendar-inquiry]").href = "/admin/";
   };
   const session = await setupBookingAdmin(clear);
@@ -214,8 +215,9 @@ export async function setupCalendar() {
       b.clientEmail +
       (b.clientPhone ? "\n" + displayPhone(b.clientPhone) : "");
     el("[data-calendar-detail-notes]").textContent = b.clientNotes;
+    el("[data-calendar-inquiry]").querySelectorAll<HTMLElement>(".ui-button-text-default,.ui-button-text-hover").forEach(node => { node.textContent = b.leadId ? "Open lead" : "Open inquiry"; });
     el<HTMLAnchorElement>("[data-calendar-inquiry]").href =
-      "/admin/?inquiry=" + b.inquiryId;
+      b.leadId ? "/admin/leads/?lead=" + b.leadId : "/admin/?inquiry=" + b.inquiryId;
     el<HTMLAnchorElement>("[data-calendar-email]").href =
       "mailto:" + encodeURIComponent(b.clientEmail);
     el("[data-calendar-cancel]").hidden = b.status !== "scheduled";

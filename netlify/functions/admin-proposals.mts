@@ -1,3 +1,4 @@
+import { ownerFromParams } from '../lib/crm-owner';
 import type { Context } from '@netlify/functions';
 import { z } from 'zod';
 import { requireAdmin } from '../lib/authorize';
@@ -16,10 +17,9 @@ export default async (request: Request, _context: Context): Promise<Response> =>
     await requireAdmin();
     const url = new URL(request.url);
     const id = url.searchParams.get('id');
-    const inquiryId = url.searchParams.get('inquiry');
+    const inquiryId = ownerFromParams(url.searchParams);
     if (
-      (id && !z.string().uuid().safeParse(id).success) ||
-      (inquiryId && !z.string().uuid().safeParse(inquiryId).success)
+      (id && !z.string().uuid().safeParse(id).success)
     )
       throw new HttpError(400, 'Invalid proposal reference.');
     if (request.method === 'GET') {
@@ -31,7 +31,7 @@ export default async (request: Request, _context: Context): Promise<Response> =>
       sameOrigin(request);
       const result = createProposalSchema.safeParse(await readJson(request));
       if (!result.success) throw new HttpError(422, 'Check the proposal fields.', fieldErrors(result.error));
-      return json({ proposal: await createProposal(result.data.inquiryId, result.data.title) }, 201);
+      return json({ proposal: await createProposal(result.data.leadId ? { leadId: result.data.leadId } : result.data.inquiryId!, result.data.title) }, 201);
     }
     if (request.method === 'PATCH' && id) {
       sameOrigin(request);

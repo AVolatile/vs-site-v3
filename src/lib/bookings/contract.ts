@@ -116,7 +116,8 @@ export interface AdminBooking extends PublicBooking {
   calendarSync: BookingSync;
   zoomSync: BookingSync;
   id: string;
-  inquiryId: string;
+  inquiryId: string | null;
+  leadId?: string;
   company: string;
   createdAt: string;
   updatedAt: string;
@@ -190,10 +191,11 @@ export const adminBookingActionSchema = z
 export const linkActionSchema = z
   .object({
     action: z.enum(["create-link", "regenerate-link"]),
-    inquiryId: z.string().uuid(),
+    inquiryId: z.string().uuid().optional(),
+    leadId: z.string().uuid().optional(),
     confirmed: z.literal(true).optional(),
   })
-  .strict()
+  .strict().refine(value => Boolean(value.inquiryId) !== Boolean(value.leadId), 'Choose one inquiry or lead.')
   .refine(
     (v) => v.action !== "regenerate-link" || v.confirmed === true,
     "Confirm link regeneration.",

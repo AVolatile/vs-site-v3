@@ -28,6 +28,7 @@ const { loginPresentation = false, title = "Inquiry Admin | Volatile Solutions" 
       <a href="/" aria-label="Volatile Solutions home"><img src={company.branding.logoImage} width={company.branding.logoWidth} height={company.branding.logoHeight} alt="Volatile Solutions" /></a>
       <Text tag="span" variant="feature-body-sm">Private workspace</Text>
     </header>
+    {!loginPresentation && <nav class="admin-header" aria-label="Admin workspace"><Text tag="a" href="/admin/" variant="feature-body-sm">Inquiries</Text><Text tag="a" href="/admin/leads/" variant="feature-body-sm">Leads</Text><Text tag="a" href="/admin/calendar/" variant="feature-body-sm">Calendar</Text></nav>}
     <main id="main-content" class:list={{ 'admin-login-shell': loginPresentation }}>
       {loginPresentation ? (
         <>

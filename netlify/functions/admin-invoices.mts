@@ -1,3 +1,4 @@
+import { ownerFromParams } from '../lib/crm-owner';
 import type { Context } from "@netlify/functions";
 import { z } from "zod";
 import { requireAdmin } from "../lib/authorize";
@@ -23,8 +24,8 @@ export default async (request: Request, _context: Context) => {
     const url = new URL(request.url),
       id = url.searchParams.get("id"),
       proposal = url.searchParams.get("proposal"),
-      inquiry = url.searchParams.get("inquiry");
-    for (const v of [id, proposal, inquiry])
+      inquiry = ownerFromParams(url.searchParams);
+    for (const v of [id, proposal])
       if (v !== null && !z.string().uuid().safeParse(v).success)
         throw new HttpError(400, "Invalid invoice reference.");
     if (request.method === "GET") {

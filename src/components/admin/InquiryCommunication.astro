@@ -3,19 +3,21 @@ import Heading from '@components/ui/atoms/Heading.astro';
 import Text from '@components/ui/atoms/Text.astro';
 import Button from '@components/ui/atoms/Button.astro';
 import InquiryField from '@components/inquiry/InquiryField.astro';
+interface Props { lead?: boolean }
+const { lead = false } = Astro.props;
 import { EMAIL_TEMPLATES } from '@/lib/communications/templates';
 ---
 <section class="communication-panel" data-inquiry-communication hidden aria-labelledby="communication-heading">
-  <div class="communication-heading"><Heading id="communication-heading" tag="h3" variant="feature-title">Communication</Heading><div class="communication-actions"><Button type="button" variant="outline" size="sm" data-email-compose aria-expanded="false" aria-controls="email-composer">Respond to inquiry</Button><Button type="button" variant="outline" size="sm" data-email-refresh>Refresh history</Button></div></div>
+  <div class="communication-heading"><Heading id="communication-heading" tag="h3" variant="feature-title">Communication</Heading><div class="communication-actions"><Button type="button" variant="outline" size="sm" data-email-compose aria-expanded="false" aria-controls="email-composer">{lead ? 'Send email' : 'Respond to inquiry'}</Button><Button type="button" variant="outline" size="sm" data-email-refresh>Refresh history</Button></div></div>
   <Text variant="feature-body-sm" class="text-on-surface-variant">Outbound mail sent from this CRM. Sent means accepted by the email provider; replies and delivery tracking are not synced.</Text>
   <Text variant="body" role="status" aria-live="polite" data-email-feedback></Text>
   <form id="email-composer" class="email-composer" data-email-form novalidate hidden>
     <InquiryField compact name="emailTemplate" label="Template" type="select" required options={EMAIL_TEMPLATES.map(template=>({value:template.key,label:template.label}))} />
-    <InquiryField compact name="emailTo" label="To" type="email" required maxLength={254} hint="Only this inquiry’s contact can receive the message." />
+    <InquiryField compact name="emailTo" label="To" type="email" required maxLength={254} hint={lead ? "Only this lead’s contact can receive the message." : "Only this inquiry’s contact can receive the message."} />
     <InquiryField compact name="emailSubject" label="Subject" required maxLength={200} />
     <InquiryField compact name="emailMessage" label="Message" type="textarea" required maxLength={20000} hint="Greeting and signature are added automatically. Supported variables: {{firstName}}, {{company}}, {{projectType}}, {{proposalNumber}}, {{proposalUrl}}, {{bookingUrl}}." />
     <div data-email-cta-field hidden><InquiryField compact name="emailCta" label="Email button" type="select" required options={[{value:'none',label:'No button'},{value:'proposal',label:'View Proposal'},{value:'booking',label:'Schedule a Call'},{value:'invoice',label:'View Invoice'}]} /></div>
-    <Text variant="feature-body-sm" class="text-on-surface-variant">Preview includes the greeting, signature and any proposal button. Sending does not change inquiry status or schedule a follow-up.</Text>
+    <Text variant="feature-body-sm" class="text-on-surface-variant">Preview includes the greeting, signature and any proposal button. Sending does not change {lead ? 'lead' : 'inquiry'} status or schedule a follow-up.</Text>
     <div class="communication-actions"><Button type="button" variant="outline" data-email-preview>Preview</Button><Button type="submit" variant="primary" data-email-send>Send email</Button><Button type="button" variant="outline" data-email-close>Close composer</Button></div>
   </form>
   <section class="email-preview-panel" data-email-preview-panel hidden aria-labelledby="email-preview-heading">

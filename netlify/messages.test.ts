@@ -106,6 +106,7 @@ beforeAll(async () => {
     "007_create_integrations",
     "008_outlook_calendar_integration",
     "009_create_invoices",
+    "010_create_leads",
   ])
     await db.exec(readFileSync("database/migrations/" + name + ".sql", "utf8"));
 }, 30000);
@@ -113,7 +114,7 @@ afterAll(() => db.close());
 afterEach(() => vi.unstubAllEnvs());
 beforeEach(async () => {
   await db.exec(
-    "TRUNCATE invoice_items,invoices,bookings,booking_links,inquiry_messages,proposal_items,proposals,inquiry_activity,inquiries",
+    "TRUNCATE leads,invoice_items,invoices,bookings,booking_links,inquiry_messages,proposal_items,proposals,inquiry_activity,inquiries",
   );
   vi.resetAllMocks();
   for (const [key, value] of Object.entries({

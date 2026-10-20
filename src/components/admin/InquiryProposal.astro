@@ -1,0 +1,11 @@
+---
+import Heading from '@components/ui/atoms/Heading.astro';
+import Text from '@components/ui/atoms/Text.astro';
+import Button from '@components/ui/atoms/Button.astro';
+---
+<section class="admin-proposal-panel" data-inquiry-proposal hidden aria-labelledby="inquiry-proposal-heading">
+              <Heading id="inquiry-proposal-heading" tag="h3" variant="feature-title">Proposal</Heading>
+              <Text variant="body" role="status" aria-live="polite" data-inquiry-proposal-message></Text>
+              <Button type="button" variant="outline" size="sm" data-inquiry-proposal-create hidden>Create proposal</Button>
+              <div data-inquiry-proposal-summary hidden><div class="admin-proposal-facts"><Text tag="span" data-inquiry-proposal-number></Text><Text tag="span" data-inquiry-proposal-status></Text><Text tag="span" data-inquiry-proposal-total></Text><Text tag="span" variant="feature-body-sm" data-inquiry-proposal-valid></Text></div><div class="admin-save-actions"><Button href="/admin/" variant="outline" size="sm" data-inquiry-proposal-open="view">View proposal</Button><Button href="/admin/" variant="outline" size="sm" data-inquiry-proposal-open="edit">Edit proposal</Button></div></div>
+            </section>

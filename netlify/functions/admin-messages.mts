@@ -1,3 +1,4 @@
+import { ownerFromParams } from '../lib/crm-owner';
 import type { Config, Context } from "@netlify/functions";
 import { z } from "zod";
 import { requireAdmin } from "../lib/authorize";
@@ -21,11 +22,9 @@ export default async (
 ): Promise<Response> => {
   try {
     await requireAdmin();
-    const url = new URL(request.url),
-      inquiry = url.searchParams.get("inquiry");
-    if (!z.string().uuid().safeParse(inquiry).success)
-      throw new HttpError(400, "Choose a valid inquiry.");
-    const id = inquiry!;
+    const url = new URL(request.url);
+    const id = ownerFromParams(url.searchParams);
+    if (!id) throw new HttpError(400, 'Choose a valid inquiry or lead.');
     if (request.method === "GET") {
       const message = url.searchParams.get("message");
       if (message) {

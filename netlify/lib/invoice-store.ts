@@ -1,3 +1,4 @@
+import { type CrmOwner, ownerId, ownerColumn, getOwnerContact } from './crm-owner';
 import company from "../../src/data/global/company.json";
 import { query } from "./database";
 import { publicUrl } from "./public-url";
@@ -111,7 +112,8 @@ function adminData(row: Row): AdminInvoice {
   return {
     ...publicData(row),
     id: String(row.id),
-    inquiryId: String(row.inquiry_id),
+    inquiryId: row.inquiry_id == null ? null : String(row.inquiry_id),
+    ...(row.lead_id ? { leadId: String(row.lead_id) } : {}),
     proposalId: String(row.proposal_id),
     persistedStatus: row.status as InvoiceStatus,
     businessTimezone: String(row.business_timezone),
@@ -135,34 +137,31 @@ export async function getProposalInvoice(proposalId: string) {
   )[0];
   return row ? adminData(row) : null;
 }
-export async function getInquiryInvoices(inquiryId: string) {
-  const exists = (
-    await query("SELECT id FROM inquiries WHERE id=$1", [inquiryId])
-  )[0];
-  if (!exists) throw new HttpError(404, "This inquiry could not be found.");
+export async function getInquiryInvoices(inquiryId: CrmOwner) {
+  await getOwnerContact(inquiryId);
   return (
     await query(
-      selection + " WHERE n.inquiry_id=$1 ORDER BY n.created_at DESC,n.id DESC",
-      [inquiryId],
+      selection + ` WHERE n.${ownerColumn(inquiryId)}=$1 ORDER BY n.created_at DESC,n.id DESC`,
+      [ownerId(inquiryId)],
     )
   ).map(adminData);
 }
 export async function createInvoice(proposalId: string) {
   const rows = await query(
     `WITH source AS MATERIALIZED(
- SELECT p.*,i.name,i.company,i.email,COALESCE((SELECT timezone FROM booking_settings WHERE id=true),'America/New_York') AS zone
- FROM proposals p JOIN inquiries i ON i.id=p.inquiry_id WHERE p.id=$1 AND p.status='accepted' FOR UPDATE OF p
+ SELECT p.*,COALESCE(i.name,l.name) AS name,COALESCE(i.company,l.company) AS company,COALESCE(i.email,l.email) AS email,COALESCE((SELECT timezone FROM booking_settings WHERE id=true),'America/New_York') AS zone
+ FROM proposals p LEFT JOIN inquiries i ON i.id=p.inquiry_id LEFT JOIN leads l ON l.id=p.lead_id WHERE p.id=$1 AND p.status='accepted' FOR UPDATE OF p
  ),created AS(
- INSERT INTO invoices(proposal_id,inquiry_id,title,business_timezone,issue_date,client_name,client_company,client_email,
+ INSERT INTO invoices(proposal_id,inquiry_id,lead_id,title,business_timezone,issue_date,client_name,client_company,client_email,
   sender_name,sender_email,sender_phone,sender_website,subtotal_cents,discount_cents,tax_rate_basis_points,tax_cents,total_cents,currency,notes)
- SELECT id,inquiry_id,title,zone,(clock_timestamp() AT TIME ZONE zone)::date,name,company,email,$2,$3,$4,$5,subtotal_cents,discount_cents,tax_rate_basis_points,tax_cents,total_cents,currency,client_notes FROM source
+ SELECT id,inquiry_id,lead_id,title,zone,(clock_timestamp() AT TIME ZONE zone)::date,name,company,email,$2,$3,$4,$5,subtotal_cents,discount_cents,tax_rate_basis_points,tax_cents,total_cents,currency,client_notes FROM source
  ON CONFLICT(proposal_id) DO NOTHING RETURNING *
  ),copied AS(
  INSERT INTO invoice_items(invoice_id,position,description,quantity,unit_price_cents)
  SELECT created.id,p.position,p.description,p.quantity,p.unit_price_cents FROM created JOIN proposal_items p ON p.proposal_id=created.proposal_id RETURNING *
  ),activity AS(
- INSERT INTO inquiry_activity(inquiry_id,activity_type,actor,invoice_id,invoice_number,created_at)
- SELECT inquiry_id,'invoice_created','admin',id,invoice_number,updated_at FROM created RETURNING id
+ INSERT INTO inquiry_activity(inquiry_id,lead_id,activity_type,actor,invoice_id,invoice_number,created_at)
+ SELECT inquiry_id,lead_id,'invoice_created','admin',id,invoice_number,updated_at FROM created RETURNING id
  )SELECT created.*,COALESCE((SELECT jsonb_agg(jsonb_build_object('description',description,'quantity',quantity,'unit_price_cents',unit_price_cents,'line_total_cents',line_total_cents) ORDER BY position) FROM copied),'[]'::jsonb) AS items FROM created`,
     [proposalId, company.name, company.email, company.phone, company.siteUrl],
   );
@@ -225,8 +224,8 @@ export async function saveInvoice(id: string, input: DraftInput) {
  INSERT INTO invoice_items(invoice_id,position,description,quantity,unit_price_cents)
  SELECT saved.id,v.position,v.description,v.quantity,v.unit_price_cents FROM saved CROSS JOIN jsonb_to_recordset($22::jsonb) AS v(position integer,description text,quantity integer,unit_price_cents integer)
  CROSS JOIN(SELECT count(*) FROM removed) barrier RETURNING *
- ),activity AS(INSERT INTO inquiry_activity(inquiry_id,activity_type,actor,invoice_id,invoice_number,created_at)
- SELECT inquiry_id,'invoice_updated','admin',id,invoice_number,updated_at FROM saved WHERE changed RETURNING id)
+ ),activity AS(INSERT INTO inquiry_activity(inquiry_id,lead_id,activity_type,actor,invoice_id,invoice_number,created_at)
+ SELECT inquiry_id,lead_id,'invoice_updated','admin',id,invoice_number,updated_at FROM saved WHERE changed RETURNING id)
  SELECT saved.*,COALESCE((SELECT jsonb_agg(jsonb_build_object('description',description,'quantity',quantity,'unit_price_cents',unit_price_cents,'line_total_cents',line_total_cents) ORDER BY position) FROM inserted),'[]'::jsonb) items FROM saved`,
     [
       id,
@@ -273,8 +272,8 @@ export async function sendInvoice(id: string, version: string) {
  UPDATE invoices n SET status='sent',sent_at=clock_timestamp(),public_token_hash=$3,public_token_created_at=$4::timestamptz,
  updated_at=GREATEST(date_trunc('milliseconds',clock_timestamp()),previous.updated_at+interval '1 millisecond')
  FROM previous WHERE n.id=previous.id AND previous.status='draft' AND previous.updated_at=$2::timestamptz RETURNING n.*
- ),activity AS(INSERT INTO inquiry_activity(inquiry_id,activity_type,actor,invoice_id,invoice_number,created_at)
- SELECT inquiry_id,'invoice_sent','admin',id,invoice_number,updated_at FROM saved RETURNING id)
+ ),activity AS(INSERT INTO inquiry_activity(inquiry_id,lead_id,activity_type,actor,invoice_id,invoice_number,created_at)
+ SELECT inquiry_id,lead_id,'invoice_sent','admin',id,invoice_number,updated_at FROM saved RETURNING id)
  SELECT saved.*,${itemsSql("saved")} FROM saved`,
     [id, version, hash, createdAt],
   );
@@ -292,8 +291,8 @@ export async function changeInvoice(
  UPDATE invoices n SET status=$3,paid_at=CASE WHEN $3='paid' THEN clock_timestamp() ELSE NULL END,voided_at=CASE WHEN $3='void' THEN clock_timestamp() ELSE NULL END,
  updated_at=GREATEST(date_trunc('milliseconds',clock_timestamp()),previous.updated_at+interval '1 millisecond')
  FROM previous WHERE n.id=previous.id AND previous.status='sent' AND previous.updated_at=$2::timestamptz RETURNING n.*
- ),activity AS(INSERT INTO inquiry_activity(inquiry_id,activity_type,actor,invoice_id,invoice_number,created_at)
- SELECT inquiry_id,CASE WHEN status='paid' THEN 'invoice_paid' ELSE 'invoice_voided' END,'admin',id,invoice_number,updated_at FROM saved RETURNING id)
+ ),activity AS(INSERT INTO inquiry_activity(inquiry_id,lead_id,activity_type,actor,invoice_id,invoice_number,created_at)
+ SELECT inquiry_id,lead_id,CASE WHEN status='paid' THEN 'invoice_paid' ELSE 'invoice_voided' END,'admin',id,invoice_number,updated_at FROM saved RETURNING id)
  SELECT saved.*,${itemsSql("saved")} FROM saved`,
     [id, version, status],
   );
@@ -322,19 +321,19 @@ export async function recordInvoiceView(token: string) {
     `WITH previous AS MATERIALIZED(SELECT * FROM invoices WHERE public_token_hash=$1 AND status='sent' FOR UPDATE),saved AS(
  UPDATE invoices n SET first_viewed_at=COALESCE(previous.first_viewed_at,clock_timestamp()),last_viewed_at=clock_timestamp()
  FROM previous WHERE n.id=previous.id RETURNING n.*,previous.first_viewed_at IS NULL first_view
- ),activity AS(INSERT INTO inquiry_activity(inquiry_id,activity_type,actor,invoice_id,invoice_number,created_at)
- SELECT inquiry_id,'invoice_viewed','client',id,invoice_number,first_viewed_at FROM saved WHERE first_view
+ ),activity AS(INSERT INTO inquiry_activity(inquiry_id,lead_id,activity_type,actor,invoice_id,invoice_number,created_at)
+ SELECT inquiry_id,lead_id,'invoice_viewed','client',id,invoice_number,first_viewed_at FROM saved WHERE first_view
  ON CONFLICT(invoice_id) WHERE activity_type='invoice_viewed' DO NOTHING RETURNING id)
  SELECT saved.*,${itemsSql("saved")} FROM saved`,
     [invoiceTokenHash(token)],
   );
   return rows[0] ? publicData(rows[0]) : getPublicInvoice(token);
 }
-export async function invoiceForEmail(inquiryId: string, strict = false) {
+export async function invoiceForEmail(inquiryId: CrmOwner, strict = false) {
   const row = (
     await query(
-      "SELECT * FROM invoices WHERE inquiry_id=$1 AND status IN('sent','paid') ORDER BY created_at DESC,id DESC LIMIT 1",
-      [inquiryId],
+      `SELECT * FROM invoices WHERE ${ownerColumn(inquiryId)}=$1 AND status IN('sent','paid') ORDER BY created_at DESC,id DESC LIMIT 1`,
+      [ownerId(inquiryId)],
     )
   )[0];
   if (!row) return null;

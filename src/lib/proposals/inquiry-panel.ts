@@ -2,6 +2,7 @@ import { proposalAdminUrl, type AdminProposal } from './contract';
 import { money } from './contract';
 interface Options {
   panel: HTMLElement;
+  ownerType?: 'inquiry' | 'lead';
   invoice?: {load:(proposal:AdminProposal|null)=>Promise<void>;clear:()=>void};
   current: () => { id: string; name: string; company: string } | null;
   active: () => boolean;
@@ -55,7 +56,7 @@ export function setupInquiryProposal(options: Options) {
     message.textContent = 'Loading proposal…';
     create.hidden = true;
     try {
-      const proposal = await request('/api/admin/proposals?inquiry=' + encodeURIComponent(inquiry.id));
+      const proposal = await request('/api/admin/proposals?' + (options.ownerType ?? 'inquiry') + '=' + encodeURIComponent(inquiry.id));
       if (version === loadVersion && options.active()) {render(proposal);void options.invoice?.load(proposal);}
     } catch (error) {
       if (
@@ -66,7 +67,7 @@ export function setupInquiryProposal(options: Options) {
       )
         options.announce('Sign in again to verify your admin access.', true);
       if (version === loadVersion && !abort.signal.aborted) {
-        message.textContent = 'Proposal could not be loaded. Use Reload inquiry to try again.';
+        message.textContent = `Proposal could not be loaded. Use Reload ${options.ownerType ?? 'inquiry'} to try again.`;
         message.setAttribute('role', 'alert');
       }
     } finally {
@@ -85,7 +86,7 @@ export function setupInquiryProposal(options: Options) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          inquiryId: inquiry.id,
+          [options.ownerType === 'lead' ? 'leadId' : 'inquiryId']: inquiry.id,
           title: 'Proposal for ' + (inquiry.company || inquiry.name).slice(0, 145),
         }),
       });
@@ -93,7 +94,7 @@ export function setupInquiryProposal(options: Options) {
         location.assign(proposalAdminUrl(proposal.id, location.pathname + location.search));
     } catch {
       if (version === loadVersion && !abort!.signal.aborted) {
-        message.textContent = 'Proposal creation could not be confirmed. Reload the inquiry before retrying.';
+        message.textContent = `Proposal creation could not be confirmed. Reload the ${options.ownerType ?? 'inquiry'} before retrying.`;
         message.setAttribute('role', 'alert');
       }
     } finally {

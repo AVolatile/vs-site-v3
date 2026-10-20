@@ -1,3 +1,4 @@
+import { ownerFromParams } from '../lib/crm-owner';
 import { attemptBookingSync } from "../lib/integrations/sync";
 import type { Context } from "@netlify/functions";
 import { z } from "zod";
@@ -36,12 +37,12 @@ export default async (
     if (request.method === "GET") {
       if (url.searchParams.get("settings") === "true")
         return json({ settings: await getBookingSettings() });
-      const inquiry = url.searchParams.get("inquiry"),
+      const inquiry = ownerFromParams(url.searchParams),
         id = url.searchParams.get("id"),
         date = url.searchParams.get("date"),
         exclude = url.searchParams.get("exclude");
       if (
-        [inquiry, id, exclude].some(
+        [id, exclude].some(
           (v) => v && !z.string().uuid().safeParse(v).success,
         )
       )
@@ -82,7 +83,7 @@ export default async (
           throw new HttpError(422, "Confirm the booking link action.");
         return json(
           await createInquiryBookingLink(
-            r.data.inquiryId,
+            r.data.leadId ? { leadId: r.data.leadId } : r.data.inquiryId!,
             action === "regenerate-link",
           ),
         );

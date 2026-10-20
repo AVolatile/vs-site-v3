@@ -75,6 +75,7 @@ const migrations = [
   "007_create_integrations",
   "008_outlook_calendar_integration",
   "009_create_invoices",
+    "010_create_leads",
 ];
 const client = {
   name: "Client Name",
@@ -176,7 +177,7 @@ afterEach(() => {
 });
 beforeEach(async () => {
   await db.exec(
-    "TRUNCATE invoice_items,invoices,integration_connections,integration_oauth_states,bookings,booking_links,inquiry_messages,proposal_items,proposals,inquiry_activity,inquiries;UPDATE booking_settings SET timezone='America/New_York';",
+    "TRUNCATE leads,invoice_items,invoices,integration_connections,integration_oauth_states,bookings,booking_links,inquiry_messages,proposal_items,proposals,inquiry_activity,inquiries;UPDATE booking_settings SET timezone='America/New_York';",
   );
   vi.resetAllMocks();
   mocks.query.mockImplementation(
@@ -212,7 +213,7 @@ describe("invoice conversion and independent pricing", () => {
       n = await createInvoice(p.id);
     expect(n).toMatchObject({
       proposalId: p.id,
-      inquiryId: p.inquiryId,
+      inquiryId: p.inquiryId!,
       persistedStatus: "draft",
       dueDate: null,
       clientName: client.name,
@@ -229,7 +230,7 @@ describe("invoice conversion and independent pricing", () => {
     expect(n.issueDate).toBe(businessDate("America/New_York"));
     expect(await getAdminProposal(p.id)).toEqual(before);
     expect(
-      (await listInquiryActivity(n.inquiryId)).filter(
+      (await listInquiryActivity(n.inquiryId!)).filter(
         (e) => e.type === "invoice_created",
       ),
     ).toEqual([
@@ -252,9 +253,9 @@ describe("invoice conversion and independent pricing", () => {
         createInvoice(p.id),
       ]);
     expect(new Set(values.map((v) => v.id)).size).toBe(1);
-    expect(await getInquiryInvoices(p.inquiryId)).toHaveLength(1);
+    expect(await getInquiryInvoices(p.inquiryId!)).toHaveLength(1);
     expect(
-      (await listInquiryActivity(p.inquiryId)).filter(
+      (await listInquiryActivity(p.inquiryId!)).filter(
         (e) => e.type === "invoice_created",
       ),
     ).toHaveLength(1);
@@ -283,7 +284,7 @@ describe("invoice conversion and independent pricing", () => {
     );
     await db.query(
       "UPDATE inquiries SET name='Another name',company='Another company' WHERE id=$1",
-      [p.inquiryId],
+      [p.inquiryId!],
     );
     expect(await getAdminInvoice(n.id)).toEqual(n);
   });
@@ -392,15 +393,15 @@ describe("invoice conversion and independent pricing", () => {
   it("rejects stale draft saves without changing items/activity and suppresses unchanged events", async () => {
     const n = await draft(),
       saved = await saveInvoice(n.id, edit(n)),
-      events = await listInquiryActivity(n.inquiryId);
+      events = await listInquiryActivity(n.inquiryId!);
     await expect(saveInvoice(n.id, edit(n))).rejects.toMatchObject({
       status: 409,
     });
     expect(await getAdminInvoice(n.id)).toEqual(saved);
-    expect(await listInquiryActivity(n.inquiryId)).toEqual(events);
+    expect(await listInquiryActivity(n.inquiryId!)).toEqual(events);
     await saveInvoice(n.id, edit(saved));
     expect(
-      (await listInquiryActivity(n.inquiryId)).filter(
+      (await listInquiryActivity(n.inquiryId!)).filter(
         (e) => e.type === "invoice_updated",
       ),
     ).toHaveLength(1);
@@ -462,7 +463,7 @@ describe("publication, views and controlled payment statuses", () => {
       output = JSON.stringify(document);
     for (const forbidden of [
       n.id,
-      n.inquiryId,
+      n.inquiryId!,
       n.proposalId,
       "PRIVATE INQUIRY",
       "PRIVATE PROPOSAL",
@@ -497,7 +498,7 @@ describe("publication, views and controlled payment statuses", () => {
     expect(next.lastViewedAt! >= old.lastViewedAt!).toBe(true);
     expect(next.updatedAt).toBe(n.updatedAt);
     expect(
-      (await listInquiryActivity(n.inquiryId)).filter(
+      (await listInquiryActivity(n.inquiryId!)).filter(
         (e) => e.type === "invoice_viewed",
       ),
     ).toHaveLength(1);
@@ -509,7 +510,7 @@ describe("publication, views and controlled payment statuses", () => {
       recordInvoiceView(token(n)),
     ]);
     expect(
-      (await listInquiryActivity(n.inquiryId)).filter(
+      (await listInquiryActivity(n.inquiryId!)).filter(
         (e) => e.type === "invoice_viewed",
       ),
     ).toHaveLength(1);
@@ -555,7 +556,7 @@ describe("publication, views and controlled payment statuses", () => {
     ).rows[0];
     expect(row).toEqual({ payment_provider: null, payment_reference: null });
     expect(
-      (await listInquiryActivity(n.inquiryId)).filter(
+      (await listInquiryActivity(n.inquiryId!)).filter(
         (e) => e.type === "invoice_paid",
       ),
     ).toHaveLength(1);
@@ -572,7 +573,7 @@ describe("publication, views and controlled payment statuses", () => {
       changeInvoice(voided.id, voided.updatedAt, "mark-paid"),
     ).rejects.toMatchObject({ status: 409 });
     expect(
-      (await listInquiryActivity(n.inquiryId)).filter(
+      (await listInquiryActivity(n.inquiryId!)).filter(
         (e) => e.type === "invoice_voided",
       ),
     ).toHaveLength(1);
@@ -623,7 +624,7 @@ describe("publication, views and controlled payment statuses", () => {
         ? await sent()
         : await draft();
       const before = await getAdminInvoice(n.id),
-        events = await listInquiryActivity(n.inquiryId);
+        events = await listInquiryActivity(n.inquiryId!);
       const source = action === "create" ? await proposal() : null;
       const saved = action === "send" ? await saveInvoice(n.id, edit(n)) : n;
       const snapshot = await getAdminInvoice(n.id);
@@ -645,7 +646,7 @@ describe("publication, views and controlled payment statuses", () => {
         expect(await getAdminInvoice(n.id)).toEqual(snapshot);
         if (source) expect(await getProposalInvoice(source.id)).toBeNull();
         if (action !== "send")
-          expect(await listInquiryActivity(n.inquiryId)).toEqual(events);
+          expect(await listInquiryActivity(n.inquiryId!)).toEqual(events);
       } finally {
         await db.exec(
           "DROP TRIGGER reject_invoice_event ON inquiry_activity;DROP FUNCTION reject_invoice_event()",
@@ -665,17 +666,17 @@ describe("invoice communication and security", () => {
   };
   it("offers invoice CTA only for published invoices and never auto-sends", async () => {
     const n = await draft();
-    expect(await invoiceForEmail(n.inquiryId)).toBeNull();
-    await expect(previewEmail(n.inquiryId, mail)).rejects.toMatchObject({
+    expect(await invoiceForEmail(n.inquiryId!)).toBeNull();
+    await expect(previewEmail(n.inquiryId!, mail)).rejects.toMatchObject({
       status: 422,
     });
     const saved = await saveInvoice(n.id, edit(n)),
       s = await sendInvoice(n.id, saved.updatedAt);
     expect(mocks.send).not.toHaveBeenCalled();
-    const preview = await previewEmail(n.inquiryId, mail);
+    const preview = await previewEmail(n.inquiryId!, mail);
     expect(preview.bodyHtml).toContain("View Invoice");
     expect(preview.bodyHtml).toContain(s.publicUrl);
-    expect((await listMessages(n.inquiryId)).invoice).toEqual({
+    expect((await listMessages(n.inquiryId!)).invoice).toEqual({
       number: s.number,
       url: s.publicUrl,
     });
@@ -688,7 +689,7 @@ describe("invoice communication and security", () => {
       data: null,
       error: { statusCode: 503, message: "private provider" },
     });
-    const failed = await sendMessage(n.inquiryId, { ...mail, requestKey: key });
+    const failed = await sendMessage(n.inquiryId!, { ...mail, requestKey: key });
     expect(failed.status).toBe("failed");
     const row = (
       await db.query<Record<string, unknown>>(
@@ -699,7 +700,7 @@ describe("invoice communication and security", () => {
     expect(JSON.stringify(row)).not.toContain(token(n));
     expect(row.body_html).toContain("{{INVOICE_TOKEN}}");
     expect(mocks.send.mock.calls[0][0].html).toContain(n.publicUrl);
-    await retryMessage(n.inquiryId, failed.id);
+    await retryMessage(n.inquiryId!, failed.id);
     expect(mocks.send.mock.calls[1][0].html).toContain(n.publicUrl);
     expect(mocks.send.mock.calls[0][1].idempotencyKey).toBe(
       mocks.send.mock.calls[1][1].idempotencyKey,
@@ -709,10 +710,10 @@ describe("invoice communication and security", () => {
   it("rejects invoice CTA combinations and unrelated invoice links", async () => {
     const n = await sent();
     await expect(
-      previewEmail(n.inquiryId, { ...mail, includeProposal: true }),
+      previewEmail(n.inquiryId!, { ...mail, includeProposal: true }),
     ).rejects.toMatchObject({ status: 422 });
     await expect(
-      sendMessage(n.inquiryId, {
+      sendMessage(n.inquiryId!, {
         ...mail,
         message: "https://site.example.test/invoice/" + "a".repeat(43) + "/",
         requestKey: crypto.randomUUID(),
@@ -725,12 +726,12 @@ describe("invoice communication and security", () => {
       data: null,
       error: { statusCode: 503 },
     });
-    const failed = await sendMessage(n.inquiryId, {
+    const failed = await sendMessage(n.inquiryId!, {
       ...mail,
       requestKey: crypto.randomUUID(),
     });
     await changeInvoice(n.id, n.updatedAt, "void");
-    await expect(retryMessage(n.inquiryId, failed.id)).rejects.toMatchObject({
+    await expect(retryMessage(n.inquiryId!, failed.id)).rejects.toMatchObject({
       status: 409,
     });
     expect(mocks.send).toHaveBeenCalledTimes(1);
@@ -741,8 +742,8 @@ describe("invoice communication and security", () => {
     vi.stubEnv("INVOICE_TOKEN_SECRET", "cd".repeat(32));
     expect((await getAdminInvoice(n.id)).publicUrl).toBeNull();
     expect((await getPublicInvoice(t)).number).toBe(n.number);
-    expect(await invoiceForEmail(n.inquiryId)).toBeNull();
-    await expect(invoiceForEmail(n.inquiryId, true)).rejects.toMatchObject({
+    expect(await invoiceForEmail(n.inquiryId!)).toBeNull();
+    await expect(invoiceForEmail(n.inquiryId!, true)).rejects.toMatchObject({
       status: 503,
     });
   });
@@ -809,9 +810,9 @@ describe("invoice communication and security", () => {
   });
   it("keeps inquiry status, notes and follow-up versions unchanged during invoice lifecycle", async () => {
     const n = await draft(),
-      inquiry = await getInquiry(n.inquiryId),
+      inquiry = await getInquiry(n.inquiryId!),
       followed = await updateFollowUp(
-        n.inquiryId,
+        n.inquiryId!,
         new Date(Date.now() + 86400000).toISOString(),
         "Private follow-up",
         inquiry.updatedAt,
@@ -820,14 +821,14 @@ describe("invoice communication and security", () => {
       published = await sendInvoice(n.id, s.updatedAt);
     await recordInvoiceView(token(published));
     await changeInvoice(n.id, published.updatedAt, "mark-paid");
-    expect(await getInquiry(n.inquiryId)).toEqual(followed);
+    expect(await getInquiry(n.inquiryId!)).toEqual(followed);
   });
   it("restricts deleting invoices/proposals/inquiries with business history", async () => {
     const n = await sent();
     for (const [table, id] of [
       ["invoices", n.id],
       ["proposals", n.proposalId],
-      ["inquiries", n.inquiryId],
+      ["inquiries", n.inquiryId!],
     ])
       await expect(
         db.query("DELETE FROM " + table + " WHERE id=$1", [id]),
