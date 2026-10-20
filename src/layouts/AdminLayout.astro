@@ -23,7 +23,7 @@ const { loginPresentation = false, title = "Inquiry Admin | Volatile Solutions" 
     <link rel="apple-touch-icon" href="/vs-apple-touch-icon.png" />
   </head>
   <body class:list={['admin-ui', { 'admin-login-layout': loginPresentation }]}>
-    <AdminNavigation />
+    {!loginPresentation && <AdminNavigation />}
     <main id="main-content" class:list={['admin-shell', { 'admin-login-shell': loginPresentation }]}>
       {loginPresentation ? (
         <>
@@ -44,8 +44,6 @@ const { loginPresentation = false, title = "Inquiry Admin | Volatile Solutions" 
 <style>
   .admin-login-brand { display: none; }
 
-  /* The existing auth component reveals the dashboard in place after sign-in. */
-  :global(.admin-login-layout:has([data-admin-dashboard][hidden])) .admin-header { display: none; }
   :global(.admin-login-shell:has([data-admin-dashboard][hidden])) {
     display: grid;
     grid-template-areas: 'brand' 'form';
@@ -92,9 +90,51 @@ const { loginPresentation = false, title = "Inquiry Admin | Volatile Solutions" 
       grid-template-columns: minmax(0,48fr) minmax(0,52fr);
       grid-template-rows: 1fr;
     }
-    :global(.admin-login-shell:has([data-admin-dashboard][hidden])) .admin-login-content,
-    :global(.admin-login-shell:has([data-admin-dashboard][hidden])) .admin-login-brand { padding: var(--spacing-xl) var(--spacing-container-px); }
-    .admin-login-brand img { height: auto; width: min(100%,30rem); }
+    :global(.admin-login-shell:has([data-admin-dashboard][hidden])) .admin-login-content {
+      padding: var(--spacing-lg) clamp(2rem, 4vw, 4rem);
+    }
+    :global(.admin-login-shell:has([data-admin-dashboard][hidden])) .admin-login-brand {
+      position: relative;
+      overflow: hidden;
+      padding: 0;
+      min-width: 0;
+    }
+    .admin-login-brand img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+    :global(.admin-login-shell:has([data-admin-dashboard][hidden]) .ui-container) {
+      max-width: 26rem;
+    }
+    :global(.admin-login-shell:has([data-admin-dashboard][hidden]) .admin-area) {
+      gap: 1.25rem;
+    }
+    :global(.admin-login-shell:has([data-admin-dashboard][hidden]) .admin-page-header) {
+      display: block;
+      padding-bottom: 0;
+    }
+    :global(.admin-login-shell:has([data-admin-dashboard][hidden]) .admin-page-intro) {
+      gap: .75rem;
+    }
+    :global(.admin-login-shell:has([data-admin-dashboard][hidden]) .admin-page-header h1) {
+      font-size: clamp(2.25rem, 3.5vw, 3.25rem);
+      line-height: 1.05;
+    }
+    :global(.admin-login-shell:has([data-admin-dashboard][hidden]) .admin-login-panel) {
+      gap: var(--spacing-md);
+    }
+    :global(.admin-login-shell:has([data-admin-dashboard][hidden]) .admin-login-panel > h2) {
+      font-size: clamp(1.375rem, 1.7vw, 1.5rem);
+      line-height: 1.25;
+    }
+    :global(.admin-login-shell:has([data-admin-dashboard][hidden]) .admin-login-panel > p) {
+      font-size: .9375rem;
+      line-height: 1.5;
+    }
   }
   @media (max-width: 24rem) { .admin-header { flex-wrap: wrap; } }
 </style>
