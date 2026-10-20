@@ -14,6 +14,7 @@ import { calendarReturnUrl } from '@/lib/bookings/admin-session';
 import { proposalAdminUrl } from '../proposals/contract';
 import { setupAdminPipeline } from './admin-pipeline';
 import { renderInquiryActivity } from './admin-activity';
+import { focusAdminRecordHeading } from '@/lib/admin/presentation';
 
 export async function setupInquiryAdmin(): Promise<void> {
   const root = document.querySelector<HTMLElement>('[data-inquiry-admin]'); if (!root) return;
@@ -35,6 +36,7 @@ export async function setupInquiryAdmin(): Promise<void> {
   let lead: Inquiry | null = null; let page = browse.page; let listVersion = 0; let detailVersion = 0;
   let authenticated = false; let authBusy = false; let saving = false; let inviteToken: string | undefined;
   let loadedListQuery = '';
+  let renderedRoute = location.pathname + location.search;
   let listAbort: AbortController | undefined; let detailAbort: AbortController | undefined;
   const filterFields = { search: 'search', status: 'filterStatus', projectType: 'filterProjectType', budget: 'filterBudget', timeline: 'filterTimeline', followUp: 'filterFollowUp', sort: 'sortOrder' } as const;
   const friendly = (error: unknown, fallback: string) => error instanceof ServiceError ? error.message : fallback;
@@ -72,6 +74,7 @@ export async function setupInquiryAdmin(): Promise<void> {
     for (const [key, value] of Object.entries(metrics)) element(`[data-admin-metric="${key}"]`).textContent = value.toLocaleString();
   };
   const syncView = () => {
+    renderedRoute = location.pathname + location.search;
     browse = browseFromUrl(new URL(location.href)); page = browse.page;
     for (const [key, name] of Object.entries(filterFields)) (filterForm.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement).value = String(browse[key as keyof AdminBrowse]);
     element('[data-admin-clear-filters]').hidden = !hasBrowseFilters(browse) && browse.sort === 'newest';
@@ -214,7 +217,8 @@ export async function setupInquiryAdmin(): Promise<void> {
       if (!result.inquiry) throw new Error('Missing inquiry detail response.');
       renderDetail(result.inquiry); detailContent.hidden = false; updateForm.hidden = false; announce('Inquiry loaded.');
       renderInquiryActivity(activityList, activityEmpty, result.activity ?? []);
-      element('[data-admin-detail-heading]').focus(); void inquiryProposal.load(); void communication.load(); void inquiryBooking.load();
+      void inquiryProposal.load(); void communication.load(); void inquiryBooking.load();
+      focusAdminRecordHeading(root!, element('[data-admin-detail-heading]'));
     } catch (error) { if (version === detailVersion && !detailAbort.signal.aborted) { announce(friendly(error, 'This inquiry could not be loaded. Return to the list and try again.'), true); if (authenticated) { detailUnavailable.hidden = false; element('[data-admin-back]').focus(); } } }
     finally { if (version === detailVersion) detailPanel.removeAttribute('aria-busy'); }
   }
@@ -310,7 +314,11 @@ export async function setupInquiryAdmin(): Promise<void> {
     if (!authenticated || saving || pipeline.isMoving()) return;
     history.pushState(null, '', adminBrowseUrl(button.dataset.adminView as AdminView, browse)); void loadBrowse();
   }));
-  window.addEventListener('popstate', () => { syncView(); const id = new URL(location.href).searchParams.get('inquiry'); if (id) void loadDetail(id); else void loadBrowse(); });
+  window.addEventListener('popstate', () => {
+    // Native section anchors also emit popstate; keep their scroll and unsaved fields intact.
+    if (renderedRoute === location.pathname + location.search) return;
+    syncView(); const id = new URL(location.href).searchParams.get('inquiry'); if (id) void loadDetail(id); else void loadBrowse();
+  });
   updateForm.addEventListener('submit', async event => {
     event.preventDefault(); if (!lead || saving) return;
     const fields = new FormData(updateForm); const result = updateSchema.safeParse({ status: fields.get('status'), adminNotes: fields.get('adminNotes'), updatedAt: lead.updatedAt });

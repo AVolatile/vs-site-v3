@@ -1,3 +1,13 @@
+/** Restore a supported fragment after async record rendering reveals its target. */
+export function focusAdminRecordHeading(root: HTMLElement, heading: HTMLElement) {
+  const link = [...root.querySelectorAll<HTMLAnchorElement>('.admin-record-nav a')]
+    .find(anchor => anchor.hash === location.hash);
+  const target = link ? document.getElementById(link.hash.slice(1)) : null;
+  const visibleTarget = target && root.contains(target) && !target.closest('[hidden]') ? target : null;
+  heading.focus({ preventScroll: !!visibleTarget });
+  visibleTarget?.scrollIntoView();
+}
+
 /** DOM-only enhancements: no requests, CRM state or mutation handlers live here. */
 export function setupAdminPresentation() {
   const root = document.querySelector<HTMLElement>('body.admin-ui');

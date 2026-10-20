@@ -5,6 +5,7 @@ import { setupInquiryBooking } from "@/lib/bookings/inquiry-panel";
 import { setupInquiryProposal } from "@/lib/proposals/inquiry-panel";
 import { setupInvoicePanel } from "@/lib/invoices/proposal-panel";
 import { fieldErrors, inquirySchema } from "@/lib/inquiries/contract";
+import { focusAdminRecordHeading } from "@/lib/admin/presentation";
 import {
   leadSchema,
   leadLabel,
@@ -181,6 +182,7 @@ export async function setupLeadsAdmin() {
     root!.setAttribute("aria-busy", String(value));
   }
   const route = () => new URL(location.href);
+  let renderedRoute = location.pathname + location.search;
   async function navigate(url: URL, replace = false) {
     if (busy || !session?.active()) return;
     history[replace ? "replaceState" : "pushState"](
@@ -192,6 +194,7 @@ export async function setupLeadsAdmin() {
   }
   async function load() {
     if (!session?.active()) return;
+    renderedRoute = location.pathname + location.search;
     const version = ++epoch;
     lead = null;
     clearPanels();
@@ -253,7 +256,7 @@ export async function setupLeadsAdmin() {
         ]);
         if (version !== epoch) return;
         announce("Lead loaded.");
-        el("[data-lead-heading]").focus();
+        focusAdminRecordHeading(root!, el("[data-lead-heading]"));
       } else if (creating) {
         form.hidden = false;
         control(form, "status").disabled = false;
@@ -561,6 +564,8 @@ export async function setupLeadsAdmin() {
     }
   });
   window.addEventListener("popstate", () => {
+    // Section navigation changes only the fragment, not the loaded Lead workspace.
+    if (renderedRoute === location.pathname + location.search) return;
     void load();
   });
   await load();
