@@ -28,7 +28,7 @@ export interface EmailCta {
 }
 export function renderEmail(
   input: Composition,
-  inquiry: Pick<Inquiry, 'name' | 'email' | 'company' | 'projectType'>,
+  inquiry: Pick<Inquiry, "name" | "email" | "company" | "projectType">,
   from: string,
   replyTo: string,
   proposal: { number: string; url: string } | null,
@@ -36,11 +36,26 @@ export function renderEmail(
   invoice: { number: string; url: string } | null = null,
 ): EmailPreview {
   if (input.to.toLowerCase() !== inquiry.email.toLowerCase())
-    throw new HttpError(
-      422,
-      "Email can only be sent to this inquiry’s contact.",
-      { to: "Use the inquiry contact email." },
-    );
+    throw new HttpError(422, "Email can only be sent to this saved contact.", {
+      to: "Use the saved contact email.",
+    });
+  if (input.format === "quick") {
+    if (input.includeProposal || input.includeBooking || input.includeInvoice)
+      throw new HttpError(422, "Use branded email to add a document button.");
+    const content = escapeHtml(input.message)
+      .replace(
+        /https?:\/\/[^\s<>]+/g,
+        (url) => `<a href="${url}" rel="noreferrer">${url}</a>`,
+      )
+      .replace(/\n/g, "<br>");
+    return {
+      to: inquiry.email,
+      from,
+      subject: input.subject,
+      bodyText: input.message,
+      bodyHtml: `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${escapeHtml(input.subject)}</title></head><body><div style="white-space:normal;overflow-wrap:anywhere">${content}</div></body></html>`,
+    };
+  }
   if (input.includeProposal && !proposal)
     throw new HttpError(
       422,

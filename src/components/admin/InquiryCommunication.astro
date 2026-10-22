@@ -8,26 +8,36 @@ const { lead = false } = Astro.props;
 import { EMAIL_TEMPLATES } from '@/lib/communications/templates';
 ---
 <section class="communication-panel" data-inquiry-communication hidden aria-labelledby="communication-heading">
-  <div class="communication-heading"><Heading id="communication-heading" tag="h3" variant="feature-title">Communication</Heading><div class="communication-actions"><Button type="button" variant="outline" size="sm" data-email-compose aria-expanded="false" aria-controls="email-composer">{lead ? 'Send email' : 'Respond to inquiry'}</Button><Button type="button" variant="outline" size="sm" data-email-refresh>Refresh history</Button></div></div>
-  <Text variant="feature-body-sm" class="text-on-surface-variant">Outbound mail sent from this CRM. Sent means accepted by the email provider; replies and delivery tracking are not synced.</Text>
+  <div class="communication-heading"><Heading id="communication-heading" tag="h3" variant="feature-title">Communication</Heading><div class="communication-actions"><Button type="button" variant="outline" size="sm" data-email-compose aria-expanded="false" aria-controls="email-composer">{lead ? 'Compose' : 'Respond to inquiry'}</Button><Button type="button" variant="outline" size="sm" data-email-refresh>Refresh history</Button></div></div>
+  {lead && <><Text variant="feature-body-sm" data-email-mailbox>Checking mailbox connection…</Text>
+    <div class="communication-actions"><Button type="button" variant="outline" size="sm" data-email-sync hidden>Sync replies</Button><Button type="button" variant="outline" size="sm" data-email-receipts>Check delivery status</Button><Button type="button" variant="outline" size="sm" data-email-suppress aria-pressed="false">Do not email</Button><Button href="#record-follow-up" variant="ghost" size="sm">Schedule follow-up ↗</Button></div>
+    <Text variant="feature-body-sm" role="status" data-email-permission></Text></>}
+  {!lead && <Text variant="feature-body-sm" class="text-on-surface-variant">Outbound mail sent from this CRM. Sent means accepted by the email provider; replies and delivery tracking are not synced.</Text>}
   <Text variant="body" role="status" aria-live="polite" data-email-feedback></Text>
   <form id="email-composer" class="email-composer" data-email-form novalidate hidden>
-    <InquiryField compact name="emailTemplate" label="Template" type="select" required options={EMAIL_TEMPLATES.map(template=>({value:template.key,label:template.label}))} />
+    {lead && <><InquiryField compact name="emailFormat" label="Email format" type="select" required options={[{value:'quick',label:'Quick Email'},{value:'branded',label:'Branded / template email'}]} /><Text variant="feature-body-sm" data-email-reply-context></Text></>}
+    <div data-email-template-field><InquiryField compact name="emailTemplate" label="Template" type="select" required options={EMAIL_TEMPLATES.map(template=>({value:template.key,label:template.label}))} /></div>
     <InquiryField compact name="emailTo" label="To" type="email" required maxLength={254} hint={lead ? "Only this lead’s contact can receive the message." : "Only this inquiry’s contact can receive the message."} />
     <InquiryField compact name="emailSubject" label="Subject" required maxLength={200} />
-    <InquiryField compact name="emailMessage" label="Message" type="textarea" required maxLength={20000} hint="Greeting and signature are added automatically. Supported variables: {{firstName}}, {{company}}, {{projectType}}, {{proposalNumber}}, {{proposalUrl}}, {{bookingUrl}}." />
+    <InquiryField compact name="emailMessage" label="Message" type="textarea" required maxLength={20000} hint={lead ? "Quick Email sends exactly your text. Write normal paragraphs and paste https:// links. Branded email adds the existing greeting and signature." : "Greeting and signature are added automatically. Supported variables: {{firstName}}, {{company}}, {{projectType}}, {{proposalNumber}}, {{proposalUrl}}, {{bookingUrl}}."} />
     <div data-email-cta-field hidden><InquiryField compact name="emailCta" label="Email button" type="select" required options={[{value:'none',label:'No button'},{value:'proposal',label:'View Proposal'},{value:'booking',label:'Schedule a Call'},{value:'invoice',label:'View Invoice'}]} /></div>
-    <Text variant="feature-body-sm" class="text-on-surface-variant">Preview includes the greeting, signature and any proposal button. Sending does not change {lead ? 'lead' : 'inquiry'} status or schedule a follow-up.</Text>
+    <Text variant="feature-body-sm" class="text-on-surface-variant">{lead ? 'Quick Email preserves your text. Branded preview includes the existing greeting, signature and any selected button.' : 'Preview includes the greeting, signature and any proposal button.'} Sending does not change {lead ? 'lead' : 'inquiry'} status or schedule a follow-up.</Text>
     <div class="communication-actions"><Button type="button" variant="outline" data-email-preview>Preview</Button><Button type="submit" variant="primary" data-email-send>Send email</Button><Button type="button" variant="outline" data-email-close>Close composer</Button></div>
   </form>
   <section class="email-preview-panel" data-email-preview-panel hidden aria-labelledby="email-preview-heading">
     <Heading id="email-preview-heading" tag="h4" variant="feature-title" tabindex="-1">Email preview</Heading>
     <dl class="email-preview-meta"><div><Text tag="dt" variant="feature-body-sm">To</Text><Text tag="dd" data-email-preview-to></Text></div><div><Text tag="dt" variant="feature-body-sm">Subject</Text><Text tag="dd" data-email-preview-subject></Text></div><div><Text tag="dt" variant="feature-body-sm">From</Text><Text tag="dd" data-email-preview-from></Text></div></dl>
-    <iframe title="Branded email preview" sandbox="" referrerpolicy="no-referrer" data-email-preview-frame></iframe>
+    <iframe title="Email preview" sandbox="" referrerpolicy="no-referrer" data-email-preview-frame></iframe>
     <Button type="button" variant="outline" size="sm" data-email-preview-close>Close preview</Button>
   </section>
-  <Text variant="body" data-email-empty>No correspondence yet.</Text>
+  <Text variant="body" data-email-empty>{lead ? "No correspondence yet. Compose a Quick Email or use a branded template to start a conversation." : "No correspondence yet."}</Text>
   <ol class="email-history" data-email-history></ol>
   <div class="communication-actions" data-email-pagination hidden><Button type="button" variant="outline" size="sm" data-email-previous>Newer messages</Button><Text tag="span" variant="feature-body-sm" data-email-page></Text><Button type="button" variant="outline" size="sm" data-email-next>Older messages</Button></div>
-  <template data-email-history-template><li><details class="email-history-item"><summary><Text tag="span" class="email-history-subject" data-email-history-subject></Text><Text tag="span" variant="feature-body-sm" data-email-history-meta></Text><Text tag="span" variant="feature-body-sm" data-email-history-status></Text></summary><div class="email-history-content"><Text variant="body" data-email-history-body></Text><Button type="button" variant="outline" size="sm" data-email-retry hidden>Retry saved email</Button><Text variant="feature-body-sm" class="text-on-surface-variant" data-email-retry-help hidden>Retry uses the original content and send key. If the safe window has ended, check Resend before composing another copy.</Text></div></details></li></template>
+  {lead && <template data-email-thread-template><li class="email-thread"><Heading tag="h4" variant="feature-title" data-email-thread-heading></Heading><ol class="email-history" data-email-thread-messages></ol></li></template>}
+  <template data-email-history-template><li><details class="email-history-item"><summary><Text tag="span" class="email-history-subject" data-email-history-subject></Text><Text tag="span" variant="feature-body-sm" data-email-history-meta></Text><Text tag="span" variant="feature-body-sm" data-email-history-status></Text></summary><div class="email-history-content"><Text variant="body" data-email-history-body></Text><div class="communication-actions">{lead && <Button type="button" variant="outline" size="sm" data-email-reply>Reply</Button>}<Button type="button" variant="outline" size="sm" data-email-retry hidden>Retry saved email</Button></div><Text variant="feature-body-sm" class="text-on-surface-variant" data-email-retry-help hidden>Retry uses the original content and send key. If the safe window has ended, check Resend before composing another copy.</Text></div></details></li></template>
 </section>
+
+<style>
+  .email-thread + .email-thread { margin-top: var(--spacing-lg); }
+  .email-thread > h4 { font-size: 1rem; line-height: 1.4; letter-spacing: -.025em; margin-bottom: var(--spacing-sm); overflow-wrap: anywhere; }
+</style>

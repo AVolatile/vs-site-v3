@@ -39,6 +39,29 @@ describe("lead workspace shell and navigation contracts", () => {
       "Permanently delete lead",
     );
   });
+  it("exposes quick/branded compose, owned threads, inbound state and contact safety using existing atoms", async () => {
+    const container = await AstroContainer.create();
+    const $ = load(await container.renderToString(LeadsAdmin));
+    expect(
+      $('[name="emailFormat"] option')
+        .map((_, node) => $(node).attr("value"))
+        .get()
+        .filter(Boolean),
+    ).toEqual(["quick", "branded"]);
+    expect($("[data-email-thread-template] [data-email-reply]").length).toBe(0);
+    expect($("[data-email-history-template]").html()).toContain(
+      "data-email-reply",
+    );
+    expect($("[data-email-sync]").attr("hidden")).toBeDefined();
+    expect($("[data-email-suppress]").attr("aria-pressed")).toBe("false");
+    expect($("[data-email-compose]").text()).toContain("Compose");
+    expect(
+      $('[name="filterCommunication"] option[value="replied"]').text(),
+    ).toBe("Replied");
+    expect(
+      $('[data-inquiry-communication] a[href="#record-follow-up"]').text(),
+    ).toContain("Schedule follow-up");
+  });
   it("keeps the workspace noindex and adds Leads using existing navigation markup", async () => {
     const container = await AstroContainer.create(),
       $ = load(await container.renderToString(AdminLayout));

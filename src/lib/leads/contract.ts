@@ -70,6 +70,9 @@ export const leadBrowseSchema = z.object({
   status: z.enum(["all", ...LEAD_STATUSES]).default("all"),
   priority: z.enum(["all", ...LEAD_PRIORITIES]).default("all"),
   followUp: z.enum(["all", "overdue", "upcoming", "none"]).default("all"),
+  communication: z
+    .enum(["all", "has-email", "never", "awaiting", "replied", "suppressed"])
+    .default("all"),
   page: z.coerce.number().int().min(1).max(10000).default(1),
 });
 export type LeadInput = z.infer<typeof leadSchema>;
@@ -79,6 +82,9 @@ export interface Lead extends LeadInput {
   updatedAt: string;
   convertedInquiryId: string | null;
   convertedAt: string | null;
+  emailSuppressed?: boolean;
+  lastEmailAt?: string | null;
+  lastReplyAt?: string | null;
 }
 export interface LeadActivity {
   id: string;
@@ -95,4 +101,16 @@ export interface LeadList {
   total: number;
   page: number;
   pageSize: number;
+}
+
+export function leadCommunicationLabel(lead: Lead) {
+  if (lead.emailSuppressed) return "Do not email";
+  if (!lead.email) return "No email";
+  if (!lead.lastEmailAt && !lead.lastReplyAt) return "Never emailed";
+  if (
+    lead.lastReplyAt &&
+    (!lead.lastEmailAt || lead.lastReplyAt >= lead.lastEmailAt)
+  )
+    return "Replied";
+  return "Awaiting reply";
 }

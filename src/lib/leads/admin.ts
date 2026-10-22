@@ -9,6 +9,7 @@ import { focusAdminRecordHeading } from "@/lib/admin/presentation";
 import {
   leadSchema,
   leadLabel,
+  leadCommunicationLabel,
   type Lead,
   type LeadList,
   type LeadActivity,
@@ -110,6 +111,10 @@ export async function setupLeadsAdmin() {
     );
     if (epoch !== version || lead?.id !== id) return false;
     renderActivity(data.activity);
+    // Refresh derived contact dates without overwriting a manual edit in progress.
+    if (control(form, "lastContactAt").value === localDate(lead.lastContactAt))
+      control(form, "lastContactAt").value = localDate(data.lead.lastContactAt);
+    lead.lastContactAt = data.lead.lastContactAt;
     return true;
   }
   const communication = setupInquiryCommunication({
@@ -276,13 +281,21 @@ export async function setupLeadsAdmin() {
         el<HTMLButtonElement>("[data-lead-previous]").disabled = true;
         el<HTMLButtonElement>("[data-lead-next]").disabled = true;
         const query = new URLSearchParams();
-        for (const key of ["search", "status", "priority", "followUp", "page"])
+        for (const key of [
+          "search",
+          "status",
+          "priority",
+          "followUp",
+          "communication",
+          "page",
+        ])
           if (params.has(key)) query.set(key, params.get(key)!);
         for (const [key, name] of [
           ["search", "search"],
           ["status", "filterStatus"],
           ["priority", "filterPriority"],
           ["followUp", "filterFollowUp"],
+          ["communication", "filterCommunication"],
         ])
           control(filters, name).value =
             params.get(key) ?? (key === "search" ? "" : "all");
@@ -297,8 +310,11 @@ export async function setupLeadsAdmin() {
               item.name || item.email || item.phone || "—",
               leadLabel(item.status),
               leadLabel(item.priority),
+              leadCommunicationLabel(item),
               item.nextFollowUpAt
-                ? new Date(item.nextFollowUpAt).toLocaleString()
+                ? (Date.parse(item.nextFollowUpAt) < Date.now()
+                    ? "Due · "
+                    : "") + new Date(item.nextFollowUpAt).toLocaleString()
                 : "—",
             ].entries()) {
               const cell = document.createElement("td");
@@ -372,6 +388,7 @@ export async function setupLeadsAdmin() {
       ["status", "filterStatus"],
       ["priority", "filterPriority"],
       ["followUp", "filterFollowUp"],
+      ["communication", "filterCommunication"],
     ]) {
       const value = control(filters, name).value.trim();
       if (value && value !== "all") url.searchParams.set(key, value);

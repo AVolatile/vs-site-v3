@@ -76,6 +76,7 @@ const migrations = [
   "008_outlook_calendar_integration",
   "009_create_invoices",
     "010_create_leads",
+    "011_lead_email_workspace",
 ];
 const client = {
   name: "Client Name",

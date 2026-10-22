@@ -43,6 +43,8 @@ export interface OutboundEmail {
   subject: string;
   html: string;
   text: string;
+  inReplyTo?: string;
+  references?: string;
 }
 // Resend's development logger includes raw provider errors. Keep payloads/errors out of logs.
 export async function sendInquiryEmail(mail: OutboundEmail): Promise<string> {
@@ -58,6 +60,14 @@ export async function sendInquiryEmail(mail: OutboundEmail): Promise<string> {
         subject: mail.subject,
         html: mail.html,
         text: mail.text,
+        ...(mail.inReplyTo
+          ? {
+              headers: {
+                "In-Reply-To": mail.inReplyTo,
+                References: mail.references || mail.inReplyTo,
+              },
+            }
+          : {}),
       },
       {
         idempotencyKey: "crm-message/" + mail.id,
@@ -78,5 +88,27 @@ export async function sendInquiryEmail(mail: OutboundEmail): Promise<string> {
   } catch (error) {
     if (error instanceof EmailProviderError) throw error;
     throw new EmailProviderError("delivery_unconfirmed");
+  }
+}
+
+export const validMessageId = (value: unknown): value is string =>
+  typeof value === "string" && /^<[^<>\s]{1,994}>$/.test(value);
+// Optional receipt lookup must never turn a confirmed send into a failure.
+export async function emailReceipt(id: string) {
+  try {
+    const client = new Resend(emailConfiguration().key);
+    Reflect.set(client, "logError", () => {});
+    const { data, error } = await client.emails.get(id, {
+      signal: AbortSignal.timeout(3000),
+    });
+    if (error || !data) return null;
+    return {
+      internetMessageId: validMessageId(data.message_id)
+        ? data.message_id
+        : null,
+      state: data.last_event,
+    };
+  } catch {
+    return null;
   }
 }

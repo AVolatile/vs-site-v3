@@ -792,7 +792,7 @@ describe("lead conversion and migration transaction guarantees", () => {
       const migrations = readdirSync("database/migrations")
         .filter((file) => file.endsWith(".sql"))
         .sort();
-      for (const file of migrations.filter((file) => !file.startsWith("010_")))
+      for (const file of migrations.filter((file) => Number(file.slice(0,3)) < 10))
         await legacy.exec(readFileSync("database/migrations/" + file, "utf8"));
       await legacy.exec(`INSERT INTO inquiries(name,email,project_type,project_stage,project_summary,budget_range,timeline,submission_key,payload_fingerprint)
         VALUES('Synthetic existing contact','old@example.test','website','existing','Actual existing project scope','unsure','flexible',gen_random_uuid(),'old-fingerprint');

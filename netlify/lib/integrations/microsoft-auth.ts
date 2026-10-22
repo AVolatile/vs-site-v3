@@ -17,6 +17,10 @@ export const MICROSOFT_SCOPES = [
   "Calendars.ReadWrite",
   "User.Read",
 ];
+const requestedScopes = () => [
+  ...MICROSOFT_SCOPES,
+  ...(runtimeValue("MICROSOFT_MAIL_ENABLED") === "true" ? ["Mail.Read"] : []),
+];
 function hasCalendarScopes(scope: string) {
   return ["User.Read", "Calendars.ReadWrite"].every((s) =>
     scope
@@ -100,7 +104,7 @@ export async function beginMicrosoftOAuth() {
     client_id: config.clientId,
     redirect_uri: config.redirectUri,
     response_type: "code",
-    scope: MICROSOFT_SCOPES.join(" "),
+    scope: requestedScopes().join(" "),
     response_mode: "query",
     prompt: "select_account",
     state,
@@ -148,6 +152,7 @@ export async function consumeMicrosoftState(state: string, browser: string) {
 async function tokenRequest(
   parameters: Record<string, string>,
   deadline?: AbortSignal,
+  scopes = requestedScopes(),
 ) {
   const config = microsoftConfig();
   const data = object(
@@ -160,7 +165,7 @@ async function tokenRequest(
           ...parameters,
           client_id: config.clientId,
           client_secret: config.clientSecret,
-          scope: MICROSOFT_SCOPES.join(" "),
+          scope: scopes.join(" "),
         }),
       },
       false,
@@ -272,6 +277,14 @@ export async function microsoftAccess(
         ),
       },
       deadline,
+      [
+        ...MICROSOFT_SCOPES,
+        ...(String(connection.scope || "")
+          .toLowerCase()
+          .includes("mail.read")
+          ? ["Mail.Read"]
+          : []),
+      ],
     );
     if (token.scope && !hasCalendarScopes(token.scope))
       throw new ProviderError("reconnect_required", 400);
@@ -348,7 +361,11 @@ async function graphRequest(
         ...init.headers,
         "Content-Type": "application/json",
         Authorization: "Bearer " + access,
-        Prefer: 'outlook.timezone="UTC", IdType="ImmutableId"',
+        Prefer:
+          'outlook.timezone="UTC", IdType="ImmutableId"' +
+          (new Headers(init.headers).get("Prefer")
+            ? ", " + new Headers(init.headers).get("Prefer")
+            : ""),
       },
     },
     (init.method || "GET") !== "POST",

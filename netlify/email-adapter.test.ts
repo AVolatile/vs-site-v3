@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, it, expect, vi } from "vitest";
-import { sendInquiryEmail } from "./lib/email";
+import { sendInquiryEmail, emailReceipt } from "./lib/email";
 const mail = {
   id: "56f7cf24-af2a-47ac-bc87-6e78bb95c336",
   from: "Anthony <hello@example.test>",
@@ -40,23 +40,69 @@ describe("installed Resend SDK integration without network delivery", () => {
       text: mail.text,
     });
   });
-  it("suppresses the SDK development error logger and sanitizes known rejection", async () => {
-    vi.stubEnv("NODE_ENV", "development");
-    const logger = vi.spyOn(console, "error").mockImplementation(() => {});
+  it("passes actual reply identifiers through the installed SDK", async () => {
+    const transport = vi
+      .fn()
+      .mockResolvedValue(Response.json({ id: "accepted-reply" }));
+    vi.stubGlobal("fetch", transport);
+    await sendInquiryEmail({
+      ...mail,
+      inReplyTo: "<parent@example.test>",
+      references: "<root@example.test> <parent@example.test>",
+    });
+    expect(JSON.parse(transport.mock.calls[0][1].body).headers).toEqual({
+      "In-Reply-To": "<parent@example.test>",
+      References: "<root@example.test> <parent@example.test>",
+    });
+  });
+  it("retrieves the actual RFC Message-ID and delivery event without sending again", async () => {
+    const transport = vi
+      .fn()
+      .mockResolvedValue(
+        Response.json({
+          message_id: "<actual@example.test>",
+          last_event: "delivered",
+        }),
+      );
+    vi.stubGlobal("fetch", transport);
+    expect(await emailReceipt("provider-id")).toEqual({
+      internetMessageId: "<actual@example.test>",
+      state: "delivered",
+    });
+    expect(transport.mock.calls[0][0]).toBe(
+      "https://api.resend.com/emails/provider-id",
+    );
+    expect(transport.mock.calls[0][1].method).toBe("GET");
+  });
+  it("keeps unavailable receipt access separate from confirmed send outcomes", async () => {
     vi.stubGlobal(
       "fetch",
       vi
         .fn()
         .mockResolvedValue(
           Response.json(
-            {
-              name: "validation_error",
-              statusCode: 403,
-              message: "PRIVATE provider details",
-            },
+            { name: "restricted_api_key", message: "PRIVATE" },
             { status: 403 },
           ),
         ),
+    );
+    expect(await emailReceipt("provider-id")).toBeNull();
+  });
+  it("suppresses the SDK development error logger and sanitizes known rejection", async () => {
+    vi.stubEnv("NODE_ENV", "development");
+    const logger = vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        Response.json(
+          {
+            name: "validation_error",
+            statusCode: 403,
+            message: "PRIVATE provider details",
+          },
+          { status: 403 },
+        ),
+      ),
     );
     await expect(sendInquiryEmail(mail)).rejects.toMatchObject({
       code: "provider_rejected",

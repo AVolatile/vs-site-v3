@@ -40,9 +40,19 @@ function detail(row: Record<string, unknown>): Lead {
       ? String(row.converted_inquiry_id)
       : null,
     convertedAt: iso(row.converted_at),
+    emailSuppressed: !!row.email_suppressed,
+    lastEmailAt: iso(row.last_email_at),
+    lastReplyAt: iso(row.last_reply_at),
   };
 }
-const selection = `SELECT leads.*,GREATEST(leads.last_contact_at,(SELECT max(sent_at) FROM inquiry_messages WHERE lead_id=leads.id AND status='sent')) AS last_contact_at FROM leads`;
+const emailDates = `(SELECT max(sent_at) FROM inquiry_messages WHERE lead_id=leads.id AND status='sent' AND direction='outbound')`;
+const replyDates = `(SELECT max(received_at) FROM inquiry_messages WHERE lead_id=leads.id AND direction='inbound')`;
+const blockedEmail = `(leads.email_suppressed OR EXISTS(SELECT 1 FROM leads suppressed
+  WHERE leads.email<>'' AND lower(suppressed.email)=lower(leads.email) AND suppressed.email_suppressed)
+  OR EXISTS(SELECT 1 FROM inquiry_messages blocked WHERE leads.email<>'' AND lower(blocked.to_email)=lower(leads.email)
+    AND blocked.direction='outbound' AND blocked.delivery_state IN('bounced','complained','suppressed')))`;
+const selection = `SELECT leads.*,${blockedEmail} AS email_suppressed,GREATEST(leads.last_contact_at,${emailDates}) AS last_contact_at,
+  ${emailDates} AS last_email_at,${replyDates} AS last_reply_at FROM leads`;
 const fields = [
   "company",
   "name",
@@ -152,12 +162,22 @@ export async function listLeads(
     AND ($3='' OR company ILIKE $3 ESCAPE '\\' OR name ILIKE $3 ESCAPE '\\' OR email ILIKE $3 ESCAPE '\\'
       OR phone ILIKE $3 ESCAPE '\\' OR category ILIKE $3 ESCAPE '\\' OR location ILIKE $3 ESCAPE '\\')
     AND ($4='all' OR ($4='none' AND next_follow_up_at IS NULL) OR ($4='overdue' AND next_follow_up_at<clock_timestamp())
-      OR ($4='upcoming' AND next_follow_up_at>=clock_timestamp()))`;
-  const params = [filters.status, filters.priority, pattern, filters.followUp];
+      OR ($4='upcoming' AND next_follow_up_at>=clock_timestamp()))
+    AND ($5='all' OR ($5='has-email' AND email<>'') OR ($5='suppressed' AND ${blockedEmail})
+      OR ($5='never' AND email<>'' AND ${emailDates} IS NULL AND ${replyDates} IS NULL)
+      OR ($5='awaiting' AND ${emailDates} IS NOT NULL AND (${replyDates} IS NULL OR ${emailDates}>${replyDates}))
+      OR ($5='replied' AND ${replyDates} IS NOT NULL AND (${emailDates} IS NULL OR ${replyDates}>=${emailDates})))`;
+  const params = [
+    filters.status,
+    filters.priority,
+    pattern,
+    filters.followUp,
+    filters.communication ?? "all",
+  ];
   const [rows, count] = await Promise.all([
     query(
       selection +
-        ` WHERE ${where} ORDER BY created_at DESC,id DESC LIMIT 25 OFFSET $5`,
+        ` WHERE ${where} ORDER BY created_at DESC,id DESC LIMIT 25 OFFSET $6`,
       [...params, (filters.page - 1) * 25],
     ),
     query(`SELECT count(*) AS total FROM leads WHERE ${where}`, params),

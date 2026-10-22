@@ -1,4 +1,6 @@
-import { ownerFromParams } from '../lib/crm-owner';
+import { setEmailSuppression } from "../lib/email-safety";
+import { syncMailbox } from "../lib/integrations/outlook-mail";
+import { ownerFromParams } from "../lib/crm-owner";
 import type { Config, Context } from "@netlify/functions";
 import { z } from "zod";
 import { requireAdmin } from "../lib/authorize";
@@ -15,6 +17,7 @@ import {
   previewEmail,
   retryMessage,
   sendMessage,
+  refreshEmailReceipts,
 } from "../lib/message-store";
 export default async (
   request: Request,
@@ -24,7 +27,7 @@ export default async (
     await requireAdmin();
     const url = new URL(request.url);
     const id = ownerFromParams(url.searchParams);
-    if (!id) throw new HttpError(400, 'Choose a valid inquiry or lead.');
+    if (!id) throw new HttpError(400, "Choose a valid inquiry or lead.");
     if (request.method === "GET") {
       const message = url.searchParams.get("message");
       if (message) {
@@ -49,6 +52,28 @@ export default async (
         typeof body === "object" && body !== null && "action" in body
           ? body.action
           : null;
+      if (action === "suppression") {
+        const input = z
+          .object({ action: z.literal("suppression"), suppressed: z.boolean() })
+          .strict()
+          .safeParse(body);
+        if (!input.success)
+          throw new HttpError(422, "Choose an email permission.");
+        return json(await setEmailSuppression(id, input.data.suppressed));
+      }
+      if (action === "sync" || action === "receipts") {
+        const input = z
+          .object({ action: z.enum(["sync", "receipts"]) })
+          .strict()
+          .safeParse(body);
+        if (!input.success || typeof id === "string")
+          throw new HttpError(400, "Choose a lead.");
+        return json(
+          action === "sync"
+            ? await syncMailbox()
+            : await refreshEmailReceipts(id),
+        );
+      }
       if (action === "retry") {
         const result = retryEmailSchema.safeParse(body);
         if (!result.success)

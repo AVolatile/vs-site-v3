@@ -1,6 +1,7 @@
 import {
   compositionSchema,
   messageFailureText,
+  messageHasFailure,
   messageStatusText,
   type Composition,
   type EmailPreview,
@@ -15,8 +16,11 @@ import {
 } from "@/lib/inquiries/contract";
 interface Options {
   panel: HTMLElement;
-  ownerType?: 'inquiry' | 'lead';
-  current: () => Pick<Inquiry, 'id' | 'name' | 'company' | 'email' | 'projectType'> | null;
+  ownerType?: "inquiry" | "lead";
+  current: () => Pick<
+    Inquiry,
+    "id" | "name" | "company" | "email" | "projectType"
+  > | null;
   active: () => boolean;
   version: () => number;
   request: <T>(url: string, options?: RequestInit) => Promise<T>;
@@ -43,11 +47,13 @@ export function setupInquiryCommunication(options: Options) {
     total = 0,
     proposal: MessageList["proposal"] = null,
     booking: MessageList["booking"] = null,
-    invoice:MessageList["invoice"]=null,
+    invoice: MessageList["invoice"] = null,
     requestKey = crypto.randomUUID(),
     attempted = false,
     recordId: string | null = null,
-    selectedTemplate = "personal";
+    selectedTemplate = "personal",
+    suppressed = false,
+    replyToMessageId: string | undefined;
   let abort: AbortController | undefined;
   field("emailTo").readOnly = true;
   function announce(value: string, error = false) {
@@ -58,7 +64,10 @@ export function setupInquiryCommunication(options: Options) {
     epoch === version && options.active() && !!options.current();
   function endpoint() {
     return (
-      "/api/admin/messages?" + (options.ownerType ?? "inquiry") + "=" + encodeURIComponent(options.current()!.id)
+      "/api/admin/messages?" +
+      (options.ownerType ?? "inquiry") +
+      "=" +
+      encodeURIComponent(options.current()!.id)
     );
   }
   async function post<T>(body: unknown) {
@@ -86,8 +95,29 @@ export function setupInquiryCommunication(options: Options) {
       value || page <= 1;
     el<HTMLButtonElement>("[data-email-next]").disabled =
       value || page * 10 >= total;
-    el<HTMLButtonElement>("[data-email-send]").disabled = value || !!recordId;
-    if (options.ownerType === "lead") el<HTMLButtonElement>("[data-email-compose]").disabled = value || !options.current()?.email;
+    el<HTMLButtonElement>("[data-email-send]").disabled =
+      value || !!recordId || suppressed;
+    if (options.ownerType === "lead") {
+      el<HTMLButtonElement>("[data-email-compose]").disabled =
+        value || !options.current()?.email || suppressed;
+      panel
+        .querySelectorAll<HTMLButtonElement>("[data-email-reply]")
+        .forEach((button) => {
+          button.disabled =
+            value ||
+            suppressed ||
+            !options.current()?.email ||
+            button.dataset.unavailable === "true";
+        });
+    }
+  }
+  function syncFormat() {
+    if (options.ownerType !== "lead") return;
+    const quick = field("emailFormat").value === "quick";
+    el("[data-email-template-field]").hidden = quick;
+    el("[data-email-cta-field]").hidden =
+      quick || (!proposal && !booking && !invoice);
+    if (quick) field("emailCta").value = "none";
   }
   function closePreview() {
     el("[data-email-preview-panel]").hidden = true;
@@ -103,7 +133,13 @@ export function setupInquiryCommunication(options: Options) {
       templateKey: field("emailTemplate").value,
       includeProposal: field("emailCta").value === "proposal",
       includeBooking: field("emailCta").value === "booking",
-      includeInvoice:field("emailCta").value === "invoice",
+      includeInvoice: field("emailCta").value === "invoice",
+      ...(options.ownerType === "lead"
+        ? {
+            format: field("emailFormat").value,
+            ...(replyToMessageId ? { replyToMessageId } : {}),
+          }
+        : {}),
     });
     const names = {
       to: "emailTo",
@@ -145,7 +181,8 @@ export function setupInquiryCommunication(options: Options) {
       bookingUrl: booking?.url || "",
     };
     try {
-      field("emailSubject").value = personalize(template.subject, variables);
+      if (!replyToMessageId)
+        field("emailSubject").value = personalize(template.subject, variables);
       field("emailMessage").value = personalize(
         template.bookingMessage && booking
           ? template.bookingMessage
@@ -172,7 +209,13 @@ export function setupInquiryCommunication(options: Options) {
     field("emailTo").value = options.current()?.email ?? "";
     field("emailTemplate").value = "personal";
     field("emailCta").value = "none";
-    populateTemplate();
+    replyToMessageId = undefined;
+    if (options.ownerType === "lead") {
+      field("emailFormat").value = "quick";
+      el("[data-email-reply-context]").textContent =
+        "New conversation · Quick Email adds no automatic greeting or signature.";
+      syncFormat();
+    } else populateTemplate();
     options.validate(form, {});
     closePreview();
     controls(busy);
@@ -195,9 +238,25 @@ export function setupInquiryCommunication(options: Options) {
     );
     if (!current(version)) return;
     total = result.total;
+    if (options.ownerType === "lead") {
+      suppressed = !!result.emailSuppressed;
+      el("[data-email-mailbox]").textContent =
+        result.mailbox?.message || "Outbound only. Replies are not synced.";
+      el("[data-email-sync]").hidden = result.mailbox?.status !== "connected";
+      el("[data-email-suppress]").setAttribute(
+        "aria-pressed",
+        String(suppressed),
+      );
+      el("[data-email-suppress]").textContent = suppressed
+        ? "Review / allow email"
+        : "Do not email";
+      el("[data-email-permission]").textContent = suppressed
+        ? "Email is blocked by a contact suppression or a recorded bounce/complaint. Sending and retries are unavailable."
+        : "Sends use the saved contact address and existing Volatile Solutions sender. Sent means provider acceptance; delivery appears only when known.";
+    }
     proposal = result.proposal;
     booking = result.booking;
-    invoice=result.invoice;
+    invoice = result.invoice;
     el("[data-email-cta-field]").hidden = !proposal && !booking && !invoice;
     field<HTMLSelectElement>("emailCta").querySelector<HTMLOptionElement>(
       'option[value="proposal"]',
@@ -208,8 +267,11 @@ export function setupInquiryCommunication(options: Options) {
     field("emailCta").querySelector<HTMLOptionElement>(
       'option[value="booking"]',
     )!.hidden = !booking;
-    const invoiceOption=field<HTMLSelectElement>('emailCta').querySelector<HTMLOptionElement>('option[value="invoice"]')!;
-    invoiceOption.hidden=!invoice;invoiceOption.disabled=!invoice;
+    const invoiceOption = field<HTMLSelectElement>(
+      "emailCta",
+    ).querySelector<HTMLOptionElement>('option[value="invoice"]')!;
+    invoiceOption.hidden = !invoice;
+    invoiceOption.disabled = !invoice;
     const proposalOption = field<HTMLSelectElement>(
       "emailTemplate",
     ).querySelector<HTMLOptionElement>('option[value="proposal"]')!;
@@ -217,7 +279,8 @@ export function setupInquiryCommunication(options: Options) {
     if (
       !attempted &&
       ((field("emailCta").value === "proposal" && !proposal) ||
-        (field("emailCta").value === "booking" && !booking) || (field("emailCta").value === "invoice" && !invoice))
+        (field("emailCta").value === "booking" && !booking) ||
+        (field("emailCta").value === "invoice" && !invoice))
     )
       field("emailCta").value = "none";
     history.replaceChildren();
@@ -225,7 +288,10 @@ export function setupInquiryCommunication(options: Options) {
     el("[data-email-pagination]").hidden = total <= 10;
     el("[data-email-page]").textContent =
       `Page ${page} of ${Math.max(1, Math.ceil(total / 10))}`;
-    for (const item of result.items) {
+    const threads = new Map<string, HTMLOListElement>();
+    const items =
+      options.ownerType === "lead" ? [...result.items].reverse() : result.items;
+    for (const item of items) {
       const fragment = el<HTMLTemplateElement>(
         "[data-email-history-template]",
       ).content.cloneNode(true) as DocumentFragment;
@@ -237,27 +303,34 @@ export function setupInquiryCommunication(options: Options) {
       details.querySelector<HTMLElement>(
         "[data-email-history-meta]",
       )!.textContent =
-        new Date(item.sentAt ?? item.createdAt).toLocaleString(undefined, {
+        new Date(
+          item.receivedAt ?? item.sentAt ?? item.createdAt,
+        ).toLocaleString(undefined, {
           dateStyle: "medium",
           timeStyle: "short",
         }) +
         " · " +
+        (item.direction === "inbound" ? "Inbound · " : "Outbound · ") +
+        item.from +
+        " → " +
         item.to +
         " · " +
-        (EMAIL_TEMPLATES.find((t) => t.key === item.templateKey)?.label ??
-          item.templateKey);
+        (item.format === "quick"
+          ? "Quick Email"
+          : (EMAIL_TEMPLATES.find((t) => t.key === item.templateKey)?.label ??
+            item.templateKey));
       const status = details.querySelector<HTMLElement>(
         "[data-email-history-status]",
       )!;
       status.textContent = messageStatusText(item);
-      status.dataset.status = item.status;
+      status.dataset.status = messageHasFailure(item) ? "failed" : item.status;
       const retry =
           details.querySelector<HTMLButtonElement>("[data-email-retry]")!,
         body = details.querySelector<HTMLElement>("[data-email-history-body]")!;
-      retry.hidden = !item.canRetry;
+      retry.hidden = !item.canRetry || suppressed;
       retry.disabled = busy;
       details.querySelector<HTMLElement>("[data-email-retry-help]")!.hidden =
-        item.status === "sent";
+        item.status === "sent" || item.direction === "inbound";
       let loaded = false;
       details.addEventListener("toggle", async () => {
         if (!details.open || loaded) return;
@@ -280,14 +353,63 @@ export function setupInquiryCommunication(options: Options) {
       retry.addEventListener("click", () => {
         void performRetry(item.id, summary);
       });
-      history.append(fragment);
+      if (options.ownerType === "lead") {
+        const reply =
+          details.querySelector<HTMLButtonElement>("[data-email-reply]")!;
+        reply.dataset.unavailable = String(item.status !== "sent");
+        reply.disabled =
+          busy ||
+          suppressed ||
+          !options.current()?.email ||
+          item.status !== "sent";
+        reply.addEventListener("click", () => {
+          if (busy || suppressed) return;
+          if (
+            (attempted || field("emailMessage").value) &&
+            !confirm(
+              "Replace the current composition? Check any previous send outcome first.",
+            )
+          )
+            return;
+          newComposition();
+          replyToMessageId = item.id;
+          field("emailSubject").value = /^re:/i.test(item.subject)
+            ? item.subject
+            : ("Re: " + item.subject).slice(0, 200);
+          el("[data-email-reply-context]").textContent =
+            "Reply in conversation " +
+            item.threadId.slice(0, 8) +
+            " · " +
+            item.subject;
+          form.hidden = false;
+          el("[data-email-compose]").setAttribute("aria-expanded", "true");
+          field("emailMessage").focus();
+        });
+        let messages = threads.get(item.threadId);
+        if (!messages) {
+          const group = el<HTMLTemplateElement>(
+            "[data-email-thread-template]",
+          ).content.cloneNode(true) as DocumentFragment;
+          group.querySelector<HTMLElement>(
+            "[data-email-thread-heading]",
+          )!.textContent = "Conversation · " + item.subject;
+          messages = group.querySelector<HTMLOListElement>(
+            "[data-email-thread-messages]",
+          )!;
+          threads.set(item.threadId, messages);
+          history.append(group);
+        }
+        messages.append(fragment);
+        if (item.id === result.items[0]?.id) details.open = true;
+      } else history.append(fragment);
     }
+    syncFormat();
     controls(busy);
   }
   async function afterOutcome(message: MessageDetail, version: number) {
     if (!current(version)) return;
     recordId = message.status === "sent" ? null : message.id;
-    announce(messageFailureText(message), message.status === "failed");
+    announce(messageFailureText(message), messageHasFailure(message));
     page = 1;
     if (message.status === "sent") {
       form.hidden = true;
@@ -343,17 +465,20 @@ export function setupInquiryCommunication(options: Options) {
   }
   el("[data-email-compose]").addEventListener("click", () => {
     if (busy) return;
+    const startNew = attempted || !!replyToMessageId;
     if (
-      attempted &&
+      startNew &&
       !confirm(
         "Start a new response? Check the saved message’s outcome before sending another copy.",
       )
     )
       return;
-    if (attempted || !field("emailTo").value) newComposition();
+    if (startNew || !field("emailTo").value) newComposition();
     form.hidden = false;
     el("[data-email-compose]").setAttribute("aria-expanded", "true");
-    field("emailTemplate").focus();
+    field(
+      options.ownerType === "lead" ? "emailSubject" : "emailTemplate",
+    ).focus();
   });
   field<HTMLSelectElement>("emailTemplate").addEventListener("change", () => {
     if (
@@ -366,7 +491,103 @@ export function setupInquiryCommunication(options: Options) {
     selectedTemplate = field("emailTemplate").value;
     populateTemplate();
   });
-  form.addEventListener("input", closePreview);
+  if (options.ownerType === "lead") {
+    field("emailFormat").addEventListener("change", () => {
+      syncFormat();
+      closePreview();
+      announce(
+        field("emailFormat").value === "quick"
+          ? "Quick Email sends exactly your text."
+          : "Branded email uses the existing greeting, signature and design. Choose a template or write your own message.",
+      );
+    });
+    for (const [selector, action] of [
+      ["[data-email-sync]", "sync"],
+      ["[data-email-receipts]", "receipts"],
+      ["[data-email-suppress]", "suppression"],
+    ] as const) {
+      el(selector).addEventListener("click", async () => {
+        if (busy || !options.active()) return;
+        if (
+          action === "suppression" &&
+          !confirm(
+            suppressed
+              ? "Allow email after reviewing this contact? Bounce/complaint protection remains active."
+              : "Mark this lead Do not email? Sending and retries will be blocked.",
+          )
+        )
+          return;
+        const version = epoch;
+        controls(true);
+        announce(
+          action === "sync"
+            ? "Syncing Outlook replies…"
+            : "Updating email status…",
+        );
+        try {
+          const result = await post<{
+            imported?: number;
+            more?: boolean;
+            refreshed?: number;
+            total?: number;
+          }>({
+            action,
+            ...(action === "suppression" ? { suppressed: !suppressed } : {}),
+          });
+          await refresh(version);
+          if (current(version)) {
+            announce(
+              action === "sync"
+                ? `${result.imported || 0} replies imported.${result.more ? " More Inbox messages remain. Use Sync replies again to continue." : " Inbox sync is up to date."}`
+                : action === "receipts"
+                  ? result.refreshed
+                    ? `Provider status checked for ${result.refreshed} emails.`
+                    : "Provider status is unavailable or there are no sent emails. Saved send outcomes are preserved."
+                  : "Email permission reviewed. Any remaining address suppression or bounce/complaint still blocks sending.",
+            );
+            await options.refreshActivity(
+              options.current()!.id,
+              options.version(),
+            );
+          }
+        } catch (error) {
+          if (current(version))
+            announce(
+              options.error(error, "Email status could not update. Try again."),
+              true,
+            );
+        } finally {
+          if (current(version)) controls(false);
+        }
+      });
+    }
+  }
+  form.addEventListener("input", (event) => {
+    closePreview();
+    const input = event.target;
+    if (
+      !(
+        input instanceof HTMLInputElement ||
+        input instanceof HTMLTextAreaElement
+      )
+    )
+      return;
+    const schema =
+      input.name === "emailSubject"
+        ? compositionSchema.shape.subject
+        : input.name === "emailMessage"
+          ? compositionSchema.shape.message
+          : null;
+    if (!schema?.safeParse(input.value).success) return;
+    input.setAttribute("aria-invalid", "false");
+    const error = form.querySelector<HTMLElement>(
+      `[data-field-error="${input.name}"]`,
+    );
+    if (error) {
+      error.textContent = "";
+      error.hidden = true;
+    }
+  });
   field("emailCta").addEventListener("change", closePreview);
   el("[data-email-close]").addEventListener("click", () => {
     form.hidden = true;
@@ -531,6 +752,8 @@ export function setupInquiryCommunication(options: Options) {
     attempted = false;
     recordId = null;
     selectedTemplate = "personal";
+    suppressed = false;
+    replyToMessageId = undefined;
     el("[data-email-compose]").setAttribute("aria-expanded", "false");
   }
   return {

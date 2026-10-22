@@ -1,4 +1,13 @@
-import { type CrmOwner, ownerId, ownerColumn, ownerFromRow, getOwnerContact, requireOwnerEmail } from './crm-owner';
+import { emailSuppressed, requireEmailAllowed } from "./email-safety";
+import { mailboxStatus } from "./integrations/outlook-mail";
+import {
+  type CrmOwner,
+  ownerId,
+  ownerColumn,
+  ownerFromRow,
+  getOwnerContact,
+  requireOwnerEmail,
+} from "./crm-owner";
 import { invoiceForEmail } from "./invoice-store";
 import { checkedInvoiceToken, INVOICE_TOKEN_MARKER } from "./invoice-token";
 import { bookingForEmail } from "./booking-links";
@@ -10,6 +19,8 @@ import {
   emailConfiguration,
   EmailProviderError,
   sendInquiryEmail,
+  emailReceipt,
+  validMessageId,
 } from "./email";
 import { renderEmail, publicEmailUrl } from "./email-render";
 import { HttpError } from "./http";
@@ -62,6 +73,7 @@ function hydrate(value: unknown, row: Record<string, unknown>, strict = false) {
 
 function summary(row: Record<string, unknown>): MessageSummary {
   const canRetry =
+    row.direction !== "inbound" &&
     row.status !== "sent" &&
     row.status !== "draft" &&
     Date.parse(iso(row.first_attempt_at)) >
@@ -79,6 +91,14 @@ function summary(row: Record<string, unknown>): MessageSummary {
     templateKey: row.template_key as MessageSummary["templateKey"],
     errorCode: row.error_code == null ? null : String(row.error_code),
     canRetry,
+    direction: row.direction === "inbound" ? "inbound" : "outbound",
+    format: row.format === "quick" ? "quick" : "branded",
+    threadId: String(row.thread_id),
+    receivedAt: row.received_at ? iso(row.received_at) : null,
+    internetMessageId: row.internet_message_id
+      ? String(row.internet_message_id)
+      : null,
+    deliveryState: row.delivery_state ? String(row.delivery_state) : null,
   };
 }
 function detail(row: Record<string, unknown>): MessageDetail {
@@ -112,7 +132,7 @@ export async function listMessages(
   await getOwnerContact(inquiryId);
   const [rows, total, proposal, booking, invoice] = await Promise.all([
     query(
-      `SELECT id,created_at,sent_at,to_email,from_email,subject,status,template_key,error_code,first_attempt_at,last_attempt_at,booking_nonce,booking_token_hash,invoice_id,invoice_token_hash,invoice_token_created_at FROM inquiry_messages WHERE ${ownerColumn(inquiryId)}=$1 ORDER BY created_at DESC,id DESC LIMIT 10 OFFSET $2`,
+      `SELECT * FROM inquiry_messages WHERE ${ownerColumn(inquiryId)}=$1 ORDER BY ${typeof inquiryId === "string" ? "created_at" : "COALESCE(received_at,sent_at,created_at)"} DESC,id DESC LIMIT 10 OFFSET $2`,
       [ownerId(inquiryId), (page - 1) * 10],
     ),
     query(
@@ -125,6 +145,12 @@ export async function listMessages(
   ]);
   return {
     items: rows.map(summary),
+    ...(typeof inquiryId !== "string"
+      ? {
+          emailSuppressed: await emailSuppressed(inquiryId),
+          mailbox: await mailboxStatus(),
+        }
+      : {}),
     total: Number(total[0].total),
     page,
     proposal: proposal ? { number: proposal.number, url: proposal.url } : null,
@@ -133,6 +159,7 @@ export async function listMessages(
   };
 }
 export async function previewEmail(inquiryId: CrmOwner, input: Composition) {
+  await requireEmailAllowed(inquiryId);
   const config = emailConfiguration(false),
     inquiry = await requireOwnerEmail(inquiryId),
     proposal = await proposalForEmail(inquiryId);
@@ -179,13 +206,22 @@ async function deliver(row: Record<string, unknown>): Promise<MessageDetail> {
       subject: hydrate(row.subject, row),
       html: hydrate(row.body_html, row, true),
       text: hydrate(row.body_text, row, true),
+      ...(validMessageId(row.in_reply_to)
+        ? { inReplyTo: row.in_reply_to, references: String(row.reference_ids) }
+        : {}),
     });
   } catch (error) {
     if (!(error instanceof EmailProviderError)) throw error;
     return finish(row, null, error.code);
   }
   // If DB finalization fails after acceptance, leave Sending. A same-key retry can reconcile it.
-  return finish(row, providerId, null);
+  const saved = await finish(row, providerId, null);
+  try {
+    await refreshMessageReceipt(String(row.id), providerId);
+  } catch {
+    /* Acceptance remains authoritative. */
+  }
+  return getMessage(ownerFromRow(row), saved.id);
 }
 export async function sendMessage(
   inquiryId: CrmOwner,
@@ -200,6 +236,10 @@ export async function sendMessage(
         message: input.message,
         templateKey: input.templateKey,
         includeProposal: input.includeProposal,
+        ...(input.format ? { format: input.format } : {}),
+        ...(input.replyToMessageId
+          ? { replyToMessageId: input.replyToMessageId }
+          : {}),
         ...(input.includeBooking ? { includeBooking: true } : {}),
         ...(input.includeInvoice ? { includeInvoice: true } : {}),
       }),
@@ -220,6 +260,41 @@ export async function sendMessage(
       );
     return detail(existing[0]);
   }
+  await requireEmailAllowed(inquiryId);
+  const parent = input.replyToMessageId
+    ? await messageRow(inquiryId, input.replyToMessageId)
+    : null;
+  if (parent && parent.status !== "sent")
+    throw new HttpError(422, "Reply to a sent or received message.");
+  if (
+    parent &&
+    !validMessageId(parent.internet_message_id) &&
+    parent.provider === "resend" &&
+    parent.provider_message_id
+  ) {
+    await refreshMessageReceipt(
+      String(parent.id),
+      String(parent.provider_message_id),
+    );
+    Object.assign(parent, await messageRow(inquiryId, String(parent.id)));
+  }
+  if (parent && !validMessageId(parent.internet_message_id))
+    throw new HttpError(
+      409,
+      "The email provider has not supplied reply context yet. Refresh email status and try Reply again.",
+    );
+  const replyReferences = parent
+    ? [
+        ...new Set([
+          ...String(parent.reference_ids || "")
+            .split(/\s+/)
+            .filter(validMessageId),
+          String(parent.internet_message_id),
+        ]),
+      ]
+        .slice(-10)
+        .join(" ")
+    : "";
   const config = emailConfiguration(),
     inquiry = await requireOwnerEmail(inquiryId),
     proposal = await proposalForEmail(inquiryId);
@@ -274,8 +349,8 @@ export async function sendMessage(
       : output;
   });
   const rows = await query(
-    `INSERT INTO inquiry_messages (${ownerColumn(inquiryId)},from_email,reply_to_email,to_email,subject,message_text,body_text,body_html,template_key,proposal_id,request_key,payload_fingerprint,booking_nonce,booking_token_hash,invoice_id,invoice_token_hash,invoice_token_created_at)
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17) ON CONFLICT (request_key) DO NOTHING RETURNING *`,
+    `INSERT INTO inquiry_messages (${ownerColumn(inquiryId)},from_email,reply_to_email,to_email,subject,message_text,body_text,body_html,template_key,proposal_id,request_key,payload_fingerprint,booking_nonce,booking_token_hash,invoice_id,invoice_token_hash,invoice_token_created_at,format,thread_id,reply_message_id,in_reply_to,reference_ids)
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,COALESCE($19::uuid,gen_random_uuid()),$20,$21,$22) ON CONFLICT (request_key) DO NOTHING RETURNING *`,
     [
       ownerId(inquiryId),
       config.from,
@@ -291,6 +366,11 @@ export async function sendMessage(
       usesInvoice ? invoice!.id : null,
       usesInvoice ? invoice!.hash : null,
       usesInvoice ? invoice!.createdAt : null,
+      input.format || "branded",
+      parent?.thread_id ?? null,
+      parent?.id ?? null,
+      parent?.internet_message_id ?? null,
+      replyReferences,
     ],
   );
   if (!rows[0]) return sendMessage(inquiryId, input);
@@ -302,6 +382,13 @@ export async function retryMessage(
 ): Promise<MessageDetail> {
   const old = await messageRow(inquiryId, id);
   if (old.status === "sent") return detail(old);
+  await requireEmailAllowed(inquiryId);
+  const contact = await requireOwnerEmail(inquiryId);
+  if (String(old.to_email).toLowerCase() !== contact.email.toLowerCase())
+    throw new HttpError(
+      409,
+      "The contact email changed. Review the saved email before composing a new message.",
+    );
   emailConfiguration();
   if (old.booking_nonce) {
     const current = await bookingForEmail(inquiryId);
@@ -345,4 +432,40 @@ export async function retryMessage(
     [id, ownerId(inquiryId), old.attempt_count],
   );
   return rows[0] ? deliver(rows[0]) : getMessage(inquiryId, id);
+}
+
+export async function refreshMessageReceipt(id: string, providerId: string) {
+  const receipt = await emailReceipt(providerId);
+  if (!receipt) return false;
+  await query(
+    `UPDATE inquiry_messages SET internet_message_id=COALESCE($2,internet_message_id),
+    delivery_state=CASE WHEN delivery_state IN('bounced','complained','suppressed') THEN delivery_state ELSE $3 END
+    WHERE id=$1 AND provider='resend' AND status='sent'`,
+    [id, receipt.internetMessageId, receipt.state],
+  );
+  return true;
+}
+export async function refreshEmailReceipts(owner: CrmOwner) {
+  await getOwnerContact(owner);
+  const rows = await query(
+    `SELECT id,provider_message_id FROM inquiry_messages WHERE ${ownerColumn(owner)}=$1
+    AND provider='resend' AND status='sent' ORDER BY created_at DESC LIMIT 10`,
+    [ownerId(owner)],
+  );
+  // Bound concurrency and avoid provider-rate spikes in an individual workspace.
+  let refreshed = 0;
+  for (let i = 0; i < rows.length; i += 2) {
+    const outcomes = await Promise.all(
+      rows
+        .slice(i, i + 2)
+        .map((row) =>
+          refreshMessageReceipt(
+            String(row.id),
+            String(row.provider_message_id),
+          ),
+        ),
+    );
+    refreshed += outcomes.filter(Boolean).length;
+  }
+  return { refreshed, total: rows.length };
 }

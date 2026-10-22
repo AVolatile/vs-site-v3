@@ -217,6 +217,7 @@ beforeAll(async () => {
     "008_outlook_calendar_integration",
     "009_create_invoices",
     "010_create_leads",
+    "011_lead_email_workspace",
   ])
     await db.exec(readFileSync("database/migrations/" + name + ".sql", "utf8"));
 }, 30000);
@@ -435,6 +436,22 @@ describe("Outlook OAuth, encryption and protected integration settings", () => {
       "microsoft-synthetic-refresh",
     ])
       expect(data).not.toContain(v);
+  });
+  it("requests mailbox reading only when explicitly enabled at connection time", async () => {
+    vi.stubEnv("MICROSOFT_MAIL_ENABLED", "true");
+    const enabled = new URL((await beginMicrosoftOAuth()).url);
+    expect(enabled.searchParams.get("scope")!.split(" ")).toEqual([...MICROSOFT_SCOPES, "Mail.Read"]);
+    vi.stubEnv("MICROSOFT_MAIL_ENABLED", "false");
+    expect(new URL((await beginMicrosoftOAuth()).url).searchParams.get("scope")).toBe(MICROSOFT_SCOPES.join(" "));
+  });
+  it("does not broaden calendar-only refresh grants when mailbox reading is enabled later", async () => {
+    await connect();
+    await db.query("UPDATE integration_connections SET token_expires_at=clock_timestamp()-interval '1 minute' WHERE provider='outlook_calendar'");
+    vi.stubEnv("MICROSOFT_MAIL_ENABLED", "true");
+    mocks.fetch.mockClear();
+    await microsoftAccess((await microsoftConnection())!);
+    const call = mocks.fetch.mock.calls.find(c => String(c[0]).includes("/token"))!;
+    expect(new URLSearchParams(call[1].body).get("scope")).toBe(MICROSOFT_SCOPES.join(" "));
   });
   it("refreshes an expired token and persists the encrypted replacement", async () => {
     await connect();

@@ -64,6 +64,7 @@ beforeAll(async () => {
     '008_outlook_calendar_integration',
     '009_create_invoices',
     '010_create_leads',
+    '011_lead_email_workspace',
   ])
     await db.exec(readFileSync('database/migrations/' + name + '.sql', 'utf8'));
 }, 30000);
